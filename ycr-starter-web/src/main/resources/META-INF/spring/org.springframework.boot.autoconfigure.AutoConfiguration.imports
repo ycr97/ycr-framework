@@ -1,0 +1,2 @@
+com.ycr.framework.web.autoconfigure.WebAutoConfiguration
+com.ycr.framework.web.autoconfigure.CorsAutoConfiguration
