@@ -18,5 +18,6 @@
 
     <modules>
         <module>ycr-starter-data-core</module>
+        <module>ycr-starter-data-mp</module>
     </modules>
 </project>
