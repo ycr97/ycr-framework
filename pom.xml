@@ -33,6 +33,7 @@
         <module>ycr-starter-web</module>
         <module>ycr-starter-validation</module>
         <module>ycr-starter-api-doc</module>
+        <module>ycr-starter-cache</module>
     </modules>
 
     <dependencies>
