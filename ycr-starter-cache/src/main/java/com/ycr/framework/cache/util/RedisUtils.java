@@ -25,6 +25,9 @@ public final class RedisUtils {
     }
 
     public static RedissonClient getClient() {
+        if (redissonClient == null) {
+            throw new IllegalStateException("RedissonClient 尚未初始化，请检查是否引入了 Redisson 依赖");
+        }
         return redissonClient;
     }
 

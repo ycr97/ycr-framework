@@ -13,6 +13,4 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class CacheProperties {
 
     private boolean enabled = true;
-
-    private String keyPrefix = "";
 }

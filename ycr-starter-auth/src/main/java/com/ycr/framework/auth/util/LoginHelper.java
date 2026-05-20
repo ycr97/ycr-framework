@@ -12,6 +12,7 @@ import com.ycr.framework.context.model.UserContext;
 public final class LoginHelper {
 
     private LoginHelper() {
+        throw new UnsupportedOperationException("工具类不可实例化");
     }
 
     /**

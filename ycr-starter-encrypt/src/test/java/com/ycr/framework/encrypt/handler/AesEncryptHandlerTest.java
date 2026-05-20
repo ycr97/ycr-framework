@@ -25,11 +25,14 @@ class AesEncryptHandlerTest {
     }
 
     @Test
-    void 相同明文每次加密结果一致_ECB模式() {
+    void 相同明文每次加密结果不同_CBC随机IV() {
         String text = "测试数据";
         String enc1 = handler.encrypt(text);
         String enc2 = handler.encrypt(text);
-        assertEquals(enc1, enc2);
+        assertNotEquals(enc1, enc2);
+        // 但两次解密结果一致
+        assertEquals(text, handler.decrypt(enc1));
+        assertEquals(text, handler.decrypt(enc2));
     }
 
     @Test
