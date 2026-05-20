@@ -33,7 +33,10 @@
         <module>ycr-starter-web</module>
         <module>ycr-starter-validation</module>
         <module>ycr-starter-api-doc</module>
+        <module>ycr-starter-context</module>
+        <module>ycr-starter-data</module>
         <module>ycr-starter-cache</module>
+        <module>ycr-starter-data-permission</module>
     </modules>
 
     <dependencies>
