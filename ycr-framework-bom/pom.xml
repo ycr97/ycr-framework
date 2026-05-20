@@ -43,6 +43,51 @@
                 <artifactId>ycr-starter-api-doc</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-context</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-data-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-data-mp</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-cache</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-data-permission</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-id-generate</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-auth</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-security</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-encrypt</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
