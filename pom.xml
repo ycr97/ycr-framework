@@ -39,6 +39,7 @@
         <module>ycr-starter-data-permission</module>
         <module>ycr-starter-id-generate</module>
         <module>ycr-starter-auth</module>
+        <module>ycr-starter-security</module>
     </modules>
 
     <dependencies>
