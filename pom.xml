@@ -38,6 +38,7 @@
         <module>ycr-starter-cache</module>
         <module>ycr-starter-data-permission</module>
         <module>ycr-starter-id-generate</module>
+        <module>ycr-starter-auth</module>
     </modules>
 
     <dependencies>
