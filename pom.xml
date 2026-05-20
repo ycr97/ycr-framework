@@ -40,6 +40,7 @@
         <module>ycr-starter-id-generate</module>
         <module>ycr-starter-auth</module>
         <module>ycr-starter-security</module>
+        <module>ycr-starter-encrypt</module>
     </modules>
 
     <dependencies>
