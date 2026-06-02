@@ -2,10 +2,13 @@ package com.ycr.framework.data.permission.autoconfigure;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.MultiDataPermissionHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
+import com.ycr.framework.data.permission.aspect.DataPermissionAspect;
 import com.ycr.framework.data.permission.handler.DataPermissionHandler;
 import com.ycr.framework.data.permission.handler.DataPermissionSqlHandler;
 import com.ycr.framework.data.permission.rule.DataPermissionRule;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -55,5 +58,17 @@ public class DataPermissionAutoConfiguration {
     @ConditionalOnProperty(prefix = "ycr.data.permission", name = "enabled", havingValue = "true", matchIfMissing = true)
     public InnerInterceptor dataPermissionInnerInterceptor(MultiDataPermissionHandler dataPermissionSqlHandler) {
         return new com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor(dataPermissionSqlHandler);
+    }
+
+    /**
+     * 数据权限注解切面，支持 {@code @DataPermission} / {@code @DataPermissionIgnore} 方法级开关。
+     * 仅在引入了 AOP（AspectJ）时装配。
+     */
+    @Bean
+    @ConditionalOnClass(Aspect.class)
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "ycr.data.permission", name = "enabled", havingValue = "true", matchIfMissing = true)
+    public DataPermissionAspect dataPermissionAspect() {
+        return new DataPermissionAspect();
     }
 }
