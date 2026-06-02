@@ -2,12 +2,14 @@ package com.ycr.framework.data.mp.autoconfigure;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.ycr.framework.data.mp.handler.AutoFillMetaObjectHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -28,12 +30,15 @@ public class MybatisPlusAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(MybatisPlusInterceptor.class)
-    @ConditionalOnProperty(prefix = "ycr.data.mp", name = "pagination-enabled", havingValue = "true", matchIfMissing = true)
-    public MybatisPlusInterceptor mybatisPlusInterceptor(MybatisPlusProperties properties) {
+    public MybatisPlusInterceptor mybatisPlusInterceptor(MybatisPlusProperties properties,
+                                                          ObjectProvider<InnerInterceptor> innerInterceptors) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor();
-        paginationInnerInterceptor.setMaxLimit(properties.getMaxLimit());
-        interceptor.addInnerInterceptor(paginationInnerInterceptor);
+        innerInterceptors.orderedStream().forEach(interceptor::addInnerInterceptor);
+        if (properties.isPaginationEnabled()) {
+            PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor();
+            paginationInnerInterceptor.setMaxLimit(properties.getMaxLimit());
+            interceptor.addInnerInterceptor(paginationInnerInterceptor);
+        }
         return interceptor;
     }
 }

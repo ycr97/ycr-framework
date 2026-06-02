@@ -37,7 +37,11 @@ class MybatisPlusAutoConfigurationTest {
                 )
                 .run(context -> {
                     assertEquals(0, context.getBeansOfType(AutoFillMetaObjectHandler.class).size());
-                    assertEquals(0, context.getBeansOfType(MybatisPlusInterceptor.class).size());
+                    // MybatisPlusInterceptor 容器始终保留（用于承载数据权限等其它 InnerInterceptor），
+                    // 关闭分页只是不再追加 PaginationInnerInterceptor，因此此处内部拦截器列表应为空
+                    assertEquals(1, context.getBeansOfType(MybatisPlusInterceptor.class).size());
+                    MybatisPlusInterceptor interceptor = context.getBean(MybatisPlusInterceptor.class);
+                    assertEquals(0, interceptor.getInterceptors().size());
                 });
     }
 
