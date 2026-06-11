@@ -48,3 +48,13 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 ```bash
 mvn test
 ```
+
+## Maven 配置
+
+仓库内置项目级 [settings.xml](settings.xml)，并通过 [.mvn/maven.config](.mvn/maven.config) 自动启用：
+
+```text
+--settings=settings.xml
+```
+
+当前 settings 只配置 Java 17 编译属性和源码/Javadoc 下载属性，不包含 Maven 私服、mirror 或凭据。后续需要接入私服时，在该文件中补充 `servers`、`mirrors` 和对应 profile。
