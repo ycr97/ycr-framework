@@ -42,6 +42,7 @@
         <module>ycr-starter-security</module>
         <module>ycr-starter-encrypt</module>
         <module>ycr-starter-log</module>
+        <module>ycr-starter-trace</module>
     </modules>
 
     <dependencies>
