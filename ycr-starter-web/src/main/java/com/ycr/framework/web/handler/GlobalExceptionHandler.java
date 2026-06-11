@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public R<Void> handleBizException(BizException e) {
         log.warn("业务异常: code={}, message={}", e.getCode(), e.getMessage());
-        return R.fail(400, e.getMessage());
+        return R.fail(e.getCode(), e.getMessage());
     }
 
     @ExceptionHandler(SysException.class)

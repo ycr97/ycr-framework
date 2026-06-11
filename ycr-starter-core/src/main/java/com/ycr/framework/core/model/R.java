@@ -4,10 +4,10 @@ import java.io.Serializable;
 
 public class R<T> implements Serializable {
 
-    private static final int SUCCESS_CODE = 200;
+    private static final String SUCCESS_CODE = "200";
     private static final String SUCCESS_MSG = "操作成功";
 
-    private int code;
+    private String code;
     private String msg;
     private boolean success;
     private Long timestamp;
@@ -17,11 +17,11 @@ public class R<T> implements Serializable {
         this.timestamp = System.currentTimeMillis();
     }
 
-    private R(int code, String msg, T data) {
+    private R(String code, String msg, T data) {
         this.code = code;
         this.msg = msg;
         this.data = data;
-        this.success = code == SUCCESS_CODE;
+        this.success = SUCCESS_CODE.equals(code);
         this.timestamp = System.currentTimeMillis();
     }
 
@@ -37,19 +37,23 @@ public class R<T> implements Serializable {
         return new R<>(SUCCESS_CODE, msg, data);
     }
 
-    public static <T> R<T> fail(int code, String msg) {
+    public static <T> R<T> fail(String code, String msg) {
         return new R<>(code, msg, null);
     }
 
-    public static <T> R<T> fail(String msg) {
-        return new R<>(500, msg, null);
+    public static <T> R<T> fail(int code, String msg) {
+        return fail(String.valueOf(code), msg);
     }
 
-    public int getCode() {
+    public static <T> R<T> fail(String msg) {
+        return fail("500", msg);
+    }
+
+    public String getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
