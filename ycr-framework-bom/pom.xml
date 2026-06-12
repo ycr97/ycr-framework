@@ -98,6 +98,11 @@
                 <artifactId>ycr-starter-trace</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-excel</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -43,6 +43,7 @@
         <module>ycr-starter-encrypt</module>
         <module>ycr-starter-log</module>
         <module>ycr-starter-trace</module>
+        <module>ycr-starter-excel</module>
     </modules>
 
     <dependencies>
