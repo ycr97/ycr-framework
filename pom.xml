@@ -50,6 +50,7 @@
         <module>ycr-starter-captcha</module>
         <module>ycr-starter-messaging</module>
         <module>ycr-starter-storage</module>
+        <module>ycr-starter-feign</module>
     </modules>
 
     <dependencies>

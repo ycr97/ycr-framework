@@ -20,6 +20,9 @@ public final class TraceUtils {
     /** MDC 中的 TraceId 键，对应日志模板 {@code %X{traceId}} */
     public static final String TRACE_ID_KEY = "traceId";
 
+    /** 跨服务透传 TraceId 的 HTTP 头名称（Filter 回写、Feign 透传共用此默认值） */
+    public static final String HEADER_TRACE_ID = "X-Trace-Id";
+
     /** 默认生成器，可由自动配置注入业务自定义实现 */
     private static volatile TraceIdGenerator generator = new UuidTraceIdGenerator();
 

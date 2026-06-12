@@ -1,5 +1,6 @@
 package com.ycr.framework.trace.autoconfigure;
 
+import com.ycr.framework.trace.util.TraceUtils;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.Ordered;
@@ -19,9 +20,9 @@ public class TraceProperties {
     private boolean enabled = true;
 
     /**
-     * TraceId 透传头名称
+     * TraceId 透传头名称，默认取 {@link TraceUtils#HEADER_TRACE_ID}（与 Feign 透传统一来源）
      */
-    private String headerName = "X-Trace-Id";
+    private String headerName = TraceUtils.HEADER_TRACE_ID;
 
     /**
      * 过滤器排序，默认最外层（{@link Ordered#HIGHEST_PRECEDENCE}）。
