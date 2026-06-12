@@ -46,6 +46,7 @@
         <module>ycr-starter-excel</module>
         <module>ycr-starter-ratelimiter</module>
         <module>ycr-starter-idempotent</module>
+        <module>ycr-starter-i18n</module>
     </modules>
 
     <dependencies>
