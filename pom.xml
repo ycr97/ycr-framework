@@ -53,6 +53,7 @@
         <module>ycr-starter-feign</module>
         <module>ycr-starter-tenant</module>
         <module>ycr-starter-sdk</module>
+        <module>ycr-starter-translate</module>
     </modules>
 
     <dependencies>

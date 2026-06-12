@@ -148,6 +148,11 @@
                 <artifactId>ycr-starter-sdk</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-translate</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
