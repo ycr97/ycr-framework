@@ -44,6 +44,7 @@
         <module>ycr-starter-log</module>
         <module>ycr-starter-trace</module>
         <module>ycr-starter-excel</module>
+        <module>ycr-starter-ratelimiter</module>
     </modules>
 
     <dependencies>
