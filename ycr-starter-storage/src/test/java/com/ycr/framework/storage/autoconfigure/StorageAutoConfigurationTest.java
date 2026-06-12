@@ -1,0 +1,85 @@
+package com.ycr.framework.storage.autoconfigure;
+
+import com.ycr.framework.storage.model.FileInfo;
+import com.ycr.framework.storage.service.FileStorageService;
+import com.ycr.framework.storage.service.LocalFileStorageService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.io.InputStream;
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * StorageAutoConfiguration 装配与开关测试
+ *
+ * @author ycr
+ */
+class StorageAutoConfigurationTest {
+
+    @TempDir
+    Path tempDir;
+
+    private ApplicationContextRunner runner() {
+        return new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(StorageAutoConfiguration.class))
+                .withPropertyValues("ycr.storage.local.path=" + tempDir);
+    }
+
+    @Test
+    void 默认应装配本地实现() {
+        runner().run(context -> {
+            assertThat(context).hasSingleBean(FileStorageService.class);
+            assertThat(context.getBean(FileStorageService.class)).isInstanceOf(LocalFileStorageService.class);
+        });
+    }
+
+    @Test
+    void 关闭开关时不装配() {
+        runner().withPropertyValues("ycr.storage.enabled=false")
+                .run(context -> assertThat(context).doesNotHaveBean(FileStorageService.class));
+    }
+
+    @Test
+    void 业务自定义实现应覆盖默认() {
+        runner().withUserConfiguration(CustomConfig.class).run(context -> {
+            assertThat(context).hasSingleBean(FileStorageService.class);
+            assertThat(context.getBean(FileStorageService.class)).isInstanceOf(CustomStorage.class);
+        });
+    }
+
+    @Configuration
+    static class CustomConfig {
+        @Bean
+        FileStorageService customStorage() {
+            return new CustomStorage();
+        }
+    }
+
+    static class CustomStorage implements FileStorageService {
+        @Override
+        public FileInfo upload(InputStream content, String originalFilename) {
+            return null;
+        }
+
+        @Override
+        public InputStream download(String path) {
+            return null;
+        }
+
+        @Override
+        public boolean delete(String path) {
+            return false;
+        }
+
+        @Override
+        public boolean exists(String path) {
+            return false;
+        }
+    }
+}
