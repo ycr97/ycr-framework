@@ -47,6 +47,7 @@
         <module>ycr-starter-ratelimiter</module>
         <module>ycr-starter-idempotent</module>
         <module>ycr-starter-i18n</module>
+        <module>ycr-starter-captcha</module>
     </modules>
 
     <dependencies>

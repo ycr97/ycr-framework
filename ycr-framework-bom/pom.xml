@@ -118,6 +118,11 @@
                 <artifactId>ycr-starter-i18n</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-captcha</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
