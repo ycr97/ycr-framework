@@ -87,14 +87,19 @@ class AbstractCrudControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void create_update_delete委托服务() throws Exception {
+    void create_update_delete委托服务并透出布尔结果() throws Exception {
         CrudService<Demo, Long> service = mock(CrudService.class);
-        DemoController controller = controllerWith(service);
         Demo demo = new Demo();
+        when(service.create(demo)).thenReturn(true);
+        when(service.update(demo)).thenReturn(false);   // 影响 0 行
+        when(service.delete(9L)).thenReturn(true);
 
-        assertEquals("200", controller.create(demo).getCode());
-        assertEquals("200", controller.update(demo).getCode());
-        assertEquals("200", controller.delete(9L).getCode());
+        DemoController controller = controllerWith(service);
+
+        assertEquals(Boolean.TRUE, controller.create(demo).getData());
+        // 假成功被修复：update 影响 0 行 -> data=false
+        assertEquals(Boolean.FALSE, controller.update(demo).getData());
+        assertEquals(Boolean.TRUE, controller.delete(9L).getData());
 
         verify(service).create(demo);
         verify(service).update(demo);

@@ -18,7 +18,8 @@ public class BizContext {
 
     private final Method method;
     private final Object target;
-    private final Object[] args;
+    /** 目标方法入参；拦截器可在 before 阶段改写，改写后目标方法将以新参执行 */
+    private Object[] args;
     private final BizApi bizApi;
     /** 跨拦截器共享的可变属性袋 */
     private final Map<String, Object> attributes = new HashMap<>();
@@ -55,6 +56,13 @@ public class BizContext {
 
     public Object[] getArgs() {
         return args;
+    }
+
+    /**
+     * 改写目标方法入参（在 {@code before} 阶段调用方有效）；切面将以此参数调用 {@code proceed}
+     */
+    public void setArgs(Object[] args) {
+        this.args = args;
     }
 
     public BizApi getBizApi() {

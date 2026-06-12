@@ -58,4 +58,24 @@ class BizApiAspectTest {
         assertEquals("create", captured[0].getMethod().getName());
         assertEquals("A", captured[0].getArgs()[0]);
     }
+
+    @Test
+    void before改写入参_目标方法以新参执行() {
+        // 在 before 阶段把入参规整为大写，目标方法应收到改写后的值
+        BizInterceptor normalizer = new BizInterceptor() {
+            @Override
+            public void before(BizContext c) {
+                Object[] args = c.getArgs();
+                args[0] = ((String) args[0]).toUpperCase();
+                c.setArgs(args);
+            }
+        };
+        BizInterceptorChain chain = new BizInterceptorChain(List.of(normalizer));
+
+        AspectJProxyFactory factory = new AspectJProxyFactory(new OrderService());
+        factory.addAspect(new BizApiAspect(chain));
+        OrderService proxy = factory.getProxy();
+
+        assertEquals("created:ABC", proxy.create("abc"));
+    }
 }

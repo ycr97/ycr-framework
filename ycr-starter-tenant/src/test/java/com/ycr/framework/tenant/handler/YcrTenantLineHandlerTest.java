@@ -52,4 +52,13 @@ class YcrTenantLineHandlerTest {
         assertTrue(handler.ignoreTable("sys_config"));
         assertFalse(handler.ignoreTable("biz_order"));
     }
+
+    @Test
+    void TenantHelper作用域内任意表都忽略_且不触发failClosed() {
+        // 旁路作用域内：业务表也被忽略
+        com.ycr.framework.tenant.util.TenantHelper.run(() ->
+                assertTrue(handler.ignoreTable("biz_order")));
+        // 作用域外恢复
+        assertFalse(handler.ignoreTable("biz_order"));
+    }
 }

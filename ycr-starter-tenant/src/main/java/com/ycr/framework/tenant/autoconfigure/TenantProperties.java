@@ -9,8 +9,9 @@ import java.util.List;
 /**
  * 多租户配置
  *
- * <p>跳过租户过滤的两种方式：表级用 {@link #ignoreTables} 配置；方法级用 MyBatis-Plus 原生
- * {@code @InterceptorIgnore(tenantLine = "1")} 标注 Mapper 方法（本模块不另造自定义注解）。</p>
+ * <p>跳过租户过滤的三种方式：表级用 {@link #ignoreTables} 配置；方法级用 MyBatis-Plus 原生
+ * {@code @InterceptorIgnore(tenantLine = "1")} 标注 Mapper 方法；运行期作用域用
+ * {@code TenantHelper.run/call}（适合定时任务、登录前、系统级跨租户操作）。本模块不另造自定义注解。</p>
  *
  * @author ycr
  */

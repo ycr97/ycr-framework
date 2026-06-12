@@ -54,24 +54,21 @@ public abstract class AbstractCrudController<T extends BaseDO, ID extends Serial
         return R.ok(crudService.get(id));
     }
 
-    /** 新增 */
+    /** 新增，data 为是否成功（影响行数 &gt; 0） */
     @PostMapping
-    public R<Void> create(@RequestBody T entity) {
-        crudService.create(entity);
-        return R.ok();
+    public R<Boolean> create(@RequestBody T entity) {
+        return R.ok(crudService.create(entity));
     }
 
-    /** 修改 */
+    /** 修改，data 为是否成功；影响 0 行（如 id 不存在）时 data=false */
     @PutMapping
-    public R<Void> update(@RequestBody T entity) {
-        crudService.update(entity);
-        return R.ok();
+    public R<Boolean> update(@RequestBody T entity) {
+        return R.ok(crudService.update(entity));
     }
 
-    /** 删除 */
+    /** 删除，data 为是否成功；影响 0 行（如 id 不存在）时 data=false */
     @DeleteMapping("/{id}")
-    public R<Void> delete(@PathVariable ID id) {
-        crudService.delete(id);
-        return R.ok();
+    public R<Boolean> delete(@PathVariable ID id) {
+        return R.ok(crudService.delete(id));
     }
 }

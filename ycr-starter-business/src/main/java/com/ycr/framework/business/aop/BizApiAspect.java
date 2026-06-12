@@ -31,6 +31,7 @@ public class BizApiAspect {
     public Object around(ProceedingJoinPoint joinPoint, BizApi bizApi) throws Throwable {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         BizContext context = new BizContext(method, joinPoint.getTarget(), joinPoint.getArgs(), bizApi);
-        return chain.execute(context, joinPoint::proceed);
+        // 以 context 的当前入参执行，从而支持 before 阶段改写参数后真正生效
+        return chain.execute(context, () -> joinPoint.proceed(context.getArgs()));
     }
 }

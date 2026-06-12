@@ -4,7 +4,7 @@ import com.ycr.framework.crud.mapping.CrudApiRequestMappingHandlerMapping;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class CrudAutoConfigurationTest {
 
-    private final ApplicationContextRunner runner = new ApplicationContextRunner()
+    private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(CrudAutoConfiguration.class));
 
     @Test

@@ -3,6 +3,7 @@ package com.ycr.framework.tenant.handler;
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import com.ycr.framework.context.holder.TenantContextHolder;
 import com.ycr.framework.tenant.autoconfigure.TenantProperties;
+import com.ycr.framework.tenant.util.TenantHelper;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 
@@ -40,6 +41,10 @@ public class YcrTenantLineHandler implements TenantLineHandler {
 
     @Override
     public boolean ignoreTable(String tableName) {
+        // 动态旁路（TenantHelper 作用域）优先于静态忽略表配置
+        if (TenantHelper.isIgnored()) {
+            return true;
+        }
         List<String> ignoreTables = properties.getIgnoreTables();
         return ignoreTables != null && ignoreTables.contains(tableName);
     }
