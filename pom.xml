@@ -48,6 +48,7 @@
         <module>ycr-starter-idempotent</module>
         <module>ycr-starter-i18n</module>
         <module>ycr-starter-captcha</module>
+        <module>ycr-starter-messaging</module>
     </modules>
 
     <dependencies>
