@@ -56,6 +56,7 @@
         <module>ycr-starter-translate</module>
         <module>ycr-starter-business</module>
         <module>ycr-starter-crud</module>
+        <module>ycr-starter-ddd</module>
     </modules>
 
     <dependencies>
