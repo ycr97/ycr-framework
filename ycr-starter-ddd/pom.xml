@@ -18,5 +18,6 @@
 
     <modules>
         <module>ycr-starter-ddd-core</module>
+        <module>ycr-starter-ddd-extension</module>
     </modules>
 </project>
