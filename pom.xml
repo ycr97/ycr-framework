@@ -54,6 +54,7 @@
         <module>ycr-starter-tenant</module>
         <module>ycr-starter-sdk</module>
         <module>ycr-starter-translate</module>
+        <module>ycr-starter-business</module>
     </modules>
 
     <dependencies>
