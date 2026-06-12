@@ -24,7 +24,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * 限流切面
@@ -38,10 +40,22 @@ import java.util.concurrent.ConcurrentHashMap;
 @Aspect
 public class RateLimiterAspect {
 
+    /** 令牌桶句柄本地缓存上限，防止 IP/SpEL 维度的键无界增长导致内存泄漏 */
+    private static final int MAX_LIMITER_CACHE = 1024;
+
     private final RateLimiterProperties properties;
     private final RedissonClient redissonClient;
-    /** 实例级缓存：已创建并配置过速率的令牌桶，避免每次请求重复 setRate */
-    private final ConcurrentHashMap<String, RRateLimiter> limiterCache = new ConcurrentHashMap<>();
+    /**
+     * 有界 LRU 缓存：已配置过速率的令牌桶句柄，避免每次请求重复 trySetRate。
+     * 超过上限按最近最少使用淘汰；被淘汰的键再次出现时重新 trySetRate（幂等，无副作用）。
+     */
+    private final Map<String, RRateLimiter> limiterCache = Collections.synchronizedMap(
+            new LinkedHashMap<>(16, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, RRateLimiter> eldest) {
+                    return size() > MAX_LIMITER_CACHE;
+                }
+            });
     private final SpelExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
@@ -64,12 +78,13 @@ public class RateLimiterAspect {
             RateType rateType = rateLimiter.type() == LimitType.CLUSTER ? RateType.PER_CLIENT : RateType.OVERALL;
             Duration interval = Duration.ofMillis(rateLimiter.unit().toMillis(rateLimiter.interval()));
 
-            RRateLimiter limiter = limiterCache.computeIfAbsent(key, k -> {
-                RRateLimiter l = redissonClient.getRateLimiter(k);
-                // 首次创建时设定速率；已存在则 trySetRate 返回 false，速率以首次为准
-                l.trySetRate(rateType, rateLimiter.rate(), interval);
-                return l;
-            });
+            // 缓存未命中才创建并配置速率；Redis 调用不持有缓存锁，竞态下至多重复一次幂等的 trySetRate
+            RRateLimiter limiter = limiterCache.get(key);
+            if (limiter == null) {
+                limiter = redissonClient.getRateLimiter(key);
+                limiter.trySetRate(rateType, rateLimiter.rate(), interval);
+                limiterCache.put(key, limiter);
+            }
 
             return !limiter.tryAcquire();
         } catch (RateLimiterException e) {

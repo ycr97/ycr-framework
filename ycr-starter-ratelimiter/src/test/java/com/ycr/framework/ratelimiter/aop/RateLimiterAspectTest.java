@@ -43,6 +43,7 @@ class RateLimiterAspectTest {
         assertEquals("ok", proxy.hit());
         RateLimiterException ex = assertThrows(RateLimiterException.class, proxy::hit);
         assertEquals("429", ex.getCode());
+        assertEquals(429, ex.getHttpStatus());
         assertInstanceOf(BizException.class, ex);
     }
 

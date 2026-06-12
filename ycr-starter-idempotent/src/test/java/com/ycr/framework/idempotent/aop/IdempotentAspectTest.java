@@ -54,6 +54,7 @@ class IdempotentAspectTest {
 
         IdempotentException ex = assertThrows(IdempotentException.class, proxy::submit);
         assertEquals("409", ex.getCode());
+        assertEquals(409, ex.getHttpStatus());
         assertInstanceOf(BizException.class, ex);
     }
 

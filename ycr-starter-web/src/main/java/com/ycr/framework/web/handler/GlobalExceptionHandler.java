@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,10 +26,10 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BizException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public R<Void> handleBizException(BizException e) {
-        log.warn("业务异常: code={}, message={}", e.getCode(), e.getMessage());
-        return R.fail(e.getCode(), e.getMessage());
+    public ResponseEntity<R<Void>> handleBizException(BizException e) {
+        log.warn("业务异常: code={}, httpStatus={}, message={}", e.getCode(), e.getHttpStatus(), e.getMessage());
+        // HTTP 状态跟随异常自带状态码（普通业务 400、限流 429、重复提交 409…），保持 code 与 HTTP 状态一致
+        return ResponseEntity.status(e.getHttpStatus()).body(R.fail(e.getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(SysException.class)
