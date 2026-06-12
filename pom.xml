@@ -45,6 +45,7 @@
         <module>ycr-starter-trace</module>
         <module>ycr-starter-excel</module>
         <module>ycr-starter-ratelimiter</module>
+        <module>ycr-starter-idempotent</module>
     </modules>
 
     <dependencies>
