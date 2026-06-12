@@ -138,6 +138,11 @@
                 <artifactId>ycr-starter-feign</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-tenant</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
