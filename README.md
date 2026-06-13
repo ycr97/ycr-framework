@@ -38,8 +38,23 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 
 ## 使用文档
 
+**Web 与数据**
 - [Web 统一响应与异常处理](docs/web-response.md)
+- [MyBatis-Plus 数据访问增强](docs/data-mp.md)
+- [通用 CRUD 自动端点](docs/crud.md)
+- [缓存与分布式锁](docs/cache.md)
+
+**身份与安全**
+- [请求上下文透传](docs/context.md)
+- [认证（Sa-Token 集成）](docs/auth.md)
+- [数据权限（行级过滤）](docs/data-permission.md)
 - [字段加密 MyBatis TypeHandler](docs/encrypt-typehandler.md)
+
+**业务增强**
+- [字段翻译](docs/translate.md)
+- [Excel 导出](docs/excel.md)
+
+> 其余 starter 的使用文档逐步补充中；可运行的完整用法可参考 `ycr-scaffold-ddd`、`ycr-scaffold-mvc` 两套脚手架示例。
 
 ## 验证
 
