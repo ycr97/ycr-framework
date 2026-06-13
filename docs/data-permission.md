@@ -11,6 +11,9 @@
 </dependency>
 ```
 
+> 本模块传递依赖 `ycr-starter-data-mp`：它产出的过滤逻辑注册为 MyBatis-Plus `InnerInterceptor`，
+> 由 data-mp 的 `MybatisPlusInterceptor` 自动收集并**织入分页拦截器之前**，在查询执行前完成行级 SQL 改写。
+
 ## 配置
 
 | 配置项 | 默认值 | 说明 |
