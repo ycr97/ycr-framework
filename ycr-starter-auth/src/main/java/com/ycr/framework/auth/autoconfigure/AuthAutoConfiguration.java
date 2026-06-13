@@ -2,7 +2,6 @@ package com.ycr.framework.auth.autoconfigure;
 
 import com.ycr.framework.auth.handler.SaTokenExceptionHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.Bean;
  * @author ycr
  */
 @AutoConfiguration
-@EnableConfigurationProperties(AuthProperties.class)
 public class AuthAutoConfiguration {
 
     @Bean
