@@ -18,6 +18,21 @@
 
     <dependencyManagement>
         <dependencies>
+            <!--
+              嵌套 import 框架的依赖中枢：ycr-dependencies 已集中托管全部第三方版本
+              （spring-boot-dependencies / mybatis-plus / cola / mapstruct / hutool / sa-token 等）。
+              消费方只 import 本 BOM 即同时获得「框架 starter 坐标 + 全部第三方版本管理」，
+              版本单一真源仍是 ycr-dependencies，本处零重复声明。
+              import scope 仅取其 dependencyManagement，不会带入 ycr-dependencies 的 dependencies/build。
+            -->
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-dependencies</artifactId>
+                <version>${revision}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <dependency>
                 <groupId>com.ycr.framework</groupId>
                 <artifactId>ycr-starter-core</artifactId>
