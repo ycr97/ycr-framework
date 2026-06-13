@@ -19,5 +19,6 @@
     <modules>
         <module>ycr-starter-ddd-core</module>
         <module>ycr-starter-ddd-extension</module>
+        <module>ycr-starter-ddd-statemachine</module>
     </modules>
 </project>
