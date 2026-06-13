@@ -38,23 +38,54 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 
 ## 使用文档
 
-**Web 与数据**
+**基础**
+- [核心基础（响应 / 异常 / 枚举 / 工具）](docs/core.md)
+- [JSON（Jackson 扩展）](docs/json.md)
+- [校验约束扩展](docs/validation.md)
 - [Web 统一响应与异常处理](docs/web-response.md)
+- [接口文档（Knife4j / SpringDoc）](docs/api-doc.md)
+
+**数据**
 - [MyBatis-Plus 数据访问增强](docs/data-mp.md)
 - [通用 CRUD 自动端点](docs/crud.md)
+- [数据权限（行级过滤）](docs/data-permission.md)
+- [多租户](docs/tenant.md)
+- [分布式 ID 生成](docs/id-generate.md)
+
+**缓存与防护**
 - [缓存与分布式锁](docs/cache.md)
+- [限流](docs/ratelimiter.md)
+- [幂等](docs/idempotent.md)
 
 **身份与安全**
 - [请求上下文透传](docs/context.md)
 - [认证（Sa-Token 集成）](docs/auth.md)
-- [数据权限（行级过滤）](docs/data-permission.md)
+- [安全（注解鉴权 + 端点放行）](docs/security.md)
 - [字段加密 MyBatis TypeHandler](docs/encrypt-typehandler.md)
+
+**可观测**
+- [操作日志](docs/log.md)
+- [链路追踪（TraceId）](docs/trace.md)
 
 **业务增强**
 - [字段翻译](docs/translate.md)
 - [Excel 导出](docs/excel.md)
+- [图形验证码](docs/captcha.md)
+- [国际化（i18n）](docs/i18n.md)
+- [业务接入点（拦截器链）](docs/business.md)
 
-> 其余 starter 的使用文档逐步补充中；可运行的完整用法可参考 `ycr-scaffold-ddd`、`ycr-scaffold-mvc` 两套脚手架示例。
+**微服务与集成**
+- [Feign 增强](docs/feign.md)
+- [SDK 发布](docs/sdk.md)
+- [消息（邮件）](docs/messaging.md)
+- [文件存储](docs/storage.md)
+
+**DDD**
+- [DDD 核心](docs/ddd-core.md)
+- [DDD 扩展点](docs/ddd-extension.md)
+- [DDD 状态机](docs/ddd-statemachine.md)
+
+> 可运行的完整用法可参考 `ycr-scaffold-ddd`、`ycr-scaffold-mvc` 两套脚手架示例。
 
 ## 验证
 
