@@ -41,6 +41,7 @@
         <module>ycr-starter-auth</module>
         <module>ycr-starter-security</module>
         <module>ycr-starter-encrypt</module>
+        <module>ycr-starter-protect</module>
         <module>ycr-starter-log</module>
         <module>ycr-starter-trace</module>
         <module>ycr-starter-excel</module>
