@@ -80,6 +80,11 @@
             </dependency>
             <dependency>
                 <groupId>com.ycr.framework</groupId>
+                <artifactId>ycr-starter-cache-jetcache</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ycr.framework</groupId>
                 <artifactId>ycr-starter-data-permission</artifactId>
                 <version>${revision}</version>
             </dependency>

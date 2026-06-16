@@ -54,6 +54,7 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 
 **缓存与防护**
 - [缓存与分布式锁](docs/cache.md)
+- [声明式缓存（JetCache 注解）](docs/cache-jetcache.md)
 - [限流](docs/ratelimiter.md)
 - [幂等](docs/idempotent.md)
 

@@ -127,9 +127,22 @@
                 <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>${redisson.version}</version>
             </dependency>
+            <!-- 钉死 redisson 内核版本，使 jetcache-redisson 传递的 org.redisson:redisson
+                 与 redisson-spring-boot-starter 对齐，避免两套 Redisson 客户端版本漂移 -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
+            <!-- JetCache 声明式缓存：自动配置 + Redisson 远程后端（复用既有 RedissonClient，单一连接） -->
             <dependency>
                 <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-starter-redis-lettuce</artifactId>
+                <artifactId>jetcache-autoconfigure</artifactId>
+                <version>${jetcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alicp.jetcache</groupId>
+                <artifactId>jetcache-redisson</artifactId>
                 <version>${jetcache.version}</version>
             </dependency>
             <dependency>

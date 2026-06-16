@@ -2,6 +2,8 @@
 
 `ycr-starter-cache` 基于 Redisson 提供 Redis 操作工具 `RedisUtils` 与分布式锁工具 `RedisLockUtils`。
 
+> 本模块面向**编程式**缓存（手动读写）。若需**声明式**缓存（`@Cached` / `@CacheInvalidate` / `@CacheUpdate` 注解，两级缓存），见 [声明式缓存（JetCache 注解）](cache-jetcache.md)——其远程后端复用本模块的 `RedissonClient`，单一 Redis 客户端贯穿工具类、分布式锁与声明式缓存。
+
 ## 依赖
 
 ```xml

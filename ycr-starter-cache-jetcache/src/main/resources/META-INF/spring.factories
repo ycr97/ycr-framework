@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  com.ycr.framework.cache.jetcache.autoconfigure.JetCacheDefaultsEnvironmentPostProcessor

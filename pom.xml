@@ -36,6 +36,7 @@
         <module>ycr-starter-context</module>
         <module>ycr-starter-data</module>
         <module>ycr-starter-cache</module>
+        <module>ycr-starter-cache-jetcache</module>
         <module>ycr-starter-data-permission</module>
         <module>ycr-starter-id-generate</module>
         <module>ycr-starter-auth</module>
