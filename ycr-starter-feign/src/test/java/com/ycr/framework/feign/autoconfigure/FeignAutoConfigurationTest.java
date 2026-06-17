@@ -3,6 +3,8 @@ package com.ycr.framework.feign.autoconfigure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.feign.decoder.FeignErrorDecoder;
 import com.ycr.framework.feign.interceptor.ContextPassInterceptor;
+import com.ycr.framework.feign.interceptor.LocalePassInterceptor;
+import com.ycr.framework.feign.interceptor.TokenPassInterceptor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -27,7 +29,14 @@ class FeignAutoConfigurationTest {
         runner.run(context -> {
             assertThat(context).hasSingleBean(ContextPassInterceptor.class);
             assertThat(context).hasSingleBean(FeignErrorDecoder.class);
+            assertThat(context).hasSingleBean(LocalePassInterceptor.class);
         });
+    }
+
+    @Test
+    void 关闭locale开关时不装配语言透传拦截器() {
+        runner.withPropertyValues("ycr.feign.locale-pass-enabled=false")
+                .run(context -> assertThat(context).doesNotHaveBean(LocalePassInterceptor.class));
     }
 
     @Test
@@ -40,6 +49,17 @@ class FeignAutoConfigurationTest {
     void 关闭解码开关时不装配解码器() {
         runner.withPropertyValues("ycr.feign.error-decoder-enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(FeignErrorDecoder.class));
+    }
+
+    @Test
+    void 默认不装配token透传拦截器() {
+        runner.run(context -> assertThat(context).doesNotHaveBean(TokenPassInterceptor.class));
+    }
+
+    @Test
+    void 开启token开关后装配token透传拦截器() {
+        runner.withPropertyValues("ycr.feign.token-pass-enabled=true")
+                .run(context -> assertThat(context).hasSingleBean(TokenPassInterceptor.class));
     }
 
     @Configuration
