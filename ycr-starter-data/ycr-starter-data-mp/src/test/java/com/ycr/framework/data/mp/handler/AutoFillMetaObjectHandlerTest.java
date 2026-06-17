@@ -1,8 +1,13 @@
 package com.ycr.framework.data.mp.handler;
 
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.ycr.framework.context.holder.UserContextHolder;
 import com.ycr.framework.context.model.UserContext;
 import com.ycr.framework.data.model.BaseDO;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +24,7 @@ class AutoFillMetaObjectHandlerTest {
     @AfterEach
     void tearDown() {
         UserContextHolder.clear();
+        TableInfoHelper.remove(TableEntity.class);
     }
 
     @Test
@@ -56,6 +62,29 @@ class AutoFillMetaObjectHandlerTest {
         assertEquals(1002L, entity.getUpdateUser());
     }
 
+    @Test
+    void insertFillShouldPopulateBaseDoFieldsWhenMybatisPlusTableInfoExists() {
+        UserContext userContext = new UserContext();
+        userContext.setUserId(1003L);
+        UserContextHolder.set(userContext);
+        TableInfoHelper.initTableInfo(new MapperBuilderAssistant(new Configuration(), ""), TableEntity.class);
+        TableEntity entity = new TableEntity();
+
+        handler.insertFill(SystemMetaObject.forObject(entity));
+
+        assertNotNull(entity.getCreateTime());
+        assertNotNull(entity.getUpdateTime());
+        assertEquals(1003L, entity.getCreateUser());
+        assertEquals(1003L, entity.getUpdateUser());
+    }
+
     static class TestEntity extends BaseDO {
+    }
+
+    @TableName("test_table")
+    static class TableEntity extends BaseDO {
+
+        @TableId
+        private Long id;
     }
 }
