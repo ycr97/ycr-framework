@@ -49,3 +49,29 @@ public interface UserApi {
 ```
 
 > 约定：服务把对外 `@FeignClient` 契约 + DTO 放在独立的 `*-client` 模块，供下游依赖（参见 `ycr-scaffold-mvc` 的 client 模块）。服务通常不调用自身的 client。
+
+## 透传增强
+
+`ycr-starter-feign` 通过一组实现 feign `RequestInterceptor` 的拦截器，向下游透传跨服务上下文：
+
+| 拦截器 | 透传内容 | 来源 | 开关 | 默认 |
+|---|---|---|---|---|
+| `ContextPassInterceptor` | user/tenant/app 上下文 + TraceId（分解身份） | 线程上下文持有器 | `ycr.feign.context-pass-enabled` | 开 |
+| `LocalePassInterceptor` | 语言头（默认 `Accept-Language`） | 当前请求头 | `ycr.feign.locale-pass-enabled` | 开 |
+| `TokenPassInterceptor` | `Authorization` 原始 token | 当前请求头 | `ycr.feign.token-pass-enabled` | 关 |
+
+语言头名可由 `ycr.feign.language-header` 配置。原始 token 透传默认关闭——ycr 默认走分解身份，仅在确需向下游传递原始凭证时开启。
+
+### 选择性匹配（Matchable）
+
+三个拦截器均继承 `AbstractMatchableFeignInterceptor`，可限定「只对部分下游 client/路径生效」。通过 `RequestTemplateMatchers` 构造规则：
+
+```java
+contextPassInterceptor
+    .addNotMatcher(RequestTemplateMatchers.clientName("third-party-svc")); // 不向第三方泄露内部身份头
+
+localePassInterceptor
+    .addMatcher(RequestTemplateMatchers.requestPath("/api/**"));            // 仅 /api/** 透传语言
+```
+
+匹配语义：命中任一 notMatcher 直接跳过；否则若配置了 matcher 需命中其一；未配置时按默认匹配器（全匹配）。
