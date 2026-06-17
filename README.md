@@ -85,6 +85,7 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 
 **DDD**
 - [DDD 核心](docs/ddd-core.md)
+- [DDD 聚合持久化（变更检测）](docs/ddd-aggregate.md)
 - [DDD 扩展点](docs/ddd-extension.md)
 - [DDD 状态机](docs/ddd-statemachine.md)
 
