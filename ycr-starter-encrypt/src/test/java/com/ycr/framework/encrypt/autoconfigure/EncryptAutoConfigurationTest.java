@@ -24,8 +24,17 @@ class EncryptAutoConfigurationTest {
         contextRunner.withPropertyValues("ycr.encrypt.aes-key=1234567890abcdef")
                 .run(context -> {
                     assertThat(context).hasSingleBean(EncryptHandler.class);
+                    assertThat(context).hasSingleBean(EncryptAutoConfiguration.EncryptHandlerLifecycle.class);
                     assertThat(EncryptHandlerHolder.getRequired()).isSameAs(context.getBean(EncryptHandler.class));
                 });
+    }
+
+    @Test
+    void 未配置AesKey且无自定义Handler时不应创建Lifecycle() {
+        contextRunner.run(context -> {
+            assertThat(context).doesNotHaveBean(EncryptHandler.class);
+            assertThat(context).doesNotHaveBean(EncryptAutoConfiguration.EncryptHandlerLifecycle.class);
+        });
     }
 
     @Test

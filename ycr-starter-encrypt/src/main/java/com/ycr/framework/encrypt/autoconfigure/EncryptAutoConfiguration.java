@@ -4,6 +4,7 @@ import com.ycr.framework.encrypt.context.EncryptHandlerHolder;
 import com.ycr.framework.encrypt.handler.AesEncryptHandler;
 import com.ycr.framework.encrypt.handler.EncryptHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,6 +30,7 @@ public class EncryptAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnBean(EncryptHandler.class)
     @ConditionalOnMissingBean
     public EncryptHandlerLifecycle encryptHandlerLifecycle(EncryptHandler encryptHandler) {
         return new EncryptHandlerLifecycle(encryptHandler);
