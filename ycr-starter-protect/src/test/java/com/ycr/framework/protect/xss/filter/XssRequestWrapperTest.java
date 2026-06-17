@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * XSS 请求包装器测试：参数/请求头按模式清理。
+ * XSS 请求包装器测试：参数按模式清理，请求头保持原值。
  *
  * @author ycr
  */
@@ -40,9 +40,9 @@ class XssRequestWrapperTest {
     }
 
     @Test
-    void getHeader_清理() {
-        when(delegate.getHeader("X-Test")).thenReturn("<img onerror=x>");
+    void getHeader_不清理避免破坏认证签名头() {
+        when(delegate.getHeader("Authorization")).thenReturn("Bearer abc/def+ghi==");
         XssRequestWrapper wrapper = new XssRequestWrapper(delegate, XssMode.CLEAN);
-        assertEquals("", wrapper.getHeader("X-Test"));
+        assertEquals("Bearer abc/def+ghi==", wrapper.getHeader("Authorization"));
     }
 }

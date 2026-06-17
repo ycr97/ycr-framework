@@ -9,9 +9,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * XSS 请求包装器：对请求参数与请求头按 {@link XssMode} 清理。
+ * XSS 请求包装器：对请求参数按 {@link XssMode} 清理。
  *
- * <p>覆盖 {@code getParameter*} 与 {@code getHeader}，使下游读取到的是已清理值。</p>
+ * <p>覆盖 {@code getParameter*}，使下游读取到的是已清理值。请求头保留原始值，避免破坏认证、签名和内容协商。</p>
  *
  * @author ycr
  */
@@ -56,8 +56,4 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         return cleaned;
     }
 
-    @Override
-    public String getHeader(String name) {
-        return XssCleaner.sanitize(super.getHeader(name), mode);
-    }
 }
