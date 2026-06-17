@@ -23,4 +23,7 @@ public class FeignProperties {
 
     /** 语言头名称，默认 Accept-Language */
     private String languageHeader = "Accept-Language";
+
+    /** 是否透传当前请求 Authorization 原始 token 到下游，默认关闭 */
+    private boolean tokenPassEnabled = false;
 }
