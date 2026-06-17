@@ -3,6 +3,7 @@ package com.ycr.framework.common.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.ycr.framework.common.model.BaseTreeCodeDTO;
 import com.ycr.framework.common.model.BaseTreeDTO;
 
 import java.util.Collections;
@@ -69,6 +70,54 @@ public final class TreeUtils {
                 .forEach(c -> {
                     assigned.put(c.getId(), c.getParentId());
                     assembleChild(c, assigned, children);
+                    childList.add(c);
+                });
+        parent.setChildren(CollUtil.isEmpty(childList) ? null : childList);
+    }
+
+    /**
+     * 按 code/parentCode 构树。
+     *
+     * @param source     扁平节点列表
+     * @param comparator 同层排序器，为 null 时不额外排序（保持过滤后顺序）
+     * @param <T>        节点类型
+     * @param <ID>       编码类型
+     * @return 顶层节点列表（children 已递归填充）
+     */
+    public static <T extends BaseTreeCodeDTO<T, ID>, ID> List<T> parseTreeByCode(List<T> source, Comparator<T> comparator) {
+        if (CollUtil.isEmpty(source) || source.stream().allMatch(ObjectUtil::isNull)) {
+            return Collections.emptyList();
+        }
+        Comparator<T> cmp = comparator != null ? comparator : (o1, o2) -> 0;
+
+        List<T> nodes = source.stream().filter(ObjectUtil::isNotNull).collect(Collectors.toList());
+        List<T> topNodes = nodes.stream().filter(n -> ObjectUtil.isEmpty(n.getParentCode())).sorted(cmp).collect(Collectors.toList());
+        List<T> childNodes = nodes.stream().filter(n -> !ObjectUtil.isEmpty(n.getParentCode())).sorted(cmp).collect(Collectors.toList());
+
+        Set<ID> codes = nodes.stream().map(BaseTreeCodeDTO::getCode).collect(Collectors.toSet());
+        for (T node : nodes) {
+            if (!ObjectUtil.isEmpty(node.getParentCode()) && !codes.contains(node.getParentCode())) {
+                topNodes.add(node);
+                childNodes.remove(node);
+            }
+        }
+        topNodes.sort(cmp);
+        if (CollUtil.isEmpty(childNodes)) {
+            return topNodes;
+        }
+        Map<ID, Object> assigned = MapUtil.newHashMap(childNodes.size());
+        topNodes.forEach(top -> assembleChildByCode(top, assigned, childNodes));
+        return topNodes;
+    }
+
+    private static <T extends BaseTreeCodeDTO<T, ID>, ID> void assembleChildByCode(T parent, Map<ID, Object> assigned, List<T> children) {
+        List<T> childList = CollUtil.newArrayList();
+        children.stream()
+                .filter(c -> !assigned.containsKey(c.getCode()))
+                .filter(c -> c.getParentCode().equals(parent.getCode()))
+                .forEach(c -> {
+                    assigned.put(c.getCode(), c.getParentCode());
+                    assembleChildByCode(c, assigned, children);
                     childList.add(c);
                 });
         parent.setChildren(CollUtil.isEmpty(childList) ? null : childList);

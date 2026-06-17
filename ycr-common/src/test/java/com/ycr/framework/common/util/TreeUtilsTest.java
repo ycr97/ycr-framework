@@ -1,5 +1,6 @@
 package com.ycr.framework.common.util;
 
+import com.ycr.framework.common.model.BaseTreeCodeDTO;
 import com.ycr.framework.common.model.BaseTreeDTO;
 import lombok.Getter;
 import org.junit.jupiter.api.Test;
@@ -92,5 +93,68 @@ class TreeUtilsTest {
         List<Node> tree = TreeUtils.parseTree(source, Comparator.comparingLong((Node n) -> n.getId()).reversed());
 
         assertThat(tree).extracting(Node::getName).containsExactly("root3", "root2", "root1");
+    }
+
+    /** 测试夹具：code/parentCode 型树节点 */
+    static class CodeNode extends BaseTreeCodeDTO<CodeNode, String> {
+        @Getter
+        private final String name;
+
+        CodeNode(String code, String parentCode, String name) {
+            setCode(code);
+            setParentCode(parentCode);
+            this.name = name;
+        }
+    }
+
+    @Test
+    void parseTreeByCode_应按编码父子关系组装嵌套树() {
+        List<CodeNode> source = Arrays.asList(
+                new CodeNode("A", null, "root"),
+                new CodeNode("A01", "A", "a"),
+                new CodeNode("A0101", "A01", "a-1")
+        );
+
+        List<CodeNode> tree = TreeUtils.parseTreeByCode(source, null);
+
+        assertThat(tree).hasSize(1);
+        CodeNode root = tree.get(0);
+        assertThat(root.getName()).isEqualTo("root");
+        assertThat(root.getChildren()).extracting(CodeNode::getName).containsExactly("a");
+        assertThat(root.getChildren().get(0).getChildren()).extracting(CodeNode::getName).containsExactly("a-1");
+    }
+
+    @Test
+    void parseTreeByCode_空集合返回空列表() {
+        assertThat(TreeUtils.parseTreeByCode(Collections.<CodeNode>emptyList(), null)).isEmpty();
+        assertThat(TreeUtils.parseTreeByCode(null, null)).isEmpty();
+        assertThat(TreeUtils.parseTreeByCode(Arrays.asList((CodeNode) null, null), null)).isEmpty();
+    }
+
+    @Test
+    void parseTreeByCode_父节点不在集合中时该节点视为顶层() {
+        List<CodeNode> source = Arrays.asList(
+                new CodeNode("X01", "X", "orphan"),
+                new CodeNode("X0101", "X01", "child")
+        );
+
+        List<CodeNode> tree = TreeUtils.parseTreeByCode(source, null);
+
+        assertThat(tree).hasSize(1);
+        assertThat(tree.get(0).getName()).isEqualTo("orphan");
+        assertThat(tree.get(0).getChildren()).extracting(CodeNode::getName).containsExactly("child");
+    }
+
+    @Test
+    void parseTreeByCode_自定义comparator决定同层顺序() {
+        List<CodeNode> source = Arrays.asList(
+                new CodeNode("A", null, "rootA"),
+                new CodeNode("C", null, "rootC"),
+                new CodeNode("B", null, "rootB")
+        );
+
+        List<CodeNode> tree = TreeUtils.parseTreeByCode(source, Comparator.comparing((CodeNode n) -> n.getCode()).reversed());
+
+        assertThat(tree).extracting(CodeNode::getName).containsExactly("rootC", "rootB", "rootA");
     }
 }
