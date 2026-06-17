@@ -26,6 +26,7 @@ List<RegionNode> byCode = TreeUtils.parseTreeByCode(flatList, null); // 按 code
 ```
 
 - 第二参数为同层排序 `Comparator`，传 `null` 时：`parseTree` 按 id 数值升序，`parseTreeByCode` 不额外排序。
+- `parseTree` 的默认排序要求 `id` 可解析为数值（雪花/数值主键）；若主键为非数值类型（如字符串），请显式传入 `Comparator`，否则会抛 `NumberFormatException`。
 - 叶子节点的 `children` 为 `null`。
 
 ### 校验分组 `valid`
