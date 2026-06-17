@@ -3,6 +3,7 @@ package com.ycr.framework.feign.autoconfigure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.feign.decoder.FeignErrorDecoder;
 import com.ycr.framework.feign.interceptor.ContextPassInterceptor;
+import com.ycr.framework.feign.interceptor.LocalePassInterceptor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -34,5 +35,12 @@ public class FeignAutoConfiguration {
     @ConditionalOnProperty(prefix = "ycr.feign", name = "error-decoder-enabled", havingValue = "true", matchIfMissing = true)
     public FeignErrorDecoder feignErrorDecoder(ObjectMapper objectMapper) {
         return new FeignErrorDecoder(objectMapper);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "ycr.feign", name = "locale-pass-enabled", havingValue = "true", matchIfMissing = true)
+    public LocalePassInterceptor localePassInterceptor(FeignProperties properties) {
+        return new LocalePassInterceptor(properties.getLanguageHeader());
     }
 }

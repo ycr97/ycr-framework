@@ -3,6 +3,7 @@ package com.ycr.framework.feign.autoconfigure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.feign.decoder.FeignErrorDecoder;
 import com.ycr.framework.feign.interceptor.ContextPassInterceptor;
+import com.ycr.framework.feign.interceptor.LocalePassInterceptor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -27,7 +28,14 @@ class FeignAutoConfigurationTest {
         runner.run(context -> {
             assertThat(context).hasSingleBean(ContextPassInterceptor.class);
             assertThat(context).hasSingleBean(FeignErrorDecoder.class);
+            assertThat(context).hasSingleBean(LocalePassInterceptor.class);
         });
+    }
+
+    @Test
+    void 关闭locale开关时不装配语言透传拦截器() {
+        runner.withPropertyValues("ycr.feign.locale-pass-enabled=false")
+                .run(context -> assertThat(context).doesNotHaveBean(LocalePassInterceptor.class));
     }
 
     @Test

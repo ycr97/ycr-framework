@@ -17,4 +17,10 @@ public class FeignProperties {
 
     /** 是否启用下游统一错误解码，默认启用 */
     private boolean errorDecoderEnabled = true;
+
+    /** 是否透传当前请求语言头到下游，默认启用 */
+    private boolean localePassEnabled = true;
+
+    /** 语言头名称，默认 Accept-Language */
+    private String languageHeader = "Accept-Language";
 }
