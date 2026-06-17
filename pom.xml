@@ -29,6 +29,7 @@
         <module>ycr-dependencies</module>
         <module>ycr-framework-bom</module>
         <module>ycr-starter-core</module>
+        <module>ycr-common</module>
         <module>ycr-starter-json</module>
         <module>ycr-starter-web</module>
         <module>ycr-starter-validation</module>
