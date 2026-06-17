@@ -8,7 +8,6 @@ import com.ycr.framework.context.model.AppContext;
 import com.ycr.framework.context.model.TenantContext;
 import com.ycr.framework.context.model.UserContext;
 import com.ycr.framework.trace.util.TraceUtils;
-import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
 /**
@@ -19,10 +18,10 @@ import feign.RequestTemplate;
  *
  * @author ycr
  */
-public class ContextPassInterceptor implements RequestInterceptor {
+public class ContextPassInterceptor extends AbstractMatchableFeignInterceptor {
 
     @Override
-    public void apply(RequestTemplate template) {
+    protected void doApply(RequestTemplate template) {
         UserContext user = UserContextHolder.get();
         if (user != null) {
             if (user.getUserId() != null) {

@@ -74,4 +74,18 @@ class ContextPassInterceptorTest {
         assertFalse(template.headers().containsKey(ContextHeaderConstants.HEADER_APP_ID));
         assertFalse(template.headers().containsKey(TraceUtils.HEADER_TRACE_ID));
     }
+
+    @Test
+    void 命中notMatcher时不透传上下文() {
+        UserContext user = new UserContext();
+        user.setUserId(1001L);
+        UserContextHolder.set(user);
+
+        interceptor.addNotMatcher(template -> true);
+
+        RequestTemplate template = new RequestTemplate();
+        interceptor.apply(template);
+
+        assertFalse(template.headers().containsKey(ContextHeaderConstants.HEADER_USER_ID));
+    }
 }
