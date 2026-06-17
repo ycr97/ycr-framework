@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.ycr.framework</groupId>
+        <artifactId>ycr-framework</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ycr-starter-mq</artifactId>
+    <packaging>pom</packaging>
+    <name>YCR Starter MQ</name>
+    <description>统一消息抽象聚合 - broker 无关 SPI 与各 broker 实现</description>
+
+    <modules>
+        <module>ycr-starter-mq-core</module>
+        <module>ycr-starter-mq-rocketmq</module>
+    </modules>
+</project>
