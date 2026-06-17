@@ -42,3 +42,16 @@ public R<Long> create(@RequestBody @Valid UserCreateReq req) { ... }
 ```
 
 校验失败由 `ycr-starter-web` 的全局异常处理器统一转为 `R` 响应。
+
+## @ForbiddenContent 非法内容校验
+
+拒绝包含 XSS 脚本、SQL 注入、爬虫、python 代码特征的字符串，配合 `@Valid` 触发：
+
+```java
+public class CommentDTO {
+    @ForbiddenContent(message = "评论包含非法内容")
+    private String content;
+}
+```
+
+null/空白视为合法，应另用 `@NotBlank` 管控必填。
