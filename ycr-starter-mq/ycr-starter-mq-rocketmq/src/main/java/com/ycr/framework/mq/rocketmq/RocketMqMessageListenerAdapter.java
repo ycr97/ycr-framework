@@ -24,8 +24,6 @@ import java.util.Map;
 @Slf4j
 public class RocketMqMessageListenerAdapter implements MessageListener {
 
-    private static final String PROPERTY_TENANT_ID = "tenantId";
-
     private final AbstractMessageHandler handler;
 
     public RocketMqMessageListenerAdapter(AbstractMessageHandler handler) {
@@ -53,7 +51,7 @@ public class RocketMqMessageListenerAdapter implements MessageListener {
         if (StringUtils.hasText(traceId)) {
             TraceUtils.setTraceId(traceId);
         }
-        String tenantId = properties.get(PROPERTY_TENANT_ID);
+        String tenantId = properties.get(RocketMqConstants.PROPERTY_TENANT_ID);
         if (StringUtils.hasText(tenantId)) {
             TenantContext tenantContext = new TenantContext();
             tenantContext.setTenantId(Long.valueOf(tenantId));

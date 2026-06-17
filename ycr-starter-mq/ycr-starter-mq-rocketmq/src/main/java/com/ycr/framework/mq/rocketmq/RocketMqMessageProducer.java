@@ -30,9 +30,6 @@ import java.util.Map;
 @Slf4j
 public class RocketMqMessageProducer implements MessageProducer {
 
-    private static final String SUFFIX = "_";
-    private static final String PROPERTY_TENANT_ID = "tenantId";
-
     private final Producer producer;
     private final RocketMqProperties properties;
     private final ObjectMapper objectMapper;
@@ -107,7 +104,7 @@ public class RocketMqMessageProducer implements MessageProducer {
         }
         Long tenantId = TenantContextHolder.getTenantId();
         if (tenantId != null) {
-            builder.addProperty(PROPERTY_TENANT_ID, String.valueOf(tenantId));
+            builder.addProperty(RocketMqConstants.PROPERTY_TENANT_ID, String.valueOf(tenantId));
         }
         return builder.build();
     }
@@ -118,7 +115,7 @@ public class RocketMqMessageProducer implements MessageProducer {
         if (!StringUtils.hasText(env)) {
             return topic;
         }
-        String suffixed = SUFFIX + env;
+        String suffixed = RocketMqConstants.SUFFIX + env;
         return topic.endsWith(suffixed) ? topic : topic + suffixed;
     }
 

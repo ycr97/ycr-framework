@@ -24,8 +24,6 @@ import java.util.List;
 @Slf4j
 public class RocketMqListenerProcessor implements BeanPostProcessor, DisposableBean {
 
-    private static final String SUFFIX = "_";
-
     private final RocketMqProperties properties;
     private final RocketMqClientFactory clientFactory;
     private final Environment environment;
@@ -66,7 +64,7 @@ public class RocketMqListenerProcessor implements BeanPostProcessor, DisposableB
     private String resolve(String topic, boolean enableSuffix) {
         String resolved = environment.resolvePlaceholders(topic);
         if (enableSuffix && StringUtils.hasText(properties.getEnv())) {
-            String suffixed = SUFFIX + properties.getEnv();
+            String suffixed = RocketMqConstants.SUFFIX + properties.getEnv();
             return resolved.endsWith(suffixed) ? resolved : resolved + suffixed;
         }
         return resolved;

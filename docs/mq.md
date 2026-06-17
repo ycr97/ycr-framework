@@ -53,6 +53,13 @@ ycr:
       max-attempts: 3
 ```
 
+> ⚠️ **关于环境后缀（env）与 `@MqMessageListener(enableSuffix)`**：
+> 配置了 `env` 后，**生产端发送时一律追加后缀**（如 `order-topic` → `order-topic_prod`）。
+> 消费端默认 `enableSuffix = true`，会订阅同样带后缀的 topic，两端一致。
+> 但若某监听器显式设 `@MqMessageListener(enableSuffix = false)` 而全局又配了 `env`，
+> 消费端将订阅不带后缀的 `order-topic`，与生产端的 `order-topic_prod` **对不上、收不到消息**。
+> 因此：要么全局不配 `env`，要么生产/消费两端都启用后缀（默认），不要在配了 `env` 时单独关掉某监听器的 `enableSuffix`。
+
 ## 扩展其它 broker
 
 实现 `MessageProducer`（及可选 `TransactionMessageProducer`）与消费者注册逻辑，作为 `ycr-starter-mq` 下的新子模块（如 `ycr-starter-mq-kafka`），复用同一 SPI。
