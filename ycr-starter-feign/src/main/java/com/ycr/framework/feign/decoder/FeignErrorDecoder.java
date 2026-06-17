@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Feign 统一错误解码器
  *
- * <p>把下游统一 {@code R{code, message}} 错误响应解码为框架 {@link BizException}（保留下游 code 与 message），
+ * <p>把下游统一 {@code R{code, msg}} 错误响应解码为框架 {@link BizException}（保留下游 code 与 msg），
  * 使上游 {@code GlobalExceptionHandler} 复原业务错误；非框架响应回退 {@link ErrorDecoder.Default}。</p>
  *
  * @author ycr
@@ -33,8 +33,9 @@ public class FeignErrorDecoder implements ErrorDecoder {
         if (body != null && body.length > 0) {
             try {
                 JsonNode node = objectMapper.readTree(body);
-                if (node.has("message")) {
-                    String message = node.get("message").asText();
+                JsonNode messageNode = node.has("msg") ? node.get("msg") : node.get("message");
+                if (messageNode != null) {
+                    String message = messageNode.asText();
                     String code = node.has("code") ? node.get("code").asText() : String.valueOf(response.status());
                     log.error("Feign 调用失败: {} -> code={}, message={}", methodKey, code, message);
                     return new BizException(code, "[远程调用] " + message);
