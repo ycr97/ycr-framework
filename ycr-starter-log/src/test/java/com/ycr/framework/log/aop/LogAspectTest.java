@@ -39,6 +39,14 @@ class LogAspectTest {
         return factory.getProxy();
     }
 
+    /** 用真实切面织入类级 @Log 目标对象 */
+    private ClassLevelDemoService weaveClassLevel(LogHandler handler, LogProperties properties) {
+        ClassLevelDemoService target = new ClassLevelDemoService();
+        AspectJProxyFactory factory = new AspectJProxyFactory(target);
+        factory.addAspect(new LogAspect(handler, properties, null));
+        return factory.getProxy();
+    }
+
     @Test
     void 正常路径应填充方法信息与状态() {
         LogHandler handler = mock(LogHandler.class);
@@ -136,6 +144,35 @@ class LogAspectTest {
         assertFalse(params.contains("secret123"), "敏感明文不应出现");
     }
 
+    @Test
+    void 类级Log应记录未标注方法() {
+        LogHandler handler = mock(LogHandler.class);
+        ClassLevelDemoService proxy = weaveClassLevel(handler, new LogProperties());
+
+        assertEquals("listed", proxy.list());
+
+        ArgumentCaptor<LogRecord> captor = ArgumentCaptor.forClass(LogRecord.class);
+        verify(handler).handle(captor.capture());
+        LogRecord record = captor.getValue();
+        assertEquals("list", record.getDescription());
+        assertEquals("类级模块", record.getModule());
+        assertEquals("list", record.getMethodName());
+    }
+
+    @Test
+    void 类级Log下方法级Log应优先() {
+        LogHandler handler = mock(LogHandler.class);
+        ClassLevelDemoService proxy = weaveClassLevel(handler, new LogProperties());
+
+        assertEquals("detail", proxy.detail());
+
+        ArgumentCaptor<LogRecord> captor = ArgumentCaptor.forClass(LogRecord.class);
+        verify(handler).handle(captor.capture());
+        LogRecord record = captor.getValue();
+        assertEquals("查看详情", record.getDescription());
+        assertEquals("方法级模块", record.getModule());
+    }
+
     /** 测试目标：方法级 @Log 标注 */
     public static class DemoService {
 
@@ -152,6 +189,19 @@ class LogAspectTest {
         @Log(value = "忽略", ignore = true)
         public String ignored() {
             return "x";
+        }
+    }
+
+    @Log(module = "类级模块")
+    public static class ClassLevelDemoService {
+
+        public String list() {
+            return "listed";
+        }
+
+        @Log(value = "查看详情", module = "方法级模块")
+        public String detail() {
+            return "detail";
         }
     }
 }

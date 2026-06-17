@@ -59,8 +59,9 @@ public class LogAspect {
                 .collect(Collectors.toSet());
     }
 
-    @Around("@annotation(logAnnotation)")
-    public Object around(ProceedingJoinPoint joinPoint, Log logAnnotation) throws Throwable {
+    @Around("@annotation(com.ycr.framework.log.annotation.Log) || @within(com.ycr.framework.log.annotation.Log)")
+    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+        Log logAnnotation = resolveLogAnnotation(joinPoint);
         // 注解标记忽略：直接放行，不记录
         if (logAnnotation.ignore()) {
             return joinPoint.proceed();
@@ -88,6 +89,16 @@ public class LogAspect {
             record.setElapsedTime(System.currentTimeMillis() - startTime);
             dispatch(record);
         }
+    }
+
+    private Log resolveLogAnnotation(JoinPoint joinPoint) {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        Log methodLog = method.getAnnotation(Log.class);
+        if (methodLog != null) {
+            return methodLog;
+        }
+        return joinPoint.getTarget().getClass().getAnnotation(Log.class);
     }
 
     /** 同步/异步分发，异步执行器缺失时退化为同步 */
