@@ -81,6 +81,7 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 - [Feign 增强](docs/feign.md)
 - [SDK 发布](docs/sdk.md)
 - [消息（邮件）](docs/messaging.md)
+- [统一消息（MQ / RocketMQ）](docs/mq.md)
 - [文件存储](docs/storage.md)
 
 **DDD**
