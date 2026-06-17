@@ -44,3 +44,15 @@ public R<Long> create(@RequestBody @Valid OrderCreateReq req) { ... }
 
 - **限流**（`@RateLimiter`）：控制频率（每窗口 N 次），保护后端不被压垮。
 - **幂等**（`@Idempotent`）：同一操作窗口内只生效一次，防重复提交/重复下单。
+
+## 从 middle-common NoRepeatSubmit 迁移
+
+middle-common 的 `@NoRepeatSubmit(lockTime)` 防重复提交能力已由本模块的 `@Idempotent` 完全覆盖且更强：
+
+| NoRepeatSubmit | @Idempotent |
+|---|---|
+| `lockTime` 固定锁定秒数 | `timeout` + `unit` 时间窗口 |
+| 无自定义键 | `key` 支持 SpEL（如按订单 `#orderId` 防重） |
+| 无 | `name` 幂等名、`message` 自定义提示 |
+
+迁移：`@NoRepeatSubmit(lockTime = 10)` → `@Idempotent(timeout = 10)`。

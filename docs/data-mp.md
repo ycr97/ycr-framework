@@ -84,6 +84,18 @@ Page<UserDO> page = MpPageHelper.toPage(pageQuery);            // 含排序，�
 PageResult<UserDO> result = MpPageHelper.toResult(userMapper.selectPage(page, wrapper));
 ```
 
+## 按变更字段精准更新（UpdateWrapperHelper）
+
+配合聚合层的变更检测（`ycr-starter-ddd-core` 的 `DataObjectUtils.getChangedFields` / `Aggregate.findChangedEntitiesWithOldValues`），只更新真正变化的列：
+
+```java
+Set<String> changed = DataObjectUtils.getChangedFields(oldDO, newDO);   // 来自 ddd-core
+UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(changed, newDO);
+userMapper.update(null, wrapper);
+```
+
+列名按 `@TableId`/`@TableField` 解析，主键作为 where 条件，其余变更字段作为 set。
+
 ## 关联示例
 
 `ycr-scaffold-mvc` Example 的 `UserServiceImpl`（手写分层分页）与 `ycr-starter-crud`（自动端点）均基于本模块。
