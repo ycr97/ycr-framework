@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -25,14 +26,14 @@ class UserContextHolderTest {
         UserContext ctx = new UserContext();
         ctx.setUserId(1001L);
         ctx.setUsername("张三");
-        ctx.setRoles("admin,user");
+        ctx.setRoles(Set.of("admin", "user"));
 
         UserContextHolder.set(ctx);
 
         UserContext result = UserContextHolder.get();
         assertEquals(1001L, result.getUserId());
         assertEquals("张三", result.getUsername());
-        assertEquals("admin,user", result.getRoles());
+        assertEquals(Set.of("admin", "user"), result.getRoles());
     }
 
     @Test
