@@ -43,7 +43,8 @@ public class TraceAutoConfiguration {
                                                                           TraceIdGenerator traceIdGenerator) {
         TraceUtils.setGenerator(traceIdGenerator);
         FilterRegistrationBean<TraceFilter> registration =
-                new FilterRegistrationBean<>(new TraceFilter(properties.getHeaderName()));
+                new FilterRegistrationBean<>(
+                        new TraceFilter(properties.getHeaderName(), properties.getRequestHeaderName()));
         registration.addUrlPatterns("/*");
         registration.setName("ycrTraceFilter");
         registration.setOrder(properties.getFilterOrder());

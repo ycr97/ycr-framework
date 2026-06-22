@@ -25,6 +25,11 @@ public class TraceProperties {
     private String headerName = TraceUtils.HEADER_TRACE_ID;
 
     /**
+     * RequestId 透传头名称
+     */
+    private String requestHeaderName = TraceUtils.HEADER_REQUEST_ID;
+
+    /**
      * 过滤器排序，默认最外层（{@link Ordered#HIGHEST_PRECEDENCE}）。
      *
      * <p>置于 {@code ContextFilter}（{@code HIGHEST_PRECEDENCE+10}）之外，确保 TraceId 最先设置、

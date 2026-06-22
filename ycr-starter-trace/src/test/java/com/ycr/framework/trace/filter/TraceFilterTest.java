@@ -21,12 +21,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class TraceFilterTest {
 
     private static final String HEADER = "X-Trace-Id";
+    private static final String REQUEST_HEADER = "X-Request-Id";
 
-    private final TraceFilter filter = new TraceFilter(HEADER);
+    private final TraceFilter filter = new TraceFilter(HEADER, REQUEST_HEADER);
 
     @AfterEach
     void tearDown() {
         TraceUtils.removeTraceId();
+        TraceUtils.removeRequestId();
     }
 
     @Test
@@ -34,12 +36,18 @@ class TraceFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(HEADER, "up-123");
         MockHttpServletResponse response = new MockHttpServletResponse();
-        AtomicReference<String> insideChain = new AtomicReference<>();
+        AtomicReference<String> insideTraceId = new AtomicReference<>();
+        AtomicReference<String> insideRequestId = new AtomicReference<>();
 
-        filter.doFilter(request, response, (req, res) -> insideChain.set(TraceUtils.getTraceId()));
+        filter.doFilter(request, response, (req, res) -> {
+            insideTraceId.set(TraceUtils.getTraceId());
+            insideRequestId.set(TraceUtils.getRequestId());
+        });
 
-        assertEquals("up-123", insideChain.get(), "链内应复用上游 traceId");
+        assertEquals("up-123", insideTraceId.get(), "链内应复用上游 traceId");
+        assertNotNull(insideRequestId.get(), "链内应生成 requestId");
         assertEquals("up-123", response.getHeader(HEADER), "响应头应回写 traceId");
+        assertEquals(insideRequestId.get(), response.getHeader(REQUEST_HEADER), "响应头应回写 requestId");
     }
 
     @Test
@@ -60,9 +68,13 @@ class TraceFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        filter.doFilter(request, response, (req, res) -> assertNotNull(TraceUtils.getTraceId()));
+        filter.doFilter(request, response, (req, res) -> {
+            assertNotNull(TraceUtils.getTraceId());
+            assertNotNull(TraceUtils.getRequestId());
+        });
 
         assertNull(TraceUtils.getTraceId(), "请求结束应清理");
+        assertNull(TraceUtils.getRequestId(), "请求结束应清理 requestId");
     }
 
     @Test
@@ -75,5 +87,19 @@ class TraceFilterTest {
 
         assertThrows(ServletException.class, () -> filter.doFilter(request, response, boom));
         assertNull(TraceUtils.getTraceId(), "异常路径仍应清理");
+        assertNull(TraceUtils.getRequestId(), "异常路径仍应清理 requestId");
+    }
+
+    @Test
+    void 上游requestId存在时应复用并回写响应头() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(REQUEST_HEADER, "request-123");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<String> insideChain = new AtomicReference<>();
+
+        filter.doFilter(request, response, (req, res) -> insideChain.set(TraceUtils.getRequestId()));
+
+        assertEquals("request-123", insideChain.get());
+        assertEquals("request-123", response.getHeader(REQUEST_HEADER));
     }
 }
