@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,8 +28,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = {
         "jetcache.local.default.type=linkedhashmap",
         "jetcache.remote.default.type=mock",
-        "ycr.cache.jetcache.base-packages=com.ycr.framework.cache.jetcache"
+        "ycr.cache.jetcache.base-packages=com.ycr.framework.cache.jetcache",
+        "spring.autoconfigure.exclude=org.redisson.spring.starter.RedissonAutoConfigurationV2"
 })
+@TestExecutionListeners(
+        listeners = DependencyInjectionTestExecutionListener.class,
+        mergeMode = TestExecutionListeners.MergeMode.REPLACE_DEFAULTS)
 class CachedBehaviorTest {
 
     @Autowired

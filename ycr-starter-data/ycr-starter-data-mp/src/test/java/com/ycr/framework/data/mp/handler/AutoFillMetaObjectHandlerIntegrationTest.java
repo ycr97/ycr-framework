@@ -12,6 +12,8 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.time.LocalDateTime;
 
@@ -27,9 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "spring.datasource.password=",
                 "spring.datasource.driver-class-name=org.h2.Driver",
                 "spring.sql.init.mode=always",
-                "spring.sql.init.schema-locations=classpath:audit-schema.sql",
-                "spring.autoconfigure.exclude=com.ycr.framework.context.autoconfigure.ContextAutoConfiguration"
+                "spring.sql.init.schema-locations=classpath:audit-schema.sql"
         })
+@TestExecutionListeners(
+        listeners = DependencyInjectionTestExecutionListener.class,
+        mergeMode = TestExecutionListeners.MergeMode.REPLACE_DEFAULTS)
 class AutoFillMetaObjectHandlerIntegrationTest {
 
     @Autowired
