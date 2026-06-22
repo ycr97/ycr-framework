@@ -26,7 +26,7 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.storage.enabled` | `true` | 是否启用 |
+| `ycr.storage.enabled` | `false` | 是否启用，须显式开启 |
 | `ycr.storage.type` | `local` | 存储类型：`local` 或 `s3` |
 
 **本地（`type=local`）**
@@ -39,6 +39,7 @@
 ```yaml
 ycr:
   storage:
+    enabled: true
     type: local
     local:
       path: /data/uploads
@@ -61,6 +62,7 @@ ycr:
 # AWS S3
 ycr:
   storage:
+    enabled: true
     type: s3
     s3:
       region: us-east-1
@@ -74,6 +76,7 @@ ycr:
 # MinIO
 ycr:
   storage:
+    enabled: true
     type: s3
     s3:
       endpoint: https://minio.example.com

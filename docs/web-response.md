@@ -1,6 +1,6 @@
 # Web 统一响应与异常处理
 
-`ycr-starter-web` 提供统一响应包装和全局异常处理。默认开启，Servlet Web 应用引入 starter 后自动生效。
+`ycr-starter-web` 提供统一响应包装和全局异常处理。统一响应包装默认关闭，Servlet Web 应用须显式开启。
 
 ## 依赖
 
@@ -48,7 +48,7 @@ ycr:
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.web.response.enabled` | `true` | 是否启用统一响应包装 |
+| `ycr.web.response.enabled` | `false` | 是否启用统一响应包装，须显式开启 |
 | `ycr.web.response.include-paths` | `/**` | 需要包装的路径，Ant pattern |
 | `ycr.web.response.exclude-paths` | 空 | 不需要包装的路径，优先级高于 include |
 

@@ -17,8 +17,10 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.ratelimiter.enabled` | `true` | 是否启用限流切面 |
+| `ycr.ratelimiter.enabled` | `false` | 是否启用限流切面，须显式开启 |
 | `ycr.ratelimiter.key-prefix` | `ycr:ratelimiter` | Redis 键前缀 |
+
+使用 `@RateLimiter` 前必须配置 `ycr.ratelimiter.enabled=true`。
 
 ## 用法
 

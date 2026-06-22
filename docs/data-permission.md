@@ -18,9 +18,9 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.data.permission.enabled` | `true` | 是否启用数据权限（拦截器 + 注解切面） |
+| `ycr.data.permission.enabled` | `false` | 是否启用数据权限（拦截器 + 注解切面），须显式开启 |
 
-> 默认开启取安全侧，避免漏配导致越权查询；设为 `false` 整体关闭。
+> 引入 starter 不会修改 SQL。生产应用完成规则配置和验证后，再显式设置为 `true`。
 
 ## 定义规则
 
@@ -50,7 +50,7 @@ public class DeptDataPermissionRule implements DataPermissionRule {
 
 ## 注解控制
 
-数据权限默认对所有查询生效，用注解局部调整：
+显式开启后，数据权限对匹配规则的查询生效，可用注解局部调整：
 
 | 注解 | 作用 | 目标 |
 | --- | --- | --- |

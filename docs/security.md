@@ -17,7 +17,7 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.security.enabled` | `true` | 是否注册 ycr 鉴权切面 |
+| `ycr.security.enabled` | `false` | 是否注册 ycr 鉴权切面，须显式开启 |
 | `ycr.security.permission.mode` | `context` | 权限校验模式：`context` / `remote` / `mixed` |
 | `ycr.security.permission.sensitive-permissions` | 空 | `mixed` 模式下走远程二次校验的敏感权限 |
 
@@ -33,6 +33,8 @@ ycr:
         - payment:refund
         - user:grant-role
 ```
+
+引入 starter 只会提供默认 `PermissionChecker` 等基础 Bean，不会自动启用鉴权切面。
 
 ## 鉴权注解
 
