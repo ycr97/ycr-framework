@@ -173,6 +173,18 @@ class LogAspectTest {
         assertEquals("方法级模块", record.getModule());
     }
 
+    @Test
+    void 类级Ignore应跳过全部方法() {
+        LogHandler handler = mock(LogHandler.class);
+        IgnoredClassService target = new IgnoredClassService();
+        AspectJProxyFactory factory = new AspectJProxyFactory(target);
+        factory.addAspect(new LogAspect(handler, new LogProperties(), null));
+        IgnoredClassService proxy = factory.getProxy();
+
+        assertEquals("ok", proxy.run());
+        verify(handler, never()).handle(any());
+    }
+
     /** 测试目标：方法级 @Log 标注 */
     public static class DemoService {
 
@@ -202,6 +214,14 @@ class LogAspectTest {
         @Log(value = "查看详情", module = "方法级模块")
         public String detail() {
             return "detail";
+        }
+    }
+
+    @Log(ignore = true)
+    public static class IgnoredClassService {
+
+        public String run() {
+            return "ok";
         }
     }
 }

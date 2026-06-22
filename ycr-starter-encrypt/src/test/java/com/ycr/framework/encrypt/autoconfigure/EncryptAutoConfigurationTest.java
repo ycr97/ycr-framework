@@ -47,4 +47,25 @@ class EncryptAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean(EncryptAutoConfiguration.EncryptHandlerLifecycle.class);
                 });
     }
+
+    @Test
+    void 显式开启且提供自定义Handler时应初始化Holder() {
+        EncryptHandler custom = new EncryptHandler() {
+            @Override
+            public String encrypt(String plaintext) {
+                return plaintext;
+            }
+
+            @Override
+            public String decrypt(String ciphertext) {
+                return ciphertext;
+            }
+        };
+        contextRunner.withBean(EncryptHandler.class, () -> custom)
+                .withPropertyValues("ycr.encrypt.enabled=true")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(EncryptAutoConfiguration.EncryptHandlerLifecycle.class);
+                    assertThat(EncryptHandlerHolder.getRequired()).isSameAs(custom);
+                });
+    }
 }

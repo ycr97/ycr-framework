@@ -3,6 +3,8 @@ package com.ycr.framework.protect.xss.filter;
 import com.ycr.framework.protect.xss.enums.XssMode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,10 +41,16 @@ class XssRequestWrapperTest {
         assertArrayEquals(new String[]{"&lt;b&gt;", "ok"}, wrapper.getParameterValues("a"));
     }
 
-    @Test
-    void getHeader_不清理避免破坏认证签名头() {
-        when(delegate.getHeader("Authorization")).thenReturn("Bearer abc/def+ghi==");
-        XssRequestWrapper wrapper = new XssRequestWrapper(delegate, XssMode.CLEAN);
-        assertEquals("Bearer abc/def+ghi==", wrapper.getHeader("Authorization"));
+    @ParameterizedTest
+    @CsvSource({
+            "Authorization, 'Bearer abc/def+ghi=='",
+            "Content-Type, 'application/json;charset=UTF-8'",
+            "X-Context-Signature, 'sha256/abc+def=='",
+            "X-Trace-Id, 'trace/001'"
+    })
+    void 协议敏感请求头必须保持原值(String name, String value) {
+        when(delegate.getHeader(name)).thenReturn(value);
+        XssRequestWrapper wrapper = new XssRequestWrapper(delegate, XssMode.ESCAPE);
+        assertEquals(value, wrapper.getHeader(name));
     }
 }
