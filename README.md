@@ -69,6 +69,7 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 - [字段加密 MyBatis TypeHandler](docs/encrypt-typehandler.md)
 
 **可观测**
+- [可观测性标准](docs/observability.md)
 - [操作日志](docs/log.md)
 - [链路追踪（TraceId）](docs/trace.md)
 
