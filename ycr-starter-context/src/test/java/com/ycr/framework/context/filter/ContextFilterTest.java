@@ -2,6 +2,7 @@ package com.ycr.framework.context.filter;
 
 import com.ycr.framework.context.autoconfigure.ContextProperties;
 import com.ycr.framework.context.constant.ContextHeaderConstants;
+import com.ycr.framework.context.constant.ContextMdcConstants;
 import com.ycr.framework.context.enums.SecurityMode;
 import com.ycr.framework.context.exception.ContextAuthException;
 import com.ycr.framework.context.holder.AppContextHolder;
@@ -18,6 +19,7 @@ import com.ycr.framework.context.sign.NoopContextReplayGuard;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -43,6 +45,7 @@ class ContextFilterTest {
         UserContextHolder.clear();
         TenantContextHolder.clear();
         AppContextHolder.clear();
+        MDC.clear();
     }
 
     private ContextProperties gatewayTrustProperties() {
@@ -180,5 +183,20 @@ class ContextFilterTest {
         assertNull(UserContextHolder.get(), "异常路径下用户上下文也必须被清理");
         assertNull(TenantContextHolder.get(), "异常路径下租户上下文也必须被清理");
         assertNull(AppContextHolder.get(), "异常路径下应用上下文也必须被清理");
+    }
+
+    @Test
+    void 用户租户客户端应在链内写入Mdc并在链外清理() throws Exception {
+        ContextFilter filter = filter(gatewayTrustProperties());
+
+        filter.doFilter(signedRequest(), new MockHttpServletResponse(), (req, resp) -> {
+            assertEquals("100", MDC.get(ContextMdcConstants.USER_ID));
+            assertEquals("1", MDC.get(ContextMdcConstants.TENANT_ID));
+            assertEquals("web", MDC.get(ContextMdcConstants.CLIENT_ID));
+        });
+
+        assertNull(MDC.get(ContextMdcConstants.USER_ID));
+        assertNull(MDC.get(ContextMdcConstants.TENANT_ID));
+        assertNull(MDC.get(ContextMdcConstants.CLIENT_ID));
     }
 }

@@ -2,6 +2,7 @@ package com.ycr.framework.context.filter;
 
 import com.ycr.framework.context.autoconfigure.ContextProperties;
 import com.ycr.framework.context.constant.ContextHeaderConstants;
+import com.ycr.framework.context.constant.ContextMdcConstants;
 import com.ycr.framework.context.enums.UserContextSource;
 import com.ycr.framework.context.holder.AppContextHolder;
 import com.ycr.framework.context.holder.TenantContextHolder;
@@ -17,6 +18,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.MDC;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -58,6 +60,7 @@ public class ContextFilter implements Filter {
             UserContextHolder.clear();
             TenantContextHolder.clear();
             AppContextHolder.clear();
+            clearMdc();
         }
     }
 
@@ -73,8 +76,27 @@ public class ContextFilter implements Filter {
             return;
         }
         UserContextHolder.set(userContext);
+        restoreMdc(userContext);
         restoreTenantContext(userContext, request);
         restoreAppContext(userContext, request);
+    }
+
+    private void restoreMdc(UserContext userContext) {
+        putMdc(ContextMdcConstants.USER_ID, userContext.getUserId());
+        putMdc(ContextMdcConstants.TENANT_ID, userContext.getTenantId());
+        putMdc(ContextMdcConstants.CLIENT_ID, userContext.getClientId());
+    }
+
+    private void putMdc(String key, Object value) {
+        if (value != null) {
+            MDC.put(key, String.valueOf(value));
+        }
+    }
+
+    private void clearMdc() {
+        MDC.remove(ContextMdcConstants.USER_ID);
+        MDC.remove(ContextMdcConstants.TENANT_ID);
+        MDC.remove(ContextMdcConstants.CLIENT_ID);
     }
 
     private void restoreTenantContext(UserContext userContext, HttpServletRequest request) {
