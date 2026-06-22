@@ -18,16 +18,19 @@ class SecurityAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(SecurityAutoConfiguration.class));
 
     @Test
-    void 默认应注册鉴权切面与权限校验器() {
+    void 默认只应注册权限校验器() {
         runner.run(context -> {
-            assertThat(context).hasBean("authorizeAspect");
+            assertThat(context).doesNotHaveBean("authorizeAspect");
             assertThat(context).hasBean("permissionChecker");
         });
     }
 
     @Test
-    void 关闭开关时不应注册鉴权切面() {
-        runner.withPropertyValues("ycr.security.enabled=false")
-                .run(context -> assertThat(context).doesNotHaveBean("authorizeAspect"));
+    void 显式开启时应注册鉴权切面() {
+        runner.withPropertyValues("ycr.security.enabled=true")
+                .run(context -> {
+                    assertThat(context).hasBean("authorizeAspect");
+                    assertThat(context).hasBean("permissionChecker");
+                });
     }
 }

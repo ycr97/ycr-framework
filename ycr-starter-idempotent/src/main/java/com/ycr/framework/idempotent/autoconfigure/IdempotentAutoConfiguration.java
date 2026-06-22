@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 @ConditionalOnClass(RedissonClient.class)
 @EnableConfigurationProperties(IdempotentProperties.class)
-@ConditionalOnProperty(prefix = "ycr.idempotent", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "ycr.idempotent", name = "enabled", havingValue = "true")
 public class IdempotentAutoConfiguration {
 
     @Bean

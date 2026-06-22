@@ -16,8 +16,8 @@ import java.util.List;
 @ConfigurationProperties(prefix = "ycr.security")
 public class SecurityProperties {
 
-    /** 是否启用安全拦截（注册 SaToken 注解鉴权拦截器），默认启用 */
-    private boolean enabled = true;
+    /** 是否启用安全拦截，默认关闭 */
+    private boolean enabled = false;
 
     /** 放行路径列表（不需要认证即可访问） */
     private List<String> excludePaths = new ArrayList<>(Arrays.asList(

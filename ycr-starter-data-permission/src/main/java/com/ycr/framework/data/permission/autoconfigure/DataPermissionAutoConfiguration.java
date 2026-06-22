@@ -30,6 +30,7 @@ import java.util.List;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(DataPermissionProperties.class)
+@ConditionalOnProperty(prefix = "ycr.data.permission", name = "enabled", havingValue = "true")
 public class DataPermissionAutoConfiguration {
 
     /**
@@ -57,7 +58,6 @@ public class DataPermissionAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(name = "dataPermissionInnerInterceptor")
-    @ConditionalOnProperty(prefix = "ycr.data.permission", name = "enabled", havingValue = "true", matchIfMissing = true)
     public InnerInterceptor dataPermissionInnerInterceptor(MultiDataPermissionHandler dataPermissionSqlHandler) {
         return new com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor(dataPermissionSqlHandler);
     }
@@ -69,7 +69,6 @@ public class DataPermissionAutoConfiguration {
     @Bean
     @ConditionalOnClass(Aspect.class)
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "ycr.data.permission", name = "enabled", havingValue = "true", matchIfMissing = true)
     public DataPermissionAspect dataPermissionAspect() {
         return new DataPermissionAspect();
     }

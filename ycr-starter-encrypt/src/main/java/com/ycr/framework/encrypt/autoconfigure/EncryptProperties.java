@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class EncryptProperties {
 
     /** 是否启用字段加解密 */
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     /** 默认加密算法 */
     private EncryptAlgorithm algorithm = EncryptAlgorithm.AES;

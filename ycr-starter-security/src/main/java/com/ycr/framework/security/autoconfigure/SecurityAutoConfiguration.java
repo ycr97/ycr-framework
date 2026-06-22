@@ -46,7 +46,7 @@ public class SecurityAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "ycr.security", name = "enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "ycr.security", name = "enabled", havingValue = "true")
     public AuthorizeAspect authorizeAspect(PermissionChecker permissionChecker) {
         return new AuthorizeAspect(permissionChecker);
     }

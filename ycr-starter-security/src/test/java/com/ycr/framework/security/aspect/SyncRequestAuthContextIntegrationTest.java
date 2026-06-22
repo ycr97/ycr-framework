@@ -47,6 +47,7 @@ class SyncRequestAuthContextIntegrationTest {
 
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(AopAutoConfiguration.class, SecurityAutoConfiguration.class))
+            .withPropertyValues("ycr.security.enabled=true")
             .withUserConfiguration(TestConfig.class);
 
     @AfterEach
