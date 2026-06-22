@@ -36,4 +36,22 @@ public class TraceProperties {
      * 最后清理，使 context 还原及全链路日志都携带 traceId。</p>
      */
     private int filterOrder = Ordered.HIGHEST_PRECEDENCE;
+
+    private SlowRequest slowRequest = new SlowRequest();
+
+    /**
+     * 慢请求日志配置。
+     */
+    @Data
+    public static class SlowRequest {
+
+        /** 是否记录慢请求 */
+        private boolean enabled = true;
+
+        /** 慢请求阈值，单位毫秒 */
+        private long thresholdMs = 1000L;
+
+        /** 位于 ContextFilter 内层，确保日志记录时上下文仍存在 */
+        private int filterOrder = Ordered.HIGHEST_PRECEDENCE + 20;
+    }
 }
