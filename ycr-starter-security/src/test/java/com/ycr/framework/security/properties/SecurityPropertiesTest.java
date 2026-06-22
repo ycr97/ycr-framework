@@ -12,5 +12,7 @@ class SecurityPropertiesTest {
         assertNotNull(properties.getExcludePaths());
         assertTrue(properties.getExcludePaths().contains("/doc.html"));
         assertTrue(properties.getExcludePaths().contains("/swagger-resources/**"));
+        assertEquals(SecurityProperties.PermissionMode.CONTEXT, properties.getPermission().getMode());
+        assertTrue(properties.getPermission().getSensitivePermissions().isEmpty());
     }
 }
