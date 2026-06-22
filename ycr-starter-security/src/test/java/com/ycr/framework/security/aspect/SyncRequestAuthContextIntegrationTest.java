@@ -62,7 +62,9 @@ class SyncRequestAuthContextIntegrationTest {
     void 请求链路应还原上下文鉴权并向Feign传播签名上下文() throws Exception {
         runner.run(context -> {
             ContextProperties properties = contextProperties();
-            TraceFilter traceFilter = new TraceFilter(ContextHeaderConstants.HEADER_TRACE_ID);
+            TraceFilter traceFilter = new TraceFilter(
+                    ContextHeaderConstants.HEADER_TRACE_ID,
+                    TraceUtils.HEADER_REQUEST_ID);
             ContextFilter contextFilter = new ContextFilter(properties, resolverChain(properties));
             ContextPassInterceptor feignInterceptor = new ContextPassInterceptor(properties, new ContextHeaderSigner());
 
