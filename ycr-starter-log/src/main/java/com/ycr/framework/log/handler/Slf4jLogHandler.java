@@ -15,14 +15,18 @@ public class Slf4jLogHandler implements LogHandler {
 
     @Override
     public void handle(LogRecord logRecord) {
-        log.info("[操作日志] {} - {} | {} {} | 状态: {} | 耗时: {}ms | 操作人: {}({})",
+        log.info("event=operation_log traceId={} tenantId={} clientId={} module={} operation={} "
+                        + "method={} uri={} status={} elapsedMs={} operatorId={} operatorName={}",
+                logRecord.getTraceId(),
+                logRecord.getTenantId(),
+                logRecord.getClientId(),
                 logRecord.getModule(),
                 logRecord.getDescription(),
                 logRecord.getRequestMethod(),
                 logRecord.getRequestUrl(),
                 logRecord.getStatus(),
                 logRecord.getElapsedTime(),
-                logRecord.getOperatorName(),
-                logRecord.getOperatorId());
+                logRecord.getOperatorId(),
+                logRecord.getOperatorName());
     }
 }

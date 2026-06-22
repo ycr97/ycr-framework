@@ -7,6 +7,7 @@ import com.ycr.framework.log.autoconfigure.LogProperties;
 import com.ycr.framework.log.enums.Include;
 import com.ycr.framework.log.handler.LogHandler;
 import com.ycr.framework.log.model.LogRecord;
+import com.ycr.framework.trace.util.TraceUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +30,7 @@ class LogAspectTest {
     @AfterEach
     void tearDown() {
         RequestContextHolder.resetRequestAttributes();
+        TraceUtils.removeTraceId();
     }
 
     /** 用真实切面织入目标对象 */
@@ -71,18 +73,26 @@ class LogAspectTest {
     void 应从UserContext填充操作人() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties());
+        UserContext userContext = new UserContext();
+        userContext.setUserId(1001L);
+        userContext.setUsername("张三");
+        userContext.setTenantId(2001L);
+        userContext.setClientId("admin-web");
+        TraceUtils.setTraceId("trace-001");
 
         try (MockedStatic<UserContextHolder> ms = mockStatic(UserContextHolder.class)) {
-            ms.when(UserContextHolder::get).thenReturn(mock(UserContext.class));
-            ms.when(UserContextHolder::getUserId).thenReturn(1001L);
-            ms.when(UserContextHolder::getUsername).thenReturn("张三");
+            ms.when(UserContextHolder::get).thenReturn(userContext);
 
             proxy.create("x");
 
             ArgumentCaptor<LogRecord> captor = ArgumentCaptor.forClass(LogRecord.class);
             verify(handler).handle(captor.capture());
-            assertEquals(1001L, captor.getValue().getOperatorId());
-            assertEquals("张三", captor.getValue().getOperatorName());
+            LogRecord record = captor.getValue();
+            assertEquals(1001L, record.getOperatorId());
+            assertEquals("张三", record.getOperatorName());
+            assertEquals(2001L, record.getTenantId());
+            assertEquals("admin-web", record.getClientId());
+            assertEquals("trace-001", record.getTraceId());
         }
     }
 

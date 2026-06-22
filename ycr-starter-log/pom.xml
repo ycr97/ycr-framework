@@ -21,6 +21,11 @@
             <artifactId>ycr-starter-context</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>com.ycr.framework</groupId>
+            <artifactId>ycr-starter-trace</artifactId>
+            <version>${revision}</version>
+        </dependency>
         <!-- AspectJ 切面 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
