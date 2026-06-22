@@ -5,15 +5,27 @@ import com.ycr.framework.core.exception.SysException;
 import com.ycr.framework.core.model.R;
 import com.ycr.framework.security.exception.AuthException;
 import com.ycr.framework.security.exception.ForbiddenException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.MDC;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.ResponseEntity;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@ExtendWith(OutputCaptureExtension.class)
 class GlobalExceptionHandlerTest {
 
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+    @AfterEach
+    void tearDown() {
+        MDC.clear();
+    }
 
     @Test
     void 处理BizException_应返回HTTP400与业务错误码() {
@@ -70,5 +82,18 @@ class GlobalExceptionHandlerTest {
         R<Void> response = handler.handleException(new RuntimeException("未知异常"));
 
         assertEquals("500", response.getCode());
+    }
+
+    @Test
+    void 业务异常日志应包含稳定事件字段(CapturedOutput output) {
+        MDC.put("traceId", "trace-001");
+        MDC.put("userId", "1001");
+
+        handler.handleBizException(new BizException("USER_001", "用户不存在"));
+
+        assertThat(output).contains("event=biz_exception")
+                .contains("traceId=trace-001")
+                .contains("userId=1001")
+                .contains("code=USER_001");
     }
 }
