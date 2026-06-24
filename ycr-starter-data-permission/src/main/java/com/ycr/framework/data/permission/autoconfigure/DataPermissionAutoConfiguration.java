@@ -1,12 +1,20 @@
 package com.ycr.framework.data.permission.autoconfigure;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.MultiDataPermissionHandler;
+import com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.ycr.framework.data.permission.aspect.DataPermissionAspect;
 import com.ycr.framework.data.permission.handler.DataPermissionHandler;
 import com.ycr.framework.data.permission.handler.DataPermissionSqlHandler;
 import com.ycr.framework.data.permission.rule.DataPermissionRule;
+import com.ycr.framework.data.permission.scope.CommandTypeResolver;
+import com.ycr.framework.data.permission.scope.DataScope;
+import com.ycr.framework.data.permission.scope.DataScopeClearFilter;
+import com.ycr.framework.data.permission.scope.DataScopeResolver;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -17,14 +25,12 @@ import org.springframework.context.annotation.Bean;
 import java.util.List;
 
 /**
- * 数据权限自动配置
+ * 数据权限自动配置。
  *
- * <p>装配链路：{@link DataPermissionRule} 规则 Bean → {@link DataPermissionHandler} 规则注册表
- * → {@link DataPermissionSqlHandler} SQL 适配器 → MyBatis-Plus 数据权限 {@link InnerInterceptor}。</p>
- *
- * <p>这里产出的 {@code InnerInterceptor} 会被 {@code MybatisPlusAutoConfiguration} 通过
- * {@code ObjectProvider<InnerInterceptor>} 自动收集，并织入到分页拦截器之前，从而在查询执行前完成行级权限 SQL 改写。
- * 可通过 {@code ycr.data.permission.enabled=false} 关闭整条数据权限链路。</p>
+ * <p>装配链路：{@link DataPermissionRule} 规则 + {@link DataScopeResolver} 取数
+ * → {@link DataPermissionHandler} 合并引擎 → {@link DataPermissionSqlHandler} MP 适配器
+ * → MyBatis-Plus 数据权限 {@link InnerInterceptor}。缺省 resolver 返回空范围（受治理表 fail-closed），
+ * 生产须由 L2 覆盖。{@code ycr.data.permission.enabled=false} 关闭整条链路。</p>
  *
  * @author ycr
  */
@@ -32,9 +38,26 @@ import java.util.List;
 @EnableConfigurationProperties(DataPermissionProperties.class)
 public class DataPermissionAutoConfiguration {
 
-    /**
-     * 汇总容器内所有数据权限规则，构建规则注册表
-     */
+    /** 缺省空范围 resolver：未提供时受治理表一律 fail-closed，提醒补 resolver。 */
+    @Bean
+    @ConditionalOnMissingBean
+    public DataScopeResolver dataScopeResolver() {
+        return DataScope::empty;
+    }
+
+    /** 默认按 MyBatis Configuration 解析语句类型；惰性取 SqlSessionFactory 以打破构造环。 */
+    @Bean
+    @ConditionalOnMissingBean
+    public CommandTypeResolver commandTypeResolver(ObjectProvider<SqlSessionFactory> sqlSessionFactory) {
+        return mappedStatementId -> {
+            SqlSessionFactory factory = sqlSessionFactory.getIfAvailable();
+            if (factory == null || !factory.getConfiguration().hasStatement(mappedStatementId, false)) {
+                return SqlCommandType.UNKNOWN;
+            }
+            return factory.getConfiguration().getMappedStatement(mappedStatementId, false).getSqlCommandType();
+        };
+    }
+
     @Bean
     @ConditionalOnMissingBean
     public DataPermissionHandler dataPermissionHandler(List<DataPermissionRule> rules) {
@@ -43,23 +66,29 @@ public class DataPermissionAutoConfiguration {
         return handler;
     }
 
-    /**
-     * 将框架规则体系适配为 MyBatis-Plus 的多表数据权限处理器
-     */
     @Bean
     @ConditionalOnMissingBean(MultiDataPermissionHandler.class)
-    public MultiDataPermissionHandler dataPermissionSqlHandler(DataPermissionHandler dataPermissionHandler) {
-        return new DataPermissionSqlHandler(dataPermissionHandler);
+    public MultiDataPermissionHandler dataPermissionSqlHandler(DataPermissionHandler handler,
+                                                               DataScopeResolver resolver,
+                                                               CommandTypeResolver commandTypeResolver,
+                                                               DataPermissionProperties properties) {
+        return new DataPermissionSqlHandler(handler, resolver, commandTypeResolver,
+                properties.isLogAppliedConditions());
     }
 
-    /**
-     * 注册 MyBatis-Plus 数据权限内部拦截器，承担真正的 SQL 解析与 WHERE 条件改写
-     */
     @Bean
     @ConditionalOnMissingBean(name = "dataPermissionInnerInterceptor")
     @ConditionalOnProperty(prefix = "ycr.data.permission", name = "enabled", havingValue = "true", matchIfMissing = true)
     public InnerInterceptor dataPermissionInnerInterceptor(MultiDataPermissionHandler dataPermissionSqlHandler) {
-        return new com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor(dataPermissionSqlHandler);
+        return new DataPermissionInterceptor(dataPermissionSqlHandler);
+    }
+
+    /** 请求结束清理数据范围缓存，仅 Servlet 应用装配。 */
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(name = "jakarta.servlet.http.HttpServletRequest")
+    public DataScopeClearFilter dataScopeClearFilter() {
+        return new DataScopeClearFilter();
     }
 
     /**

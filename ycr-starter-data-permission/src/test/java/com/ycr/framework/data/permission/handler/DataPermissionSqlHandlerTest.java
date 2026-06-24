@@ -1,124 +1,99 @@
 package com.ycr.framework.data.permission.handler;
 
 import com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor;
+import com.ycr.framework.data.permission.exception.DataPermissionException;
 import com.ycr.framework.data.permission.rule.DataPermissionRule;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.schema.Table;
+import com.ycr.framework.data.permission.rule.Predicate;
+import com.ycr.framework.data.permission.scope.CommandTypeResolver;
+import com.ycr.framework.data.permission.scope.DataScope;
+import com.ycr.framework.data.permission.scope.DataScopeContext;
+import com.ycr.framework.data.permission.scope.DataScopeResolver;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * 数据权限 SQL 处理器与 MyBatis-Plus 拦截器集成测试
+ * DataPermissionSqlHandler 与 MyBatis-Plus 拦截器集成测试（SELECT/UPDATE/DELETE 真实改写）
  *
- * <p>{@code 适配器*} 用例验证表名匹配与 SQL 片段解析；{@code SQL改写*} 用例直接驱动 MyBatis-Plus
- * 的 {@link DataPermissionInterceptor#parserSingle(String, Object)} 验证真实的 WHERE 条件改写结果。</p>
+ * @author ycr
  */
 class DataPermissionSqlHandlerTest {
 
-    /** 构造一条简单规则 */
-    private DataPermissionRule rule(String table, String segment, boolean applicable) {
+    @AfterEach
+    void tearDown() {
+        DataScopeContext.clear();
+    }
+
+    private final DataScopeResolver resolver = () ->
+            DataScope.builder().dimension("factory", List.of(1, 2)).build();
+
+    private DataPermissionRule rule(Set<SqlCommandType> cmds, Function<DataScope, Predicate> fn) {
         return new DataPermissionRule() {
-            @Override
-            public String getTableName() {
-                return table;
-            }
-
-            @Override
-            public String getSqlSegment() {
-                return segment;
-            }
-
-            @Override
-            public boolean isApplicable() {
-                return applicable;
-            }
+            @Override public String table() { return "biz_order"; }
+            @Override public Predicate predicate(DataScope scope) { return fn.apply(scope); }
+            @Override public Set<SqlCommandType> commands() { return cmds; }
         };
     }
 
-    private DataPermissionSqlHandler handlerWith(DataPermissionRule... rules) {
+    private DataPermissionInterceptor interceptor(CommandTypeResolver cmdResolver, DataPermissionRule rule) {
         DataPermissionHandler registry = new DataPermissionHandler();
-        for (DataPermissionRule r : rules) {
-            registry.addRule(r);
-        }
-        return new DataPermissionSqlHandler(registry);
+        registry.addRule(rule);
+        return new DataPermissionInterceptor(
+                new DataPermissionSqlHandler(registry, resolver, cmdResolver, false));
     }
 
     @Test
-    void 适配器_命中表应返回解析后的条件表达式() {
-        DataPermissionSqlHandler handler = handlerWith(rule("sys_user", "dept_id IN (1, 2, 3)", true));
-
-        Expression expression = handler.getSqlSegment(new Table("sys_user"), null, "anyMsId");
-
-        assertNotNull(expression);
-        assertEquals("dept_id IN (1, 2, 3)", expression.toString());
+    void SELECT_追加权限条件() {
+        DataPermissionInterceptor it = interceptor(id -> SqlCommandType.SELECT,
+                rule(EnumSet.allOf(SqlCommandType.class), s -> Predicate.in("factory_id", s.values("factory"))));
+        String sql = it.parserSingle("SELECT * FROM biz_order WHERE status = 1", "m");
+        assertTrue(sql.contains("status = 1"));
+        assertTrue(sql.contains("factory_id IN (1, 2)"));
     }
 
     @Test
-    void 适配器_表名带反引号也应匹配() {
-        DataPermissionSqlHandler handler = handlerWith(rule("sys_user", "dept_id = 1", true));
-
-        Expression expression = handler.getSqlSegment(new Table("`sys_user`"), null, "anyMsId");
-
-        assertNotNull(expression);
-        assertEquals("dept_id = 1", expression.toString());
+    void UPDATE_追加权限条件() {
+        DataPermissionInterceptor it = interceptor(id -> SqlCommandType.UPDATE,
+                rule(EnumSet.allOf(SqlCommandType.class), s -> Predicate.in("factory_id", s.values("factory"))));
+        String sql = it.parserSingle("UPDATE biz_order SET status = 2 WHERE id = 5", "m");
+        assertTrue(sql.contains("factory_id IN (1, 2)"), sql);
     }
 
     @Test
-    void 适配器_未命中表应返回null表示不改写() {
-        DataPermissionSqlHandler handler = handlerWith(rule("sys_user", "dept_id = 1", true));
-
-        assertNull(handler.getSqlSegment(new Table("sys_role"), null, "anyMsId"));
+    void DELETE_追加权限条件() {
+        DataPermissionInterceptor it = interceptor(id -> SqlCommandType.DELETE,
+                rule(EnumSet.allOf(SqlCommandType.class), s -> Predicate.in("factory_id", s.values("factory"))));
+        String sql = it.parserSingle("DELETE FROM biz_order WHERE id = 5", "m");
+        assertTrue(sql.contains("factory_id IN (1, 2)"), sql);
     }
 
     @Test
-    void 适配器_规则不适用时应返回null() {
-        DataPermissionSqlHandler handler = handlerWith(rule("sys_user", "dept_id = 1", false));
-
-        assertNull(handler.getSqlSegment(new Table("sys_user"), null, "anyMsId"));
+    void SELECT_only规则不改写UPDATE() {
+        DataPermissionInterceptor it = interceptor(id -> SqlCommandType.UPDATE,
+                rule(EnumSet.of(SqlCommandType.SELECT), s -> Predicate.in("factory_id", List.of(1))));
+        String sql = it.parserSingle("UPDATE biz_order SET status = 2 WHERE id = 5", "m");
+        assertFalse(sql.contains("factory_id"), sql);
     }
 
     @Test
-    void 适配器_非法SQL片段应抛出明确异常() {
-        DataPermissionSqlHandler handler = handlerWith(rule("sys_user", "and and", true));
-
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> handler.getSqlSegment(new Table("sys_user"), null, "anyMsId"));
-        assertTrue(ex.getMessage().contains("sys_user"));
-    }
-
-    @Test
-    void SQL改写_已有WHERE时应以AND合并权限条件() {
-        DataPermissionInterceptor interceptor =
-                new DataPermissionInterceptor(handlerWith(rule("sys_user", "dept_id IN (1, 2, 3)", true)));
-
-        String result = interceptor.parserSingle(
-                "SELECT * FROM sys_user WHERE status = 1", "com.demo.UserMapper.selectList");
-
-        assertTrue(result.contains("status = 1"), "原有条件应保留: " + result);
-        assertTrue(result.contains("dept_id IN (1, 2, 3)"), "应追加权限条件: " + result);
-        assertTrue(result.toUpperCase().contains("AND"), "应以 AND 合并: " + result);
-    }
-
-    @Test
-    void SQL改写_无WHERE时应自动追加WHERE子句() {
-        DataPermissionInterceptor interceptor =
-                new DataPermissionInterceptor(handlerWith(rule("sys_user", "dept_id = 9", true)));
-
-        String result = interceptor.parserSingle("SELECT * FROM sys_user", "com.demo.UserMapper.selectAll");
-
-        assertTrue(result.toUpperCase().contains("WHERE"), "应补充 WHERE: " + result);
-        assertTrue(result.contains("dept_id = 9"), "应追加权限条件: " + result);
-    }
-
-    @Test
-    void SQL改写_无适用规则的表应保持原样() {
-        DataPermissionInterceptor interceptor =
-                new DataPermissionInterceptor(handlerWith(rule("sys_user", "dept_id = 1", true)));
-
-        String original = "SELECT * FROM sys_role WHERE status = 1";
-        String result = interceptor.parserSingle(original, "com.demo.RoleMapper.selectList");
-
-        assertFalse(result.contains("dept_id"), "无规则的表不应被改写: " + result);
+    void resolver异常_抛DataPermissionException() {
+        DataScopeResolver bad = () -> {
+            throw new IllegalStateException("down");
+        };
+        DataPermissionHandler registry = new DataPermissionHandler();
+        registry.addRule(rule(EnumSet.allOf(SqlCommandType.class), s -> Predicate.in("factory_id", List.of(1))));
+        DataPermissionInterceptor it = new DataPermissionInterceptor(
+                new DataPermissionSqlHandler(registry, bad, id -> SqlCommandType.SELECT, false));
+        assertThrows(DataPermissionException.class,
+                () -> it.parserSingle("SELECT * FROM biz_order", "m"));
     }
 }

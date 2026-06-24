@@ -1,65 +1,53 @@
 package com.ycr.framework.data.permission.handler;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.MultiDataPermissionHandler;
-import net.sf.jsqlparser.JSQLParserException;
+import com.ycr.framework.data.permission.scope.CommandTypeResolver;
+import com.ycr.framework.data.permission.scope.DataScope;
+import com.ycr.framework.data.permission.scope.DataScopeContext;
+import com.ycr.framework.data.permission.scope.DataScopeResolver;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
-import org.springframework.util.StringUtils;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
- * 数据权限 SQL 处理器
+ * 数据权限 SQL 适配器：桥接框架规则体系与 MyBatis-Plus 数据权限拦截器。
  *
- * <p>作为 MyBatis-Plus {@link MultiDataPermissionHandler} 的适配实现，桥接框架自定义的
- * {@link DataPermissionHandler} 规则体系。MyBatis-Plus 在解析每条 SQL 时会按出现的表逐个回调本处理器，
- * 本处理器根据表名查找匹配的数据权限规则，并把规则给出的 SQL 片段（如 {@code dept_id IN (1, 2, 3)}）
- * 解析为 JSqlParser 条件表达式返回，由 MyBatis-Plus 自动合并进该表的 WHERE 条件，从而实现行级数据权限过滤。</p>
- *
- * <p>SQL 改写的解析与合并完全交给 MyBatis-Plus 内置拦截器完成，框架层只负责"哪张表 + 追加什么条件"的规则决策。</p>
+ * <p>MP 在解析 SELECT/UPDATE/DELETE 时按表回调本处理器：先取（请求级缓存的）数据范围，
+ * 再按语句类型过滤在效规则，交由 {@link DataPermissionHandler} 合并为条件表达式返回。
+ * SQL 改写由 MP 内置拦截器完成（ADR-002）。</p>
  *
  * @author ycr
  */
 public class DataPermissionSqlHandler implements MultiDataPermissionHandler {
 
-    private final DataPermissionHandler dataPermissionHandler;
+    private static final Logger log = LoggerFactory.getLogger(DataPermissionSqlHandler.class);
 
-    public DataPermissionSqlHandler(DataPermissionHandler dataPermissionHandler) {
-        this.dataPermissionHandler = dataPermissionHandler;
+    private final DataPermissionHandler handler;
+    private final DataScopeResolver resolver;
+    private final CommandTypeResolver commandTypeResolver;
+    private final boolean logApplied;
+
+    public DataPermissionSqlHandler(DataPermissionHandler handler, DataScopeResolver resolver,
+                                    CommandTypeResolver commandTypeResolver, boolean logApplied) {
+        this.handler = handler;
+        this.resolver = resolver;
+        this.commandTypeResolver = commandTypeResolver;
+        this.logApplied = logApplied;
     }
 
-    /**
-     * 针对单张表返回需要追加的数据权限条件表达式
-     *
-     * @param table             当前 SQL 中出现的表
-     * @param where             该表原有的 WHERE 条件（此处未使用，由 MyBatis-Plus 负责与返回值合并）
-     * @param mappedStatementId 当前执行的 Mapper 方法全限定名
-     * @return 需追加的条件表达式；返回 {@code null} 表示该表无适用规则，保持原 SQL 不变
-     */
     @Override
     public Expression getSqlSegment(Table table, Expression where, String mappedStatementId) {
-        // 去除表名可能携带的反引号/双引号，以便与规则中配置的表名做不区分大小写的匹配
-        String tableName = stripQuotes(table.getName());
-        String sqlSegment = dataPermissionHandler.getSqlSegment(tableName);
-        // 该表没有适用规则：返回 null，MyBatis-Plus 不会改写这张表的查询条件
-        if (!StringUtils.hasText(sqlSegment)) {
-            return null;
+        // resolver 抛错 → DataPermissionException，fail-loud 中止查询
+        DataScope scope = DataScopeContext.get(resolver);
+        SqlCommandType cmd = commandTypeResolver.resolve(mappedStatementId);
+        Expression expression = handler.buildExpression(table.getName(), scope, cmd, mappedStatementId);
+        if (expression != null && logApplied && log.isDebugEnabled()) {
+            log.debug("[data-permission] table={} cmd={} msId={} condition={} traceId={}",
+                    table.getName(), cmd, mappedStatementId, expression, MDC.get("traceId"));
         }
-        try {
-            // 将规则的 SQL 片段解析为条件表达式，交由 MyBatis-Plus 追加到 WHERE 条件
-            return CCJSqlParserUtil.parseCondExpression(sqlSegment);
-        } catch (JSQLParserException e) {
-            throw new IllegalStateException(
-                    "数据权限 SQL 片段解析失败，表[" + tableName + "]，片段[" + sqlSegment + "]", e);
-        }
-    }
-
-    /**
-     * 去除标识符两侧的反引号或双引号，统一为裸表名
-     */
-    private String stripQuotes(String name) {
-        if (name == null) {
-            return null;
-        }
-        return name.replace("`", "").replace("\"", "");
+        return expression;
     }
 }

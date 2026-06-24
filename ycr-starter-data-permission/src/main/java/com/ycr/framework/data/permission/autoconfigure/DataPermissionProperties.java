@@ -19,4 +19,9 @@ public class DataPermissionProperties {
      * 设为 {@code false} 可整体关闭数据权限链路。</p>
      */
     private boolean enabled = true;
+
+    /**
+     * 是否输出每张表实际追加的数据权限条件（含 traceId）的 debug 日志，默认关。
+     */
+    private boolean logAppliedConditions = false;
 }
