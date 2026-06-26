@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
  * <p>由 {@code LogAspect} 在方法执行前后填充，最终交给 {@code LogHandler} 落库。
  * 操作人信息取自 {@code UserContextHolder}，与 auth/context 闭环复用。</p>
  *
- * <p>仅保留框架当前会真实填充的字段；请求头/请求体/响应体/浏览器/归属地等采集项尚未实现
- * （前提见 {@code Include} 的说明），故不在模型中预留空字段。</p>
+ * <p>各字段按 {@code Include} 采集项开关填充，未开启或解析失败的维度保持 null。</p>
  *
  * @author ycr
  */
@@ -60,4 +59,22 @@ public class LogRecord implements Serializable {
 
     /** 调用的方法名 */
     private String methodName;
+
+    /** 请求体（按 includes 采集，脱敏、截断） */
+    private String requestBody;
+
+    /** 响应体（按 includes 采集，脱敏、截断） */
+    private String responseBody;
+
+    /** 请求头（按 includes 采集，敏感头已脱敏） */
+    private String requestHeaders;
+
+    /** 浏览器（按 includes 采集，UA 解析） */
+    private String browser;
+
+    /** 操作系统（按 includes 采集，UA 解析） */
+    private String os;
+
+    /** IP 归属地（按 includes 采集，IpRegionResolver 解析） */
+    private String ipRegion;
 }

@@ -38,4 +38,9 @@ public class LogProperties {
      * 敏感参数键名（不区分大小写），命中后值脱敏为 {@code ******}，避免明文落库泄露。
      */
     private Set<String> sensitiveKeys = new HashSet<>(Set.of("password", "pwd", "idCard", "email", "phone"));
+
+    /**
+     * 请求体/响应体序列化的截断上限（字符数），默认 2000，防大 body 撑爆日志。
+     */
+    private int maxBodyLength = 2000;
 }
