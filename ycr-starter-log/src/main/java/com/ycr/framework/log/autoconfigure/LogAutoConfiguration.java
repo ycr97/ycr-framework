@@ -1,8 +1,11 @@
 package com.ycr.framework.log.autoconfigure;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.log.aop.LogAspect;
+import com.ycr.framework.log.handler.IpRegionResolver;
 import com.ycr.framework.log.handler.LogHandler;
 import com.ycr.framework.log.handler.Slf4jLogHandler;
+import com.ycr.framework.log.util.LogJsonSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,6 +43,24 @@ public class LogAutoConfiguration {
     }
 
     /**
+     * 序列化脱敏管线；ObjectMapper 软依赖（非 web 应用无则降级）。
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public LogJsonSupport logJsonSupport(LogProperties properties, ObjectProvider<ObjectMapper> objectMapper) {
+        return new LogJsonSupport(objectMapper.getIfAvailable(), properties.getSensitiveKeys());
+    }
+
+    /**
+     * 默认 IP 归属地解析器：no-op，业务实现 {@link IpRegionResolver} 自动覆盖。
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public IpRegionResolver ipRegionResolver() {
+        return ip -> null;
+    }
+
+    /**
      * 异步落库执行器，仅在 {@code ycr.log.async=true} 时装配。
      * 有界队列 + CallerRunsPolicy：队列满时回落到调用线程，避免日志任务无声丢弃。
      */
@@ -62,7 +83,10 @@ public class LogAutoConfiguration {
     @Bean
     public LogAspect logAspect(LogHandler logHandler,
                                LogProperties logProperties,
-                               @Qualifier("ycrLogExecutor") ObjectProvider<Executor> logExecutorProvider) {
-        return new LogAspect(logHandler, logProperties, logExecutorProvider.getIfAvailable());
+                               @Qualifier("ycrLogExecutor") ObjectProvider<Executor> logExecutorProvider,
+                               LogJsonSupport logJsonSupport,
+                               IpRegionResolver ipRegionResolver) {
+        return new LogAspect(logHandler, logProperties, logExecutorProvider.getIfAvailable(),
+                logJsonSupport, ipRegionResolver);
     }
 }
