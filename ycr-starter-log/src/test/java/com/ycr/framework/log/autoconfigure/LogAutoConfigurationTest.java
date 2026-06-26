@@ -72,6 +72,19 @@ class LogAutoConfigurationTest {
                         .isEqualTo("X"));
     }
 
+    @Test
+    void 默认应装配方法日志切面() {
+        runner.run(context ->
+                assertThat(context).hasSingleBean(com.ycr.framework.log.aspect.MethodLogAspect.class));
+    }
+
+    @Test
+    void 关闭开关时不装配方法日志切面() {
+        runner.withPropertyValues("ycr.log.method.enabled=false")
+                .run(context ->
+                        assertThat(context).doesNotHaveBean(com.ycr.framework.log.aspect.MethodLogAspect.class));
+    }
+
     @Configuration
     static class CustomHandlerConfig {
         @Bean

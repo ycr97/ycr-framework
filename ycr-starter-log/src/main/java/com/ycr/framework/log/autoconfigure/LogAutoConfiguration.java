@@ -2,6 +2,7 @@ package com.ycr.framework.log.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.log.aop.LogAspect;
+import com.ycr.framework.log.aspect.MethodLogAspect;
 import com.ycr.framework.log.handler.IpRegionResolver;
 import com.ycr.framework.log.handler.LogHandler;
 import com.ycr.framework.log.handler.Slf4jLogHandler;
@@ -88,5 +89,15 @@ public class LogAutoConfiguration {
                                IpRegionResolver ipRegionResolver) {
         return new LogAspect(logHandler, logProperties, logExecutorProvider.getIfAvailable(),
                 logJsonSupport, ipRegionResolver);
+    }
+
+    /**
+     * 方法调用日志切面，{@code ycr.log.method.enabled=false} 时不装配。
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "ycr.log.method", name = "enabled", havingValue = "true", matchIfMissing = true)
+    public MethodLogAspect methodLogAspect(LogJsonSupport logJsonSupport, LogProperties logProperties) {
+        return new MethodLogAspect(logJsonSupport, logProperties.getMethod());
     }
 }
