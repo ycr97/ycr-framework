@@ -1,6 +1,7 @@
 package com.ycr.framework.log.autoconfigure;
 
 import com.ycr.framework.log.enums.Include;
+import com.ycr.framework.log.enums.Level;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -38,4 +39,30 @@ public class LogProperties {
      * 敏感参数键名（不区分大小写），命中后值脱敏为 {@code ******}，避免明文落库泄露。
      */
     private Set<String> sensitiveKeys = new HashSet<>(Set.of("password", "pwd", "idCard", "email", "phone"));
+
+    /**
+     * 请求体/响应体序列化的截断上限（字符数），默认 2000，防大 body 撑爆日志。
+     */
+    private int maxBodyLength = 2000;
+
+    /**
+     * 方法调用日志（开发排障型）配置。
+     */
+    private Method method = new Method();
+
+    /**
+     * 方法调用日志配置项。
+     */
+    @Data
+    public static class Method {
+
+        /** 是否装配方法日志切面，默认 true（级别默认 DEBUG，生产默认静默）。 */
+        private boolean enabled = true;
+
+        /** 打印级别，默认 DEBUG。 */
+        private Level level = Level.DEBUG;
+
+        /** 入参/出参序列化截断上限，默认 2000。 */
+        private int maxLength = 2000;
+    }
 }

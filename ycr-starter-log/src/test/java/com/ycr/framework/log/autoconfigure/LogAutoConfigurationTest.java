@@ -56,6 +56,35 @@ class LogAutoConfigurationTest {
         runner.run(context -> assertThat(context.containsBean("ycrLogExecutor")).isFalse());
     }
 
+    @Test
+    void 应装配序列化管线与默认归属地解析器() {
+        runner.run(context -> {
+            assertThat(context).hasSingleBean(com.ycr.framework.log.util.LogJsonSupport.class);
+            assertThat(context).hasSingleBean(com.ycr.framework.log.handler.IpRegionResolver.class);
+        });
+    }
+
+    @Test
+    void 业务自定义归属地解析器应覆盖默认() {
+        runner.withBean(com.ycr.framework.log.handler.IpRegionResolver.class, () -> ip -> "X")
+                .run(context -> assertThat(
+                        context.getBean(com.ycr.framework.log.handler.IpRegionResolver.class).resolve("1"))
+                        .isEqualTo("X"));
+    }
+
+    @Test
+    void 默认应装配方法日志切面() {
+        runner.run(context ->
+                assertThat(context).hasSingleBean(com.ycr.framework.log.aspect.MethodLogAspect.class));
+    }
+
+    @Test
+    void 关闭开关时不装配方法日志切面() {
+        runner.withPropertyValues("ycr.log.method.enabled=false")
+                .run(context ->
+                        assertThat(context).doesNotHaveBean(com.ycr.framework.log.aspect.MethodLogAspect.class));
+    }
+
     @Configuration
     static class CustomHandlerConfig {
         @Bean
