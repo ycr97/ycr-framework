@@ -15,15 +15,20 @@ import java.util.regex.Pattern;
 public class ForbiddenContentValidator implements ConstraintValidator<ForbiddenContent, String> {
 
     private static final Pattern XSS = Pattern.compile(
-            "(<script.*?>.*?</script>)|((?:javascript):)|(<(?!video)[^>]*?on[a-zA-Z]*\\s*=.*?)|(<iframe.*?>.*?</iframe>)",
+            "(<\\s*script\\b[^>]*>.*?<\\s*/\\s*script\\s*>)"
+                    + "|(\\bjavascript\\s*:)"
+                    + "|(<[^>]+\\son[a-zA-Z]+\\s*=)"
+                    + "|(<\\s*iframe\\b[^>]*>.*?<\\s*/\\s*iframe\\s*>)",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     private static final Pattern SPIDER = Pattern.compile(
-            "(curl|wget|httpclient|urllib|scrapy|bot|spider|crawler)", Pattern.CASE_INSENSITIVE);
+            "\\b(curl|wget|httpclient|urllib|scrapy|bot|spider|crawler)\\b", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern SQL = Pattern.compile(
-            "(?i)\\b(SELECT|INSERT|DELETE|UPDATE|DROP|CREATE|ALTER|TRUNCATE|EXEC|UNION|GRANT|REVOKE|DECLARE)\\b",
-            Pattern.CASE_INSENSITIVE);
+            "(?i)(\\bunion\\s+select\\b)"
+                    + "|(\\b(select|insert|delete|update)\\b.+\\b(from|where|set|into|values)\\b)"
+                    + "|(\\b(drop|truncate|alter)\\s+\\b(table|database)\\b)"
+                    + "|(--|/\\*|\\*/|;\\s*(drop|delete|update|insert|select)\\b)");
 
     private static final Pattern PYTHON = Pattern.compile(
             "(import\\s+\\w+|def\\s+\\w+|class\\s+\\w+|print\\s*\\(|exec\\s*\\(|eval\\s*\\()",
