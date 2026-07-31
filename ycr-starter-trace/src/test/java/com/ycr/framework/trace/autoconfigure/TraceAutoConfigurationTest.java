@@ -24,12 +24,23 @@ class TraceAutoConfigurationTest {
 
     @Test
     @SuppressWarnings("rawtypes")
-    void 默认应装配过滤器与默认生成器() {
+    void 默认应装配链路与慢请求过滤器及默认生成器() {
         runner.run(context -> {
-            assertThat(context).hasSingleBean(FilterRegistrationBean.class);
+            assertThat(context.getBeansOfType(FilterRegistrationBean.class)).hasSize(2);
             assertThat(context).hasSingleBean(TraceIdGenerator.class);
             assertThat(context.getBean(TraceIdGenerator.class)).isInstanceOf(UuidTraceIdGenerator.class);
         });
+    }
+
+    @Test
+    @SuppressWarnings("rawtypes")
+    void 关闭慢请求时只保留链路过滤器() {
+        runner.withPropertyValues("ycr.trace.slow-request.enabled=false")
+                .run(context -> {
+                    assertThat(context.getBeansOfType(FilterRegistrationBean.class)).hasSize(1);
+                    assertThat(context).hasBean("ycrTraceFilterRegistration");
+                    assertThat(context).doesNotHaveBean("ycrSlowRequestFilterRegistration");
+                });
     }
 
     @Test

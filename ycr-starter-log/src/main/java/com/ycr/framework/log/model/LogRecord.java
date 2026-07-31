@@ -51,6 +51,15 @@ public class LogRecord implements Serializable {
     /** 操作人名称 */
     private String operatorName;
 
+    /** 链路追踪 ID */
+    private String traceId;
+
+    /** 租户 ID */
+    private Long tenantId;
+
+    /** 客户端 ID */
+    private String clientId;
+
     /** 操作时间 */
     private LocalDateTime operateTime;
 

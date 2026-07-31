@@ -3,6 +3,7 @@ package com.ycr.framework.context.model;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * 用户上下文
@@ -18,7 +19,15 @@ public class UserContext implements Serializable {
 
     private String nickname;
 
-    private String roles;
+    private Long tenantId;
 
     private Long deptId;
+
+    private Set<String> roles;
+
+    private Set<String> permissions;
+
+    private String clientId;
+
+    private String source;
 }

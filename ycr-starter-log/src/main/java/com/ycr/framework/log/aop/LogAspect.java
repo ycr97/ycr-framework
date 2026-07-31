@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
 import com.ycr.framework.context.holder.UserContextHolder;
+import com.ycr.framework.context.model.UserContext;
 import com.ycr.framework.log.annotation.Log;
 import com.ycr.framework.log.autoconfigure.LogProperties;
 import com.ycr.framework.log.enums.Include;
@@ -11,6 +12,7 @@ import com.ycr.framework.log.handler.IpRegionResolver;
 import com.ycr.framework.log.handler.LogHandler;
 import com.ycr.framework.log.model.LogRecord;
 import com.ycr.framework.log.util.LogJsonSupport;
+import com.ycr.framework.trace.util.TraceUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -226,10 +228,14 @@ public class LogAspect {
     }
 
     private void fillOperatorInfo(LogRecord record) {
-        if (UserContextHolder.get() != null) {
-            record.setOperatorId(UserContextHolder.getUserId());
-            record.setOperatorName(UserContextHolder.getUsername());
+        UserContext userContext = UserContextHolder.get();
+        if (userContext != null) {
+            record.setOperatorId(userContext.getUserId());
+            record.setOperatorName(userContext.getUsername());
+            record.setTenantId(userContext.getTenantId());
+            record.setClientId(userContext.getClientId());
         }
+        record.setTraceId(TraceUtils.getTraceId());
     }
 
     /** 全局采集项叠加注解 includes/excludes */

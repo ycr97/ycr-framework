@@ -2,8 +2,7 @@ package com.ycr.framework.security.autoconfigure;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,18 +14,23 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class SecurityAutoConfigurationTest {
 
-    private final WebApplicationContextRunner webRunner = new WebApplicationContextRunner()
+    private final ApplicationContextRunner runner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(SecurityAutoConfiguration.class));
 
     @Test
-    void Web环境默认应注册鉴权拦截器配置() {
-        webRunner.run(context ->
-                assertThat(context).hasBean("ycrSecurityWebMvcConfigurer"));
+    void 默认只应注册权限校验器() {
+        runner.run(context -> {
+            assertThat(context).doesNotHaveBean("authorizeAspect");
+            assertThat(context).hasBean("permissionChecker");
+        });
     }
 
     @Test
-    void 关闭开关时不应注册鉴权拦截器配置() {
-        webRunner.withPropertyValues("ycr.security.enabled=false")
-                .run(context -> assertThat(context).doesNotHaveBean(WebMvcConfigurer.class));
+    void 显式开启时应注册鉴权切面() {
+        runner.withPropertyValues("ycr.security.enabled=true")
+                .run(context -> {
+                    assertThat(context).hasBean("authorizeAspect");
+                    assertThat(context).hasBean("permissionChecker");
+                });
     }
 }

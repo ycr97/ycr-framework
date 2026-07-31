@@ -12,10 +12,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "ycr.idempotent")
 public class IdempotentProperties {
 
-    /**
-     * 是否启用幂等，默认启用
-     */
-    private boolean enabled = true;
+    /** 是否启用幂等，默认关闭 */
+    private boolean enabled = false;
 
     /**
      * 幂等键前缀

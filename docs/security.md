@@ -1,6 +1,6 @@
 # 安全（注解鉴权 + 端点放行）
 
-`ycr-starter-security` 在 Servlet Web 下注册 Sa-Token 注解鉴权拦截器，拦截 `/**` 并放行白名单；同时提供静态 `SecurityUtils`。与 `ycr-starter-auth`（登录态/上下文）配合构成完整认证授权链路。
+`ycr-starter-security` 提供 ycr 自有鉴权注解、Controller/Service AOP、`PermissionChecker` SPI 和静态 `SecurityUtils`。业务代码不直接依赖 Sa-Token、Spring Security 或具体认证中心。
 
 ## 依赖
 
@@ -17,35 +17,49 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.security.enabled` | `true` | 是否注册鉴权拦截器（关掉则不拦截） |
-| `ycr.security.exclude-paths` | 见下 | 放行路径（不需认证即可访问） |
+| `ycr.security.enabled` | `false` | 是否注册 ycr 鉴权切面，须显式开启 |
+| `ycr.security.permission.mode` | `context` | 权限校验模式：`context` / `remote` / `mixed` |
+| `ycr.security.permission.sensitive-permissions` | 空 | `mixed` 模式下走远程二次校验的敏感权限 |
 
-默认白名单已含：`/doc.html`、`/swagger-resources/**`、`/webjars/**`、`/v3/api-docs/**`、`/favicon.ico`、`/error`、`/actuator/**`。追加登录/验证码等接口：
+示例：
 
 ```yaml
 ycr:
   security:
-    exclude-paths:
-      - /doc.html
-      - /v3/api-docs/**
-      - /actuator/**
-      - /api/login
-      - /api/captcha
+    enabled: true
+    permission:
+      mode: mixed
+      sensitive-permissions:
+        - payment:refund
+        - user:grant-role
 ```
 
-> 自定义 `exclude-paths` 会**覆盖**默认值，需把仍要放行的默认项一并列出。
+引入 starter 只会提供默认 `PermissionChecker` 等基础 Bean，不会自动启用鉴权切面。
 
-## 鉴权方式（注解模式）
+## 鉴权注解
 
-拦截器开启注解模式，框架不做全局强制登录——以方法/类上的 Sa-Token 原生注解为准，按需鉴权：
+注解可放在 Controller 或 Service 的类/方法上；方法级注解覆盖类级要求。
 
 ```java
-@SaCheckLogin                       // 需登录
-@SaCheckRole("admin")               // 需角色
-@SaCheckPermission("user:delete")   // 需权限
+@RequireLogin
+@RequireRole("admin")
+@RequireAnyRole({"admin", "manager"})
+@RequirePermission("order:create")
+@RequireAnyPermission({"order:create", "order:update"})
 ```
 
-鉴权失败抛出的 Sa-Token 异常由 `ycr-starter-auth` 的 `SaTokenExceptionHandler` 统一转为 401/403 的 `R` 响应（见 [auth 文档](auth.md)）。
+异常语义：
+
+- 未登录 / 登录过期：`AuthException` -> HTTP 401，code `AUTH_UNAUTHORIZED`。
+- 无角色 / 无权限：`ForbiddenException` -> HTTP 403，code `AUTH_FORBIDDEN`。
+
+响应体由 `ycr-starter-web` 的全局异常处理器统一输出 `R`。
+
+## PermissionChecker
+
+默认 `ContextPermissionChecker` 从 `UserContext.roles` / `UserContext.permissions` 判断，适合普通接口快速鉴权。
+
+业务可注册 `RemotePermissionChecker` Bean 对接 auth-center/user-center。`mixed` 模式下普通权限走上下文快照，`sensitive-permissions` 走远程二次校验；远程异常默认 fail-closed。
 
 ## SecurityUtils
 

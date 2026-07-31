@@ -18,7 +18,7 @@ class TraceUtilsTest {
 
     @AfterEach
     void tearDown() {
-        TraceUtils.removeTraceId();
+        MDC.clear();
     }
 
     @Test
@@ -66,5 +66,25 @@ class TraceUtilsTest {
 
         assertEquals("abc", seen.get(), "子线程内应还原主线程 traceId");
         assertFalse(leaked.get(), "子线程执行后不应残留 traceId");
+    }
+
+    @Test
+    void wrap应传播并恢复完整Mdc上下文() {
+        MDC.put(TraceUtils.TRACE_ID_KEY, "trace-1");
+        MDC.put(TraceUtils.REQUEST_ID_KEY, "request-1");
+        MDC.put("userId", "1001");
+
+        Runnable wrapped = TraceUtils.wrap(() -> {
+            assertEquals("trace-1", MDC.get(TraceUtils.TRACE_ID_KEY));
+            assertEquals("request-1", MDC.get(TraceUtils.REQUEST_ID_KEY));
+            assertEquals("1001", MDC.get("userId"));
+        });
+
+        MDC.clear();
+        wrapped.run();
+
+        assertNull(MDC.get(TraceUtils.TRACE_ID_KEY));
+        assertNull(MDC.get(TraceUtils.REQUEST_ID_KEY));
+        assertNull(MDC.get("userId"));
     }
 }

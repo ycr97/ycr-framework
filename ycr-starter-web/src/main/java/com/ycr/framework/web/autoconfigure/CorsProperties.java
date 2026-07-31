@@ -14,7 +14,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "ycr.web.cors")
 public class CorsProperties {
 
-    private boolean enabled = true;
+    private boolean enabled = false;
     private List<String> allowedOrigins = List.of("*");
     private List<String> allowedMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
     private List<String> allowedHeaders = List.of("*");

@@ -1,6 +1,8 @@
 package com.ycr.framework.feign.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ycr.framework.context.autoconfigure.ContextProperties;
+import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.feign.decoder.FeignErrorDecoder;
 import com.ycr.framework.feign.interceptor.ContextPassInterceptor;
 import com.ycr.framework.feign.interceptor.LocalePassInterceptor;
@@ -30,8 +32,9 @@ public class FeignAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = "ycr.feign", name = "context-pass-enabled", havingValue = "true", matchIfMissing = true)
-    public ContextPassInterceptor contextPassInterceptor() {
-        return new ContextPassInterceptor();
+    public ContextPassInterceptor contextPassInterceptor(ContextProperties contextProperties,
+                                                         ContextHeaderSigner contextHeaderSigner) {
+        return new ContextPassInterceptor(contextProperties, contextHeaderSigner);
     }
 
     @Bean

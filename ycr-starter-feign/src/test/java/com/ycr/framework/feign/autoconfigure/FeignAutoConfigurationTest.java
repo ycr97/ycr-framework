@@ -1,6 +1,7 @@
 package com.ycr.framework.feign.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ycr.framework.context.autoconfigure.ContextAutoConfiguration;
 import com.ycr.framework.feign.decoder.FeignErrorDecoder;
 import com.ycr.framework.feign.interceptor.ContextPassInterceptor;
 import com.ycr.framework.feign.interceptor.LocalePassInterceptor;
@@ -24,7 +25,8 @@ class FeignAutoConfigurationTest {
 
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
             .withUserConfiguration(ObjectMapperConfig.class)
-            .withConfiguration(AutoConfigurations.of(FeignAutoConfiguration.class));
+            .withPropertyValues("ycr.context.header-sign.secret=test-secret")
+            .withConfiguration(AutoConfigurations.of(ContextAutoConfiguration.class, FeignAutoConfiguration.class));
 
     @Test
     void 默认应装配透传拦截器与错误解码器() {

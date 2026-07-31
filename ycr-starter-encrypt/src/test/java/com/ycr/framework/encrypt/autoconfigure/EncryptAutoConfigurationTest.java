@@ -21,7 +21,9 @@ class EncryptAutoConfigurationTest {
 
     @Test
     void 配置AesKey时应创建EncryptHandler并初始化Holder() {
-        contextRunner.withPropertyValues("ycr.encrypt.aes-key=1234567890abcdef")
+        contextRunner.withPropertyValues(
+                        "ycr.encrypt.enabled=true",
+                        "ycr.encrypt.aes-key=1234567890abcdef")
                 .run(context -> {
                     assertThat(context).hasSingleBean(EncryptHandler.class);
                     assertThat(context).hasSingleBean(EncryptAutoConfiguration.EncryptHandlerLifecycle.class);
@@ -30,7 +32,7 @@ class EncryptAutoConfigurationTest {
     }
 
     @Test
-    void 未配置AesKey且无自定义Handler时不应创建Lifecycle() {
+    void 默认不应创建EncryptHandler与Lifecycle() {
         contextRunner.run(context -> {
             assertThat(context).doesNotHaveBean(EncryptHandler.class);
             assertThat(context).doesNotHaveBean(EncryptAutoConfiguration.EncryptHandlerLifecycle.class);
@@ -38,10 +40,32 @@ class EncryptAutoConfigurationTest {
     }
 
     @Test
-    void 关闭加密时不应创建EncryptHandler() {
-        contextRunner.withPropertyValues(
-                        "ycr.encrypt.enabled=false",
-                        "ycr.encrypt.aes-key=1234567890abcdef")
-                .run(context -> assertThat(context).doesNotHaveBean(EncryptHandler.class));
+    void 显式开启但未配置AesKey时不应创建Lifecycle() {
+        contextRunner.withPropertyValues("ycr.encrypt.enabled=true")
+                .run(context -> {
+                    assertThat(context).doesNotHaveBean(EncryptHandler.class);
+                    assertThat(context).doesNotHaveBean(EncryptAutoConfiguration.EncryptHandlerLifecycle.class);
+                });
+    }
+
+    @Test
+    void 显式开启且提供自定义Handler时应初始化Holder() {
+        EncryptHandler custom = new EncryptHandler() {
+            @Override
+            public String encrypt(String plaintext) {
+                return plaintext;
+            }
+
+            @Override
+            public String decrypt(String ciphertext) {
+                return ciphertext;
+            }
+        };
+        contextRunner.withBean(EncryptHandler.class, () -> custom)
+                .withPropertyValues("ycr.encrypt.enabled=true")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(EncryptAutoConfiguration.EncryptHandlerLifecycle.class);
+                    assertThat(EncryptHandlerHolder.getRequired()).isSameAs(custom);
+                });
     }
 }

@@ -22,21 +22,22 @@ class RateLimiterAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(RateLimiterAutoConfiguration.class));
 
     @Test
-    void 存在Redisson时应装配切面() {
+    void 默认不应装配切面() {
         runner.withUserConfiguration(RedissonConfig.class)
-                .run(context -> assertThat(context).hasSingleBean(RateLimiterAspect.class));
-    }
-
-    @Test
-    void 关闭开关时不装配() {
-        runner.withUserConfiguration(RedissonConfig.class)
-                .withPropertyValues("ycr.ratelimiter.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(RateLimiterAspect.class));
     }
 
     @Test
-    void 无Redisson时不装配切面() {
-        runner.run(context -> assertThat(context).doesNotHaveBean(RateLimiterAspect.class));
+    void 显式开启且存在Redisson时应装配切面() {
+        runner.withUserConfiguration(RedissonConfig.class)
+                .withPropertyValues("ycr.ratelimiter.enabled=true")
+                .run(context -> assertThat(context).hasSingleBean(RateLimiterAspect.class));
+    }
+
+    @Test
+    void 显式开启但无Redisson时不装配切面() {
+        runner.withPropertyValues("ycr.ratelimiter.enabled=true")
+                .run(context -> assertThat(context).doesNotHaveBean(RateLimiterAspect.class));
     }
 
     @Configuration
