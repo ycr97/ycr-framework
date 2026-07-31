@@ -16,7 +16,7 @@ public class WebResponseProperties {
     /**
      * 是否启用统一响应包装。
      */
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     /**
      * 需要包装的路径，默认全部接口。

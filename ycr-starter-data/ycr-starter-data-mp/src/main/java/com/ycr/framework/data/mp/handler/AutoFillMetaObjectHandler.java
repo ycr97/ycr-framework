@@ -26,8 +26,8 @@ public class AutoFillMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        fillIfNull(metaObject, "updateTime", LocalDateTime.now());
-        fillIfNull(metaObject, "updateUser", UserContextHolder.getUserId());
+        setIfPresent(metaObject, "updateTime", LocalDateTime.now());
+        setIfPresent(metaObject, "updateUser", UserContextHolder.getUserId());
     }
 
     private void fillIfNull(MetaObject metaObject, String fieldName, Object fieldValue) {
@@ -35,6 +35,12 @@ public class AutoFillMetaObjectHandler implements MetaObjectHandler {
             return;
         }
         if (metaObject.hasSetter(fieldName) && getFieldValByName(fieldName, metaObject) == null) {
+            setFieldValByName(fieldName, fieldValue, metaObject);
+        }
+    }
+
+    private void setIfPresent(MetaObject metaObject, String fieldName, Object fieldValue) {
+        if (fieldValue != null && metaObject.hasSetter(fieldName)) {
             setFieldValByName(fieldName, fieldValue, metaObject);
         }
     }

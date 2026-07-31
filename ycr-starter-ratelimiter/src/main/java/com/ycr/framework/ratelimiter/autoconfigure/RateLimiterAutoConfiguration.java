@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 @ConditionalOnClass(RedissonClient.class)
 @EnableConfigurationProperties(RateLimiterProperties.class)
-@ConditionalOnProperty(prefix = "ycr.ratelimiter", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "ycr.ratelimiter", name = "enabled", havingValue = "true")
 public class RateLimiterAutoConfiguration {
 
     @Bean

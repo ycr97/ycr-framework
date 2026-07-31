@@ -22,21 +22,22 @@ class IdempotentAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(IdempotentAutoConfiguration.class));
 
     @Test
-    void 存在Redisson时应装配切面() {
+    void 默认不应装配切面() {
         runner.withUserConfiguration(RedissonConfig.class)
-                .run(context -> assertThat(context).hasSingleBean(IdempotentAspect.class));
-    }
-
-    @Test
-    void 关闭开关时不装配() {
-        runner.withUserConfiguration(RedissonConfig.class)
-                .withPropertyValues("ycr.idempotent.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(IdempotentAspect.class));
     }
 
     @Test
-    void 无Redisson时不装配切面() {
-        runner.run(context -> assertThat(context).doesNotHaveBean(IdempotentAspect.class));
+    void 显式开启且存在Redisson时应装配切面() {
+        runner.withUserConfiguration(RedissonConfig.class)
+                .withPropertyValues("ycr.idempotent.enabled=true")
+                .run(context -> assertThat(context).hasSingleBean(IdempotentAspect.class));
+    }
+
+    @Test
+    void 显式开启但无Redisson时不装配切面() {
+        runner.withPropertyValues("ycr.idempotent.enabled=true")
+                .run(context -> assertThat(context).doesNotHaveBean(IdempotentAspect.class));
     }
 
     @Configuration

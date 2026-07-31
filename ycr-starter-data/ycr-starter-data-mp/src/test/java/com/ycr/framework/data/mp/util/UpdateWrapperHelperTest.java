@@ -17,13 +17,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * UpdateWrapperHelper 构建更新包装器测试
  *
+ * <p>纯单元测试场景下 MyBatis-Plus 尚未懒加载 TableInfo，断言均覆盖反射 + 驼峰转下划线兜底路径。</p>
+ *
  * @author ycr
  */
 class UpdateWrapperHelperTest {
 
     @Getter
     @Setter
-    static class UserDO {
+    static class BaseEntity {
+        private String updateTime;
+        private String updateUser;
+    }
+
+    @Getter
+    @Setter
+    static class UserDO extends BaseEntity {
         @TableId("user_id")
         private Long id;
 
@@ -31,6 +40,9 @@ class UpdateWrapperHelperTest {
         private String name;
 
         private Integer age;
+
+        /** 未标注 @TableField 的驼峰字段，期望按 MyBatis-Plus 默认规则转 nick_name */
+        private String nickName;
     }
 
     private UserDO sample() {
@@ -38,6 +50,9 @@ class UpdateWrapperHelperTest {
         user.setId(1L);
         user.setName("zhang");
         user.setAge(20);
+        user.setNickName("xiaozhang");
+        user.setUpdateTime("2026-06-20");
+        user.setUpdateUser("admin");
         return user;
     }
 
@@ -49,6 +64,8 @@ class UpdateWrapperHelperTest {
         String setSql = wrapper.getSqlSet();
         assertTrue(setSql.contains("user_name"));
         assertFalse(setSql.contains("user_id"));
+        // 主键作为 where 条件
+        assertTrue(wrapper.getSqlSegment().contains("user_id"));
     }
 
     @Test
@@ -58,11 +75,42 @@ class UpdateWrapperHelperTest {
     }
 
     @Test
+    void 未标注驼峰字段转下划线列名() {
+        UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(Set.of("nickName"), sample());
+        String setSql = wrapper.getSqlSet();
+        assertTrue(setSql.contains("nick_name"));
+        assertFalse(setSql.contains("nickName"));
+    }
+
+    @Test
+    void 继承的审计字段也能进入set() {
+        UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(List.of("updateTime", "updateUser"), sample());
+        String setSql = wrapper.getSqlSet();
+        assertTrue(setSql.contains("update_time"));
+        assertTrue(setSql.contains("update_user"));
+    }
+
+    @Test
     void 多个变更字段都进入set() {
         UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(List.of("name", "age"), sample());
         String setSql = wrapper.getSqlSet();
         assertTrue(setSql.contains("user_name"));
         assertTrue(setSql.contains("age"));
+    }
+
+    @Test
+    void 变更字段含主键时主键不进入set() {
+        UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(List.of("id", "name"), sample());
+        String setSql = wrapper.getSqlSet();
+        assertTrue(setSql.contains("user_name"));
+        assertFalse(setSql.contains("user_id"));
+        assertTrue(wrapper.getSqlSegment().contains("user_id"));
+    }
+
+    @Test
+    void 变更字段在实体中不存在时抛异常() {
+        assertThrows(IllegalArgumentException.class,
+                () -> UpdateWrapperHelper.build(Set.of("notExistField"), sample()));
     }
 
     @Test

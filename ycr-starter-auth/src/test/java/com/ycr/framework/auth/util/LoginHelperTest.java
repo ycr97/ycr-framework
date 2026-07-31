@@ -8,6 +8,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -28,7 +30,7 @@ class LoginHelperTest {
         UserContext ctx = new UserContext();
         ctx.setUserId(1001L);
         ctx.setUsername("admin");
-        ctx.setRoles("ROLE_ADMIN");
+        ctx.setRoles(Set.of("ROLE_ADMIN"));
         return ctx;
     }
 

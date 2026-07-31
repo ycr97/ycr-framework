@@ -21,8 +21,14 @@
 | `ycr.log.async` | `false` | 是否异步落库（操作人/请求信息在方法执行前已采集，异步不丢身份） |
 | `ycr.log.includes` | `[IP_ADDRESS]` | 全局默认采集项 |
 | `ycr.log.sensitive-keys` | `password,pwd,idCard,email,phone` | 敏感参数键名（不区分大小写），命中脱敏为 `******` |
+| `ycr.log.max-body-length` | `2000` | 请求体/响应体序列化截断上限（字符） |
+| `ycr.log.method.enabled` | `true` | 是否装配方法调用日志切面（级别默认 DEBUG，生产默认静默） |
+| `ycr.log.method.level` | `DEBUG` | 方法调用日志打印级别（DEBUG/INFO） |
+| `ycr.log.method.max-length` | `2000` | 方法调用日志入参/出参截断上限（字符） |
 
-采集项 `Include`：`IP_ADDRESS`（客户端 IP）、`REQUEST_PARAMS`（请求参数，敏感键已脱敏）。
+采集项 `Include`：`IP_ADDRESS`（客户端 IP）、`REQUEST_PARAMS`（请求参数，脱敏）、`REQUEST_BODY`（请求体，脱敏截断）、`RESPONSE_BODY`（响应体，脱敏截断）、`REQUEST_HEADERS`（请求头，Authorization/Cookie/Set-Cookie 强制脱敏）、`BROWSER`、`OS`（User-Agent 解析）、`IP_REGION`（IP 归属地，经 `IpRegionResolver` SPI）。
+
+> 响应体采集的是 Controller 返回对象（`UnifiedResponseBodyAdvice` 包 `R<T>` 之前的业务载荷）。body 序列化经 `LogJsonSupport`，对字段名命中 `sensitive-keys` 的值递归脱敏并按 `max-body-length` 截断；非 web 应用无 `ObjectMapper` 时静默降级，不影响业务。
 
 ## 用法
 
@@ -58,6 +64,31 @@ public class DbLogHandler implements LogHandler {
     public void handle(LogRecord record) { /* 入库 */ }
 }
 ```
+
+## IP 归属地（IpRegionResolver SPI）
+
+开启 `IP_REGION` 采集后，框架调用 `IpRegionResolver` 解析归属地。L1 默认 no-op（返回 null），业务在 L2/L3 用 ip2region 等实现并注册为 Bean 覆盖：
+
+```java
+@Component
+public class Ip2RegionResolver implements IpRegionResolver {
+    @Override
+    public String resolve(String ip) {
+        return searcher.search(ip);   // 业务自带 ip2region 数据
+    }
+}
+```
+
+## 方法调用日志（@MethodLog）
+
+开发排障型，自动把方法入参/出参/耗时/异常打到 SLF4J，**与审计 `@Log` 彻底分离**（不落库）：
+
+```java
+@MethodLog("结算")
+public Result settle(SettleCmd cmd) { ... }
+```
+
+双控：`ycr.log.method.enabled`（装配开关）+ 日志级别（`ycr.log.method.level`，默认 DEBUG）。级别未开启时连序列化都跳过，生产默认静默零开销。入参/出参经 `LogJsonSupport` 脱敏截断。`@MethodLog` 属性：`value`（描述）、`args`（默认打印入参）、`result`（默认打印出参）。
 
 ## 关联示例
 

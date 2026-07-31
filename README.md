@@ -39,11 +39,13 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 ## 使用文档
 
 **基础**
+- [Starter 生产级装配基线](docs/starter-production-baseline.md)
 - [核心基础（响应 / 异常 / 枚举 / 工具）](docs/core.md)
 - [通用纯类库（树工具 / 校验分组 / 通用 DTO）](docs/common.md)
 - [JSON（Jackson 扩展）](docs/json.md)
 - [校验约束扩展](docs/validation.md)
 - [Web 统一响应与异常处理](docs/web-response.md)
+- [Web CORS 跨域配置](docs/web-cors.md)
 - [接口文档（Knife4j / SpringDoc）](docs/api-doc.md)
 
 **数据**
@@ -67,6 +69,7 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 - [字段加密 MyBatis TypeHandler](docs/encrypt-typehandler.md)
 
 **可观测**
+- [可观测性标准](docs/observability.md)
 - [操作日志](docs/log.md)
 - [链路追踪（TraceId）](docs/trace.md)
 

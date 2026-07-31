@@ -23,7 +23,7 @@ public class WebAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "ycr.web.response", name = "enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "ycr.web.response", name = "enabled", havingValue = "true")
     public UnifiedResponseBodyAdvice unifiedResponseBodyAdvice(WebResponseProperties properties,
                                                                ObjectMapper objectMapper) {
         return new UnifiedResponseBodyAdvice(properties, objectMapper);

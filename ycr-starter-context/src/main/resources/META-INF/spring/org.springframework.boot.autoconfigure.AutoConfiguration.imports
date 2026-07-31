@@ -1,1 +1,3 @@
+com.ycr.framework.context.autoconfigure.ContextRedisAutoConfiguration
 com.ycr.framework.context.autoconfigure.ContextAutoConfiguration
+com.ycr.framework.context.autoconfigure.ContextServletAutoConfiguration

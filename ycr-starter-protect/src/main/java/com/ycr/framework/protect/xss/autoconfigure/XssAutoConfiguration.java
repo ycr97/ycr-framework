@@ -20,7 +20,7 @@ import org.springframework.core.Ordered;
 @AutoConfiguration
 @EnableConfigurationProperties(XssProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnProperty(prefix = "ycr.protect.xss", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "ycr.protect.xss", name = "enabled", havingValue = "true")
 public class XssAutoConfiguration {
 
     @Bean

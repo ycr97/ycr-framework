@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class SecurityPropertiesTest {
 
     @Test
-    void 默认放行路径应包含常用静态资源() {
+    void 默认应关闭鉴权切面并使用上下文权限模式() {
         SecurityProperties properties = new SecurityProperties();
-        assertNotNull(properties.getExcludePaths());
-        assertTrue(properties.getExcludePaths().contains("/doc.html"));
-        assertTrue(properties.getExcludePaths().contains("/swagger-resources/**"));
+        assertFalse(properties.isEnabled());
+        assertEquals(SecurityProperties.PermissionMode.CONTEXT, properties.getPermission().getMode());
+        assertTrue(properties.getPermission().getSensitivePermissions().isEmpty());
     }
 }
