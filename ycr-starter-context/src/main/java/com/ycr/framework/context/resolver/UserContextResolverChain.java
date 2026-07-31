@@ -5,6 +5,7 @@ import com.ycr.framework.context.enums.UserContextSource;
 import com.ycr.framework.context.exception.ContextAuthException;
 import com.ycr.framework.context.model.UserContext;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,8 +72,19 @@ public class UserContextResolverChain {
     }
 
     private boolean conflict(UserContext signed, UserContext token) {
-        return signed.getUserId() != null
-                && token.getUserId() != null
-                && !Objects.equals(signed.getUserId(), token.getUserId());
+        boolean sameIdentity;
+        if (signed.getUserId() != null && token.getUserId() != null) {
+            sameIdentity = Objects.equals(signed.getUserId(), token.getUserId());
+        } else if (StringUtils.hasText(signed.getUsername()) && StringUtils.hasText(token.getUsername())) {
+            sameIdentity = Objects.equals(signed.getUsername(), token.getUsername());
+        } else {
+            sameIdentity = false;
+        }
+        if (!sameIdentity) {
+            return true;
+        }
+        return signed.getTenantId() != null
+                && token.getTenantId() != null
+                && !Objects.equals(signed.getTenantId(), token.getTenantId());
     }
 }

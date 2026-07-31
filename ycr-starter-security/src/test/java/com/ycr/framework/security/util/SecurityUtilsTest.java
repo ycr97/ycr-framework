@@ -2,13 +2,18 @@ package com.ycr.framework.security.util;
 
 import com.ycr.framework.context.holder.UserContextHolder;
 import com.ycr.framework.context.model.UserContext;
+import com.ycr.framework.core.util.SpringContextHolder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * 安全工具测试
@@ -20,6 +25,7 @@ class SecurityUtilsTest {
     @AfterEach
     void tearDown() {
         UserContextHolder.clear();
+        new SpringContextHolder().setApplicationContext(null);
     }
 
     @Test
@@ -54,5 +60,17 @@ class SecurityUtilsTest {
         assertTrue(SecurityUtils.hasPermissionOr("user:add", "user:edit"));
         assertFalse(SecurityUtils.hasPermissionAnd("user:add", "user:edit"));
         assertEquals(List.of("user:add"), SecurityUtils.getPermissionList());
+    }
+
+    @Test
+    void Spring容器存在但权限检查器获取失败时不得降级() {
+        ApplicationContext context = mock(ApplicationContext.class);
+        when(context.getBean(com.ycr.framework.security.checker.PermissionChecker.class))
+                .thenThrow(new NoSuchBeanDefinitionException(
+                        com.ycr.framework.security.checker.PermissionChecker.class));
+        new SpringContextHolder().setApplicationContext(context);
+
+        assertThrows(NoSuchBeanDefinitionException.class,
+                () -> SecurityUtils.hasPermission("payment:refund"));
     }
 }

@@ -1,4 +1,4 @@
-# 安全（注解鉴权 + 端点放行）
+# 安全（注解鉴权）
 
 `ycr-starter-security` 提供 ycr 自有鉴权注解、Controller/Service AOP、`PermissionChecker` SPI 和静态 `SecurityUtils`。业务代码不直接依赖 Sa-Token、Spring Security 或具体认证中心。
 
@@ -35,6 +35,7 @@ ycr:
 ```
 
 引入 starter 只会提供默认 `PermissionChecker` 等基础 Bean，不会自动启用鉴权切面。
+端点放行策略不属于注解切面的职责，应在网关、Spring Security 或业务认证过滤器中配置。
 
 ## 鉴权注解
 

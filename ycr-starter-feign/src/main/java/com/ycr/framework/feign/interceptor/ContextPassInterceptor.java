@@ -118,11 +118,14 @@ public class ContextPassInterceptor extends AbstractMatchableFeignInterceptor {
         snapshot.setNonce(nonce);
         snapshot.setUserId(firstHeader(template, ContextHeaderConstants.HEADER_USER_ID));
         snapshot.setUsername(firstHeader(template, ContextHeaderConstants.HEADER_USERNAME));
+        snapshot.setNickname(firstHeader(template, ContextHeaderConstants.HEADER_NICKNAME));
         snapshot.setTenantId(firstHeader(template, ContextHeaderConstants.HEADER_TENANT_ID));
+        snapshot.setTenantCode(firstHeader(template, ContextHeaderConstants.HEADER_TENANT_CODE));
         snapshot.setDeptId(firstHeader(template, ContextHeaderConstants.HEADER_DEPT_ID));
         snapshot.setRoles(firstHeader(template, ContextHeaderConstants.HEADER_ROLES));
         snapshot.setPermissions(firstHeader(template, ContextHeaderConstants.HEADER_PERMISSIONS));
         snapshot.setClientId(firstHeader(template, ContextHeaderConstants.HEADER_CLIENT_ID));
+        snapshot.setAppId(firstHeader(template, ContextHeaderConstants.HEADER_APP_ID));
         snapshot.setTraceId(firstHeader(template, TraceUtils.HEADER_TRACE_ID));
         template.header(contextProperties.getHeaderSign().getSignatureHeader(),
                 signer.sign(snapshot, contextProperties.getHeaderSign().getSecret()));

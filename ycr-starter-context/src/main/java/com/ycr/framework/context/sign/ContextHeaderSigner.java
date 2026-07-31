@@ -56,14 +56,17 @@ public class ContextHeaderSigner {
      * 判断签名时间戳是否过期。
      */
     public boolean isExpired(ContextHeaderSnapshot snapshot, Duration ttl, Clock clock) {
-        if (snapshot == null || !StringUtils.hasText(snapshot.getTimestamp())) {
+        if (snapshot == null || !StringUtils.hasText(snapshot.getTimestamp())
+                || ttl == null || ttl.isZero() || ttl.isNegative()) {
             return true;
         }
         try {
             long timestamp = Long.parseLong(snapshot.getTimestamp());
             long now = clock.millis();
-            return Math.abs(now - timestamp) > ttl.toMillis();
-        } catch (NumberFormatException e) {
+            long delta = Math.subtractExact(now, timestamp);
+            long ttlMillis = ttl.toMillis();
+            return delta > ttlMillis || delta < -ttlMillis;
+        } catch (ArithmeticException e) {
             return true;
         }
     }
@@ -79,11 +82,14 @@ public class ContextHeaderSigner {
                 value(snapshot.getNonce()),
                 value(snapshot.getUserId()),
                 value(snapshot.getUsername()),
+                value(snapshot.getNickname()),
                 value(snapshot.getTenantId()),
+                value(snapshot.getTenantCode()),
                 value(snapshot.getDeptId()),
                 value(snapshot.getRoles()),
                 value(snapshot.getPermissions()),
                 value(snapshot.getClientId()),
+                value(snapshot.getAppId()),
                 value(snapshot.getTraceId()));
     }
 

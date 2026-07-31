@@ -79,11 +79,11 @@ public class SignedHeaderUserContextResolver implements UserContextResolver {
         if (signer.isExpired(snapshot, sign.getTtl(), clock)) {
             return rejectOrIgnore("上下文签名已过期");
         }
-        if (replayGuard.seen(snapshot.getNonce(), sign.getTtl())) {
-            return rejectOrIgnore("上下文签名 nonce 已重复");
-        }
         if (!signer.verify(snapshot, sign.getSecret(), signature)) {
             return rejectOrIgnore("上下文签名校验失败");
+        }
+        if (replayGuard.seen(snapshot.getNonce(), sign.getTtl())) {
+            return rejectOrIgnore("上下文签名 nonce 已重复");
         }
         return true;
     }
@@ -111,11 +111,14 @@ public class SignedHeaderUserContextResolver implements UserContextResolver {
         snapshot.setNonce(request.getHeader(properties.getHeaderSign().getNonceHeader()));
         snapshot.setUserId(request.getHeader(ContextHeaderConstants.HEADER_USER_ID));
         snapshot.setUsername(request.getHeader(ContextHeaderConstants.HEADER_USERNAME));
+        snapshot.setNickname(request.getHeader(ContextHeaderConstants.HEADER_NICKNAME));
         snapshot.setTenantId(request.getHeader(ContextHeaderConstants.HEADER_TENANT_ID));
+        snapshot.setTenantCode(request.getHeader(ContextHeaderConstants.HEADER_TENANT_CODE));
         snapshot.setDeptId(request.getHeader(ContextHeaderConstants.HEADER_DEPT_ID));
         snapshot.setRoles(request.getHeader(ContextHeaderConstants.HEADER_ROLES));
         snapshot.setPermissions(request.getHeader(ContextHeaderConstants.HEADER_PERMISSIONS));
         snapshot.setClientId(request.getHeader(ContextHeaderConstants.HEADER_CLIENT_ID));
+        snapshot.setAppId(request.getHeader(ContextHeaderConstants.HEADER_APP_ID));
         snapshot.setTraceId(StringUtils.hasText(traceId) ? traceId : request.getHeader(ContextHeaderConstants.HEADER_TRACE_ID));
         return snapshot;
     }
@@ -124,7 +127,7 @@ public class SignedHeaderUserContextResolver implements UserContextResolver {
         UserContext userContext = new UserContext();
         userContext.setUserId(parseLong(snapshot.getUserId()));
         userContext.setUsername(snapshot.getUsername());
-        userContext.setNickname(request.getHeader(ContextHeaderConstants.HEADER_NICKNAME));
+        userContext.setNickname(snapshot.getNickname());
         userContext.setTenantId(parseLong(snapshot.getTenantId()));
         userContext.setDeptId(parseLong(snapshot.getDeptId()));
         userContext.setRoles(ContextValueUtils.parseCommaSeparated(snapshot.getRoles()));
