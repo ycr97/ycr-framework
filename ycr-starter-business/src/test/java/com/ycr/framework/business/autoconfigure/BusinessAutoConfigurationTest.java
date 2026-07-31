@@ -4,6 +4,7 @@ import com.ycr.framework.business.aop.BizApiAspect;
 import com.ycr.framework.business.chain.BizContext;
 import com.ycr.framework.business.chain.BizInterceptor;
 import com.ycr.framework.business.chain.BizInterceptorChain;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -26,7 +27,8 @@ class BusinessAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(BusinessAutoConfiguration.class));
 
     @Test
-    void 默认装配链与切面() {
+    @DisplayName("默认装配链与切面")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(BizInterceptorChain.class);
             assertThat(context).hasSingleBean(BizApiAspect.class);
@@ -34,7 +36,8 @@ class BusinessAutoConfigurationTest {
     }
 
     @Test
-    void 容器内拦截器被纳入链() {
+    @DisplayName("容器内拦截器被纳入链")
+    void shouldMatchExpectedBehavior002() {
         runner.withUserConfiguration(InterceptorConfig.class).run(context -> {
             List<String> trace = context.getBean("trace", List.class);
             BizInterceptorChain chain = context.getBean(BizInterceptorChain.class);
@@ -44,7 +47,8 @@ class BusinessAutoConfigurationTest {
     }
 
     @Test
-    void 关闭开关时不装配() {
+    @DisplayName("关闭开关时不装配")
+    void shouldMatchExpectedBehavior003() {
         runner.withPropertyValues("ycr.business.enabled=false").run(context -> {
             assertThat(context).doesNotHaveBean(BizInterceptorChain.class);
             assertThat(context).doesNotHaveBean(BizApiAspect.class);

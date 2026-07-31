@@ -1,6 +1,7 @@
 package com.ycr.framework.cache.jetcache;
 
 import com.alicp.jetcache.anno.Cached;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,7 +41,8 @@ class CachedBehaviorTest {
     private CountingService countingService;
 
     @Test
-    void 同键二次调用命中缓存_方法体只执行一次() {
+    @DisplayName("同键二次调用命中缓存_方法体只执行一次")
+    void shouldMatchExpectedBehavior001() {
         assertThat(countingService.invocations()).isZero();
 
         Long first = countingService.compute(1L);
@@ -52,7 +54,8 @@ class CachedBehaviorTest {
     }
 
     @Test
-    void 不同键各自回源_计数器递增() {
+    @DisplayName("不同键各自回源_计数器递增")
+    void shouldMatchExpectedBehavior002() {
         int before = countingService.invocations();
 
         countingService.compute(100L);

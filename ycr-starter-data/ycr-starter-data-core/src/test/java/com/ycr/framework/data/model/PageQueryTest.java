@@ -2,6 +2,7 @@ package com.ycr.framework.data.model;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -14,7 +15,8 @@ class PageQueryTest {
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test
-    void 默认分页参数应为第一页十条() {
+    @DisplayName("默认分页参数应为第一页十条")
+    void shouldMatchExpectedBehavior001() {
         PageQuery pageQuery = new PageQuery();
 
         assertEquals(1, pageQuery.getPage());
@@ -22,7 +24,8 @@ class PageQueryTest {
     }
 
     @Test
-    void 自定义分页参数应正确保存() {
+    @DisplayName("自定义分页参数应正确保存")
+    void shouldMatchExpectedBehavior002() {
         PageQuery pageQuery = new PageQuery();
         pageQuery.setPage(3);
         pageQuery.setSize(20);
@@ -32,7 +35,8 @@ class PageQueryTest {
     }
 
     @Test
-    void PageResult应保存列表和分页信息() {
+    @DisplayName("PageResult应保存列表和分页信息")
+    void shouldMatchExpectedBehavior003() {
         PageResult<String> pageResult = new PageResult<>(List.of("a", "b"), 2L, 1, 10);
 
         assertEquals(List.of("a", "b"), pageResult.getList());
@@ -42,7 +46,8 @@ class PageQueryTest {
     }
 
     @Test
-    void 分页参数应受最小值和最大值校验约束() {
+    @DisplayName("分页参数应受最小值和最大值校验约束")
+    void shouldMatchExpectedBehavior004() {
         PageQuery pageQuery = new PageQuery();
         pageQuery.setPage(0);
         pageQuery.setSize(1001);

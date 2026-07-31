@@ -3,6 +3,7 @@ package com.ycr.framework.storage.autoconfigure;
 import com.ycr.framework.storage.model.FileInfo;
 import com.ycr.framework.storage.service.FileStorageService;
 import com.ycr.framework.storage.service.LocalFileStorageService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -32,12 +33,14 @@ class StorageAutoConfigurationTest {
     }
 
     @Test
-    void 默认不应装配本地实现() {
+    @DisplayName("默认不应装配本地实现")
+    void shouldMatchExpectedBehavior001() {
         runner().run(context -> assertThat(context).doesNotHaveBean(FileStorageService.class));
     }
 
     @Test
-    void 显式开启时应装配本地实现() {
+    @DisplayName("显式开启时应装配本地实现")
+    void shouldMatchExpectedBehavior002() {
         runner().withPropertyValues("ycr.storage.enabled=true").run(context -> {
             assertThat(context).hasSingleBean(FileStorageService.class);
             assertThat(context.getBean(FileStorageService.class)).isInstanceOf(LocalFileStorageService.class);
@@ -45,7 +48,8 @@ class StorageAutoConfigurationTest {
     }
 
     @Test
-    void 业务自定义实现应覆盖默认() {
+    @DisplayName("业务自定义实现应覆盖默认")
+    void shouldMatchExpectedBehavior003() {
         runner().withPropertyValues("ycr.storage.enabled=true")
                 .withUserConfiguration(CustomConfig.class).run(context -> {
             assertThat(context).hasSingleBean(FileStorageService.class);

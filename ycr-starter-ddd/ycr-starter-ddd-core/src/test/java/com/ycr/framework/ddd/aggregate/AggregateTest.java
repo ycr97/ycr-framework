@@ -1,6 +1,7 @@
 package com.ycr.framework.ddd.aggregate;
 
 import lombok.Data;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
@@ -51,26 +52,30 @@ class AggregateTest {
     }
 
     @Test
-    void 新建聚合初始未变更() {
+    @DisplayName("新建聚合初始未变更")
+    void shouldMatchExpectedBehavior001() {
         Aggregate<Order> aggregate = AggregateFactory.createAggregate(newOrder(1));
         assertThat(aggregate.isChanged()).isFalse();
     }
 
     @Test
-    void version为0时isNew为真() {
+    @DisplayName("version为0时isNew为真")
+    void shouldMatchExpectedBehavior002() {
         assertThat(AggregateFactory.createAggregate(newOrder(0)).isNew()).isTrue();
         assertThat(AggregateFactory.createAggregate(newOrder(1)).isNew()).isFalse();
     }
 
     @Test
-    void 修改根字段后isChanged为真() {
+    @DisplayName("修改根字段后isChanged为真")
+    void shouldMatchExpectedBehavior003() {
         Aggregate<Order> aggregate = AggregateFactory.createAggregate(newOrder(1));
         aggregate.getRoot().setCustomer("Bob");
         assertThat(aggregate.isChanged()).isTrue();
     }
 
     @Test
-    void findNewEntitiesById_识别新增实体() {
+    @DisplayName("findNewEntitiesById_识别新增实体")
+    void shouldMatchExpectedBehavior004() {
         Aggregate<Order> aggregate = AggregateFactory.createAggregate(newOrder(1));
         aggregate.getRoot().getItems().add(new Item(30L, "grape", 1));
 
@@ -80,7 +85,8 @@ class AggregateTest {
     }
 
     @Test
-    void findChangedEntities_识别变更实体() {
+    @DisplayName("findChangedEntities_识别变更实体")
+    void shouldMatchExpectedBehavior005() {
         Aggregate<Order> aggregate = AggregateFactory.createAggregate(newOrder(1));
         aggregate.getRoot().getItems().get(0).setQty(99);
 
@@ -91,7 +97,8 @@ class AggregateTest {
     }
 
     @Test
-    void findChangedEntitiesWithOldValues_返回新旧值() {
+    @DisplayName("findChangedEntitiesWithOldValues_返回新旧值")
+    void shouldMatchExpectedBehavior006() {
         Aggregate<Order> aggregate = AggregateFactory.createAggregate(newOrder(1));
         aggregate.getRoot().getItems().get(0).setQty(99);
 
@@ -105,7 +112,8 @@ class AggregateTest {
     }
 
     @Test
-    void findRemovedEntities_识别删除实体() {
+    @DisplayName("findRemovedEntities_识别删除实体")
+    void shouldMatchExpectedBehavior007() {
         Aggregate<Order> aggregate = AggregateFactory.createAggregate(newOrder(1));
         aggregate.getRoot().getItems().removeIf(i -> i.getId().equals(20L));
 

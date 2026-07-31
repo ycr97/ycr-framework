@@ -1,6 +1,7 @@
 package com.ycr.framework.feign.interceptor;
 
 import feign.RequestTemplate;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -25,7 +26,8 @@ class LocalePassInterceptorTest {
     }
 
     @Test
-    void 透传当前请求的语言头() {
+    @DisplayName("透传当前请求的语言头")
+    void shouldMatchExpectedBehavior001() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Accept-Language", "zh-CN");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
@@ -37,7 +39,8 @@ class LocalePassInterceptorTest {
     }
 
     @Test
-    void 请求无语言头时不写入() {
+    @DisplayName("请求无语言头时不写入")
+    void shouldMatchExpectedBehavior002() {
         RequestContextHolder.setRequestAttributes(
                 new ServletRequestAttributes(new MockHttpServletRequest()));
 
@@ -48,7 +51,8 @@ class LocalePassInterceptorTest {
     }
 
     @Test
-    void 无请求上下文时不写入() {
+    @DisplayName("无请求上下文时不写入")
+    void shouldMatchExpectedBehavior003() {
         RequestContextHolder.resetRequestAttributes();
 
         RequestTemplate template = new RequestTemplate();

@@ -2,6 +2,7 @@ package com.ycr.framework.validation.constraints;
 
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Payload;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
@@ -17,7 +18,8 @@ class EnumValueValidatorTest {
     private final EnumValueValidator validator = new EnumValueValidator();
 
     @Test
-    void 整数值应按intValues校验() {
+    @DisplayName("整数值应按intValues校验")
+    void shouldMatchExpectedBehavior001() {
         validator.initialize(enumValue(new int[]{1, 2}, new String[0]));
 
         assertTrue(validator.isValid(1, (ConstraintValidatorContext) null));
@@ -26,7 +28,8 @@ class EnumValueValidatorTest {
     }
 
     @Test
-    void 字符串值应按strValues校验() {
+    @DisplayName("字符串值应按strValues校验")
+    void shouldMatchExpectedBehavior002() {
         validator.initialize(enumValue(new int[0], new String[]{"A", "B"}));
 
         assertTrue(validator.isValid("A", (ConstraintValidatorContext) null));
@@ -35,7 +38,8 @@ class EnumValueValidatorTest {
     }
 
     @Test
-    void null和其他类型应按约定返回() {
+    @DisplayName("null和其他类型应按约定返回")
+    void shouldMatchExpectedBehavior003() {
         validator.initialize(enumValue(new int[]{1}, new String[]{"A"}));
 
         assertTrue(validator.isValid(null, (ConstraintValidatorContext) null));

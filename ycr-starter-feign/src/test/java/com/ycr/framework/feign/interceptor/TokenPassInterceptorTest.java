@@ -1,6 +1,7 @@
 package com.ycr.framework.feign.interceptor;
 
 import feign.RequestTemplate;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +27,8 @@ class TokenPassInterceptorTest {
     }
 
     @Test
-    void 透传当前请求的Authorization头() {
+    @DisplayName("透传当前请求的Authorization头")
+    void shouldMatchExpectedBehavior001() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer abc.def");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
@@ -38,7 +40,8 @@ class TokenPassInterceptorTest {
     }
 
     @Test
-    void 无请求上下文时不写入() {
+    @DisplayName("无请求上下文时不写入")
+    void shouldMatchExpectedBehavior002() {
         RequestContextHolder.resetRequestAttributes();
 
         RequestTemplate template = new RequestTemplate();

@@ -3,6 +3,7 @@ package com.ycr.framework.captcha.service;
 import com.ycr.framework.cache.util.RedisUtils;
 import com.ycr.framework.captcha.autoconfigure.CaptchaProperties;
 import com.ycr.framework.captcha.model.CaptchaResult;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -22,7 +23,8 @@ class HutoolCaptchaServiceTest {
     private final HutoolCaptchaService service = new HutoolCaptchaService(new CaptchaProperties());
 
     @Test
-    void 生成应返回图片并将答案带TTL存入缓存() {
+    @DisplayName("生成应返回图片并将答案带TTL存入缓存")
+    void shouldMatchExpectedBehavior001() {
         try (MockedStatic<RedisUtils> rs = mockStatic(RedisUtils.class)) {
             CaptchaResult result = service.generate();
 
@@ -34,7 +36,8 @@ class HutoolCaptchaServiceTest {
     }
 
     @Test
-    void 校验通过应忽略大小写并一次性删除() {
+    @DisplayName("校验通过应忽略大小写并一次性删除")
+    void shouldMatchExpectedBehavior002() {
         try (MockedStatic<RedisUtils> rs = mockStatic(RedisUtils.class)) {
             rs.when(() -> RedisUtils.<String>get(anyString())).thenReturn("AB3D");
 
@@ -45,7 +48,8 @@ class HutoolCaptchaServiceTest {
     }
 
     @Test
-    void 校验失败仍应一次性删除防暴力() {
+    @DisplayName("校验失败仍应一次性删除防暴力")
+    void shouldMatchExpectedBehavior003() {
         try (MockedStatic<RedisUtils> rs = mockStatic(RedisUtils.class)) {
             rs.when(() -> RedisUtils.<String>get(anyString())).thenReturn("AB3D");
 
@@ -56,7 +60,8 @@ class HutoolCaptchaServiceTest {
     }
 
     @Test
-    void 答案不存在应失败() {
+    @DisplayName("答案不存在应失败")
+    void shouldMatchExpectedBehavior004() {
         try (MockedStatic<RedisUtils> rs = mockStatic(RedisUtils.class)) {
             rs.when(() -> RedisUtils.<String>get(anyString())).thenReturn(null);
 
@@ -65,7 +70,8 @@ class HutoolCaptchaServiceTest {
     }
 
     @Test
-    void 入参为空应直接失败不查缓存() {
+    @DisplayName("入参为空应直接失败不查缓存")
+    void shouldMatchExpectedBehavior005() {
         try (MockedStatic<RedisUtils> rs = mockStatic(RedisUtils.class)) {
             assertFalse(service.verify(null, "ab3d"));
             assertFalse(service.verify("id-1", ""));

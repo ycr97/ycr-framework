@@ -1,5 +1,6 @@
 package com.ycr.framework.translate.enums;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,18 +14,21 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class TranslateTypeTest {
 
     @Test
-    void 仅含三种类型() {
+    @DisplayName("仅含三种类型")
+    void shouldMatchExpectedBehavior001() {
         assertEquals(3, TranslateType.values().length);
     }
 
     @Test
-    void 内置类型有固定源名() {
+    @DisplayName("内置类型有固定源名")
+    void shouldMatchExpectedBehavior002() {
         assertEquals("dict", TranslateType.DICT.getSourceName());
         assertEquals("enum", TranslateType.ENUM.getSourceName());
     }
 
     @Test
-    void CUSTOM无固定源名() {
+    @DisplayName("CUSTOM无固定源名")
+    void shouldMatchExpectedBehavior003() {
         assertNull(TranslateType.CUSTOM.getSourceName());
     }
 }

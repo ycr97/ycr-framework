@@ -1,6 +1,7 @@
 package com.ycr.framework.apidoc.autoconfigure;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -18,7 +19,8 @@ class ApiDocAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(ApiDocAutoConfiguration.class));
 
     @Test
-    void 默认开启且可关闭() {
+    @DisplayName("默认开启且可关闭")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> assertThat(context).hasSingleBean(OpenAPI.class));
         runner.withPropertyValues("ycr.api-doc.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(OpenAPI.class));

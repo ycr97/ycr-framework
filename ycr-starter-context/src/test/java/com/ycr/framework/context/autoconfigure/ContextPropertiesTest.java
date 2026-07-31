@@ -2,6 +2,7 @@ package com.ycr.framework.context.autoconfigure;
 
 import com.ycr.framework.context.constant.ContextHeaderConstants;
 import com.ycr.framework.context.enums.SecurityMode;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -17,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ContextPropertiesTest {
 
     @Test
-    void 默认配置应使用tokenVerify和签名校验() {
+    @DisplayName("默认配置应使用tokenVerify和签名校验")
+    void shouldMatchExpectedBehavior001() {
         ContextProperties properties = new ContextProperties();
 
         assertEquals(SecurityMode.TOKEN_VERIFY, properties.effectiveSecurityMode());
@@ -28,7 +30,8 @@ class ContextPropertiesTest {
     }
 
     @Test
-    void 旧trustHeaders开启时兼容映射为gatewayTrust() {
+    @DisplayName("旧trustHeaders开启时兼容映射为gatewayTrust")
+    void shouldMatchExpectedBehavior002() {
         ContextProperties properties = new ContextProperties();
         properties.setTrustHeaders(true);
 

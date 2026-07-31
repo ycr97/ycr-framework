@@ -1,5 +1,6 @@
 package com.ycr.framework.data.permission.scope;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -16,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DataScopeTest {
 
     @Test
-    void 缺键维度不适用_存在维度可取值() {
+    @DisplayName("缺键维度不适用_存在维度可取值")
+    void shouldMatchExpectedBehavior001() {
         DataScope scope = DataScope.builder()
                 .dimension("factory", List.of(1, 2))
                 .dimension("brand", List.of())
@@ -33,7 +35,8 @@ class DataScopeTest {
     }
 
     @Test
-    void empty_无任何维度() {
+    @DisplayName("empty_无任何维度")
+    void shouldMatchExpectedBehavior002() {
         DataScope scope = DataScope.empty();
         assertFalse(scope.has("factory"));
     }

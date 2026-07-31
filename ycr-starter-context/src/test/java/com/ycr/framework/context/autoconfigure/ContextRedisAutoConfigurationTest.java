@@ -3,6 +3,7 @@ package com.ycr.framework.context.autoconfigure;
 import com.ycr.framework.context.sign.ContextReplayGuard;
 import com.ycr.framework.context.sign.FailClosedContextReplayGuard;
 import com.ycr.framework.context.sign.RedissonContextReplayGuard;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -20,13 +21,15 @@ class ContextRedisAutoConfigurationTest {
                     ContextAutoConfiguration.class));
 
     @Test
-    void 存在RedissonClient时应装配原子防重放实现() {
+    @DisplayName("存在RedissonClient时应装配原子防重放实现")
+    void shouldMatchExpectedBehavior001() {
         runner.withBean(RedissonClient.class, () -> mock(RedissonClient.class))
                 .run(context -> assertThat(context).hasSingleBean(RedissonContextReplayGuard.class));
     }
 
     @Test
-    void 无Redisson类路径时应正常启动并使用failClosed实现() {
+    @DisplayName("无Redisson类路径时应正常启动并使用failClosed实现")
+    void shouldMatchExpectedBehavior002() {
         runner.withClassLoader(new FilteredClassLoader("org.redisson"))
                 .run(context -> {
                     assertThat(context).hasNotFailed();
@@ -35,7 +38,8 @@ class ContextRedisAutoConfigurationTest {
     }
 
     @Test
-    void 业务自定义防重放实现应覆盖默认实现() {
+    @DisplayName("业务自定义防重放实现应覆盖默认实现")
+    void shouldMatchExpectedBehavior003() {
         ContextReplayGuard custom = (nonce, ttl) -> false;
         runner.withBean(ContextReplayGuard.class, () -> custom)
                 .withBean(RedissonClient.class, () -> mock(RedissonClient.class))

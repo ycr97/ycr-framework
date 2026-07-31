@@ -10,6 +10,7 @@ import com.ycr.framework.translate.source.DictTranslateSource;
 import com.ycr.framework.translate.source.EnumTranslateSource;
 import com.ycr.framework.translate.source.StatusEnum;
 import com.ycr.framework.translate.source.TranslateSourceRegistry;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -51,7 +52,8 @@ class TranslateSerializeTest {
     }
 
     @Test
-    void 序列化后编码保留且新增同级文本字段() throws Exception {
+    @DisplayName("序列化后编码保留且新增同级文本字段")
+    void shouldMatchExpectedBehavior001() throws Exception {
         // gender 字段类型为 StatusEnum？不——gender 是 Integer，ENUM 推断需要枚举类型字段
         Order order = new Order();
         JsonNode node = mapperWithTranslate().valueToTree(order);
@@ -70,7 +72,8 @@ class TranslateSerializeTest {
     }
 
     @Test
-    void 枚举字段类型推断翻译() throws Exception {
+    @DisplayName("枚举字段类型推断翻译")
+    void shouldMatchExpectedBehavior002() throws Exception {
         // 字段声明类型即枚举类，ENUM 且 key 留空时按字段类型推断
         class Holder {
             @Translate(type = TranslateType.ENUM)

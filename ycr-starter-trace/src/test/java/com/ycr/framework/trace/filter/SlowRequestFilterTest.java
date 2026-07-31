@@ -1,5 +1,6 @@
 package com.ycr.framework.trace.filter;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.system.CapturedOutput;
@@ -18,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SlowRequestFilterTest {
 
     @Test
-    void 超过阈值应输出结构化慢请求日志(CapturedOutput output) throws Exception {
+    @DisplayName("超过阈值应输出结构化慢请求日志")
+    void shouldMatchExpectedBehavior001(CapturedOutput output) throws Exception {
         SlowRequestFilter filter = new SlowRequestFilter(0L);
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users");
         MockHttpServletResponse response = new MockHttpServletResponse();

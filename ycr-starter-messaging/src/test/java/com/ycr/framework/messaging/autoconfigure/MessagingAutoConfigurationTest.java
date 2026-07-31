@@ -1,6 +1,7 @@
 package com.ycr.framework.messaging.autoconfigure;
 
 import com.ycr.framework.messaging.mail.MailService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
@@ -23,20 +24,23 @@ class MessagingAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(MessagingAutoConfiguration.class));
 
     @Test
-    void 存在JavaMailSender时应装配MailService() {
+    @DisplayName("存在JavaMailSender时应装配MailService")
+    void shouldMatchExpectedBehavior001() {
         runner.withUserConfiguration(MailConfig.class)
                 .run(context -> assertThat(context).hasSingleBean(MailService.class));
     }
 
     @Test
-    void 关闭开关时不装配() {
+    @DisplayName("关闭开关时不装配")
+    void shouldMatchExpectedBehavior002() {
         runner.withUserConfiguration(MailConfig.class)
                 .withPropertyValues("ycr.messaging.mail-enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(MailService.class));
     }
 
     @Test
-    void 无JavaMailSender时不装配() {
+    @DisplayName("无JavaMailSender时不装配")
+    void shouldMatchExpectedBehavior003() {
         runner.run(context -> assertThat(context).doesNotHaveBean(MailService.class));
     }
 

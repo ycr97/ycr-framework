@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.ycr.framework.data.permission.aspect.DataPermissionAspect;
 import com.ycr.framework.data.permission.scope.DataScopeClearFilter;
 import com.ycr.framework.data.permission.scope.DataScopeResolver;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
@@ -23,7 +24,8 @@ class DataPermissionAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(DataPermissionAutoConfiguration.class));
 
     @Test
-    void 默认不应装配SQL拦截器与切面() {
+    @DisplayName("默认不应装配SQL拦截器与切面")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).doesNotHaveBean(InnerInterceptor.class);
             assertThat(context).doesNotHaveBean(DataPermissionAspect.class);
@@ -31,7 +33,8 @@ class DataPermissionAutoConfigurationTest {
     }
 
     @Test
-    void 显式开启时应装配新版权限链路() {
+    @DisplayName("显式开启时应装配新版权限链路")
+    void shouldMatchExpectedBehavior002() {
         runner.withPropertyValues("ycr.data.permission.enabled=true").run(context -> {
             assertThat(context).hasSingleBean(InnerInterceptor.class);
             assertThat(context).hasSingleBean(DataPermissionAspect.class);
@@ -42,7 +45,8 @@ class DataPermissionAutoConfigurationTest {
     }
 
     @Test
-    void 显式开启但无servletApi时不装配清理filter() {
+    @DisplayName("显式开启但无servletApi时不装配清理filter")
+    void shouldMatchExpectedBehavior003() {
         runner.withPropertyValues("ycr.data.permission.enabled=true")
                 .withClassLoader(new FilteredClassLoader(jakarta.servlet.http.HttpServletRequest.class))
                 .run(context -> assertThat(context).doesNotHaveBean(DataScopeClearFilter.class));

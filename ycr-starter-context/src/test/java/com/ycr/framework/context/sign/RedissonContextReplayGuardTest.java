@@ -1,6 +1,7 @@
 package com.ycr.framework.context.sign;
 
 import com.ycr.framework.context.exception.ContextAuthException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -26,7 +27,8 @@ import static org.mockito.Mockito.when;
 class RedissonContextReplayGuardTest {
 
     @Test
-    void 首次nonce放行后续并发请求均判定为重放() throws Exception {
+    @DisplayName("首次nonce放行后续并发请求均判定为重放")
+    void shouldMatchExpectedBehavior001() throws Exception {
         RedissonClient client = mock(RedissonClient.class);
         @SuppressWarnings("unchecked")
         RBucket<String> bucket = mock(RBucket.class);
@@ -66,7 +68,8 @@ class RedissonContextReplayGuardTest {
     }
 
     @Test
-    void redis异常时应failClosed() {
+    @DisplayName("redis异常时应failClosed")
+    void shouldMatchExpectedBehavior002() {
         RedissonClient client = mock(RedissonClient.class);
         when(client.getBucket("prefix:nonce-1")).thenThrow(new IllegalStateException("redis down"));
         RedissonContextReplayGuard guard = new RedissonContextReplayGuard(client, "prefix:");
@@ -76,7 +79,8 @@ class RedissonContextReplayGuardTest {
     }
 
     @Test
-    void 默认兼容实现不得绕过重放校验() {
+    @DisplayName("默认兼容实现不得绕过重放校验")
+    void shouldMatchExpectedBehavior003() {
         NoopContextReplayGuard guard = new NoopContextReplayGuard();
 
         assertThrows(ContextAuthException.class,

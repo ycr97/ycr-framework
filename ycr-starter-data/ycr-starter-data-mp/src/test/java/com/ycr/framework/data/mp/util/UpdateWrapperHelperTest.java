@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.Getter;
 import lombok.Setter;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -57,7 +58,8 @@ class UpdateWrapperHelperTest {
     }
 
     @Test
-    void 仅set变更字段并以主键作为条件() {
+    @DisplayName("仅set变更字段并以主键作为条件")
+    void shouldMatchExpectedBehavior001() {
         UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(Set.of("name"), sample());
 
         // set 子句只含变更字段映射的列名；主键列走 where 条件，不应出现在 set 子句
@@ -69,13 +71,15 @@ class UpdateWrapperHelperTest {
     }
 
     @Test
-    void 字段名解析回退到字段本名() {
+    @DisplayName("字段名解析回退到字段本名")
+    void shouldMatchExpectedBehavior002() {
         UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(Set.of("age"), sample());
         assertTrue(wrapper.getSqlSet().contains("age"));
     }
 
     @Test
-    void 未标注驼峰字段转下划线列名() {
+    @DisplayName("未标注驼峰字段转下划线列名")
+    void shouldMatchExpectedBehavior003() {
         UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(Set.of("nickName"), sample());
         String setSql = wrapper.getSqlSet();
         assertTrue(setSql.contains("nick_name"));
@@ -83,7 +87,8 @@ class UpdateWrapperHelperTest {
     }
 
     @Test
-    void 继承的审计字段也能进入set() {
+    @DisplayName("继承的审计字段也能进入set")
+    void shouldMatchExpectedBehavior004() {
         UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(List.of("updateTime", "updateUser"), sample());
         String setSql = wrapper.getSqlSet();
         assertTrue(setSql.contains("update_time"));
@@ -91,7 +96,8 @@ class UpdateWrapperHelperTest {
     }
 
     @Test
-    void 多个变更字段都进入set() {
+    @DisplayName("多个变更字段都进入set")
+    void shouldMatchExpectedBehavior005() {
         UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(List.of("name", "age"), sample());
         String setSql = wrapper.getSqlSet();
         assertTrue(setSql.contains("user_name"));
@@ -99,7 +105,8 @@ class UpdateWrapperHelperTest {
     }
 
     @Test
-    void 变更字段含主键时主键不进入set() {
+    @DisplayName("变更字段含主键时主键不进入set")
+    void shouldMatchExpectedBehavior006() {
         UpdateWrapper<UserDO> wrapper = UpdateWrapperHelper.build(List.of("id", "name"), sample());
         String setSql = wrapper.getSqlSet();
         assertTrue(setSql.contains("user_name"));
@@ -108,13 +115,15 @@ class UpdateWrapperHelperTest {
     }
 
     @Test
-    void 变更字段在实体中不存在时抛异常() {
+    @DisplayName("变更字段在实体中不存在时抛异常")
+    void shouldMatchExpectedBehavior007() {
         assertThrows(IllegalArgumentException.class,
                 () -> UpdateWrapperHelper.build(Set.of("notExistField"), sample()));
     }
 
     @Test
-    void 入参为空时抛异常() {
+    @DisplayName("入参为空时抛异常")
+    void shouldMatchExpectedBehavior008() {
         assertThrows(IllegalArgumentException.class, () -> UpdateWrapperHelper.build(null, sample()));
         assertThrows(IllegalArgumentException.class, () -> UpdateWrapperHelper.build(Set.of("name"), null));
         assertThrows(IllegalArgumentException.class, () -> UpdateWrapperHelper.build(Set.of(), sample()));

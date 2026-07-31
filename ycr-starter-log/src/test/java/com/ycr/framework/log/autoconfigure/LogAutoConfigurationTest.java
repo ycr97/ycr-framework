@@ -4,6 +4,7 @@ import com.ycr.framework.log.aop.LogAspect;
 import com.ycr.framework.log.handler.LogHandler;
 import com.ycr.framework.log.handler.Slf4jLogHandler;
 import com.ycr.framework.log.model.LogRecord;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -23,7 +24,8 @@ class LogAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(LogAutoConfiguration.class));
 
     @Test
-    void 默认应装配切面与默认处理器() {
+    @DisplayName("默认应装配切面与默认处理器")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(LogAspect.class);
             assertThat(context).hasSingleBean(LogHandler.class);
@@ -32,13 +34,15 @@ class LogAutoConfigurationTest {
     }
 
     @Test
-    void 关闭开关时不装配切面() {
+    @DisplayName("关闭开关时不装配切面")
+    void shouldMatchExpectedBehavior002() {
         runner.withPropertyValues("ycr.log.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(LogAspect.class));
     }
 
     @Test
-    void 业务自定义处理器应覆盖默认() {
+    @DisplayName("业务自定义处理器应覆盖默认")
+    void shouldMatchExpectedBehavior003() {
         runner.withUserConfiguration(CustomHandlerConfig.class).run(context -> {
             assertThat(context).hasSingleBean(LogHandler.class);
             assertThat(context.getBean(LogHandler.class)).isInstanceOf(CustomLogHandler.class);
@@ -46,18 +50,21 @@ class LogAutoConfigurationTest {
     }
 
     @Test
-    void 异步开启时装配执行器() {
+    @DisplayName("异步开启时装配执行器")
+    void shouldMatchExpectedBehavior004() {
         runner.withPropertyValues("ycr.log.async=true")
                 .run(context -> assertThat(context.containsBean("ycrLogExecutor")).isTrue());
     }
 
     @Test
-    void 默认不装配异步执行器() {
+    @DisplayName("默认不装配异步执行器")
+    void shouldMatchExpectedBehavior005() {
         runner.run(context -> assertThat(context.containsBean("ycrLogExecutor")).isFalse());
     }
 
     @Test
-    void 应装配序列化管线与默认归属地解析器() {
+    @DisplayName("应装配序列化管线与默认归属地解析器")
+    void shouldMatchExpectedBehavior006() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(com.ycr.framework.log.util.LogJsonSupport.class);
             assertThat(context).hasSingleBean(com.ycr.framework.log.handler.IpRegionResolver.class);
@@ -65,7 +72,8 @@ class LogAutoConfigurationTest {
     }
 
     @Test
-    void 业务自定义归属地解析器应覆盖默认() {
+    @DisplayName("业务自定义归属地解析器应覆盖默认")
+    void shouldMatchExpectedBehavior007() {
         runner.withBean(com.ycr.framework.log.handler.IpRegionResolver.class, () -> ip -> "X")
                 .run(context -> assertThat(
                         context.getBean(com.ycr.framework.log.handler.IpRegionResolver.class).resolve("1"))
@@ -73,13 +81,15 @@ class LogAutoConfigurationTest {
     }
 
     @Test
-    void 默认应装配方法日志切面() {
+    @DisplayName("默认应装配方法日志切面")
+    void shouldMatchExpectedBehavior008() {
         runner.run(context ->
                 assertThat(context).hasSingleBean(com.ycr.framework.log.aspect.MethodLogAspect.class));
     }
 
     @Test
-    void 关闭开关时不装配方法日志切面() {
+    @DisplayName("关闭开关时不装配方法日志切面")
+    void shouldMatchExpectedBehavior009() {
         runner.withPropertyValues("ycr.log.method.enabled=false")
                 .run(context ->
                         assertThat(context).doesNotHaveBean(com.ycr.framework.log.aspect.MethodLogAspect.class));

@@ -11,6 +11,7 @@ import com.ycr.framework.log.handler.LogHandler;
 import com.ycr.framework.log.model.LogRecord;
 import com.ycr.framework.log.util.LogJsonSupport;
 import com.ycr.framework.trace.util.TraceUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -62,7 +63,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 正常路径应填充方法信息与状态() {
+    @DisplayName("正常路径应填充方法信息与状态")
+    void shouldMatchExpectedBehavior001() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties());
 
@@ -82,7 +84,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 应从UserContext填充操作人() {
+    @DisplayName("应从UserContext填充操作人")
+    void shouldMatchExpectedBehavior002() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties());
         UserContext userContext = new UserContext();
@@ -109,7 +112,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 异常路径应置500并原样抛出() {
+    @DisplayName("异常路径应置500并原样抛出")
+    void shouldMatchExpectedBehavior003() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties());
 
@@ -123,7 +127,8 @@ class LogAspectTest {
     }
 
     @Test
-    void ignore方法应跳过记录() {
+    @DisplayName("ignore方法应跳过记录")
+    void shouldMatchExpectedBehavior004() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties());
 
@@ -133,7 +138,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 处理器异常不应影响业务返回() {
+    @DisplayName("处理器异常不应影响业务返回")
+    void shouldMatchExpectedBehavior005() {
         LogHandler handler = mock(LogHandler.class);
         doThrow(new RuntimeException("handler 坏了")).when(handler).handle(any());
         DemoService proxy = weave(handler, new LogProperties());
@@ -142,7 +148,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 应采集请求参数且脱敏敏感键() {
+    @DisplayName("应采集请求参数且脱敏敏感键")
+    void shouldMatchExpectedBehavior006() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties());
 
@@ -167,7 +174,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 应采集请求体响应体并脱敏() {
+    @DisplayName("应采集请求体响应体并脱敏")
+    void shouldMatchExpectedBehavior007() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties());
 
@@ -188,7 +196,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 应采集请求头并强制脱敏Authorization() {
+    @DisplayName("应采集请求头并强制脱敏Authorization")
+    void shouldMatchExpectedBehavior008() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties());
 
@@ -208,7 +217,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 应解析UA浏览器与操作系统() {
+    @DisplayName("应解析UA浏览器与操作系统")
+    void shouldMatchExpectedBehavior009() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties());
 
@@ -227,7 +237,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 应经IpRegionResolver填充归属地() {
+    @DisplayName("应经IpRegionResolver填充归属地")
+    void shouldMatchExpectedBehavior010() {
         LogHandler handler = mock(LogHandler.class);
         DemoService proxy = weave(handler, new LogProperties(), ip -> "中国-浙江-杭州");
 
@@ -243,7 +254,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 类级Log应记录未标注方法() {
+    @DisplayName("类级Log应记录未标注方法")
+    void shouldMatchExpectedBehavior011() {
         LogHandler handler = mock(LogHandler.class);
         ClassLevelDemoService proxy = weaveClassLevel(handler, new LogProperties());
 
@@ -258,7 +270,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 类级Log下方法级Log应优先() {
+    @DisplayName("类级Log下方法级Log应优先")
+    void shouldMatchExpectedBehavior012() {
         LogHandler handler = mock(LogHandler.class);
         ClassLevelDemoService proxy = weaveClassLevel(handler, new LogProperties());
 
@@ -272,7 +285,8 @@ class LogAspectTest {
     }
 
     @Test
-    void 类级Ignore应跳过全部方法() {
+    @DisplayName("类级Ignore应跳过全部方法")
+    void shouldMatchExpectedBehavior013() {
         LogHandler handler = mock(LogHandler.class);
         IgnoredClassService target = new IgnoredClassService();
         AspectJProxyFactory factory = new AspectJProxyFactory(target);

@@ -1,6 +1,7 @@
 package com.ycr.framework.ratelimiter.autoconfigure;
 
 import com.ycr.framework.ratelimiter.aop.RateLimiterAspect;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -22,20 +23,23 @@ class RateLimiterAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(RateLimiterAutoConfiguration.class));
 
     @Test
-    void 默认不应装配切面() {
+    @DisplayName("默认不应装配切面")
+    void shouldMatchExpectedBehavior001() {
         runner.withUserConfiguration(RedissonConfig.class)
                 .run(context -> assertThat(context).doesNotHaveBean(RateLimiterAspect.class));
     }
 
     @Test
-    void 显式开启且存在Redisson时应装配切面() {
+    @DisplayName("显式开启且存在Redisson时应装配切面")
+    void shouldMatchExpectedBehavior002() {
         runner.withUserConfiguration(RedissonConfig.class)
                 .withPropertyValues("ycr.ratelimiter.enabled=true")
                 .run(context -> assertThat(context).hasSingleBean(RateLimiterAspect.class));
     }
 
     @Test
-    void 显式开启但无Redisson时不装配切面() {
+    @DisplayName("显式开启但无Redisson时不装配切面")
+    void shouldMatchExpectedBehavior003() {
         runner.withPropertyValues("ycr.ratelimiter.enabled=true")
                 .run(context -> assertThat(context).doesNotHaveBean(RateLimiterAspect.class));
     }

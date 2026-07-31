@@ -3,6 +3,7 @@ package com.ycr.framework.cache.jetcache.autoconfigure;
 import com.alicp.jetcache.anno.aop.CacheAdvisor;
 import com.alicp.jetcache.anno.aop.JetCacheInterceptor;
 import com.alicp.jetcache.autoconfigure.JetCacheAutoConfiguration;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -30,7 +31,8 @@ class JetCacheAnnoAutoConfigurationTest {
                     "jetcache.remote.default.type=mock");
 
     @Test
-    void 默认装配_拦截器与增强器均存在() {
+    @DisplayName("默认装配_拦截器与增强器均存在")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(JetCacheInterceptor.class);
             assertThat(context).hasBean(CacheAdvisor.CACHE_ADVISOR_BEAN_NAME);
@@ -40,7 +42,8 @@ class JetCacheAnnoAutoConfigurationTest {
     }
 
     @Test
-    void 自定义扫描包_属性驱动生效() {
+    @DisplayName("自定义扫描包_属性驱动生效")
+    void shouldMatchExpectedBehavior002() {
         runner.withPropertyValues("ycr.cache.jetcache.base-packages=com.acme")
                 .run(context -> {
                     CacheAdvisor advisor = context.getBean(CacheAdvisor.CACHE_ADVISOR_BEAN_NAME, CacheAdvisor.class);
@@ -49,7 +52,8 @@ class JetCacheAnnoAutoConfigurationTest {
     }
 
     @Test
-    void 关闭开关_两个基础设施Bean均不装配() {
+    @DisplayName("关闭开关_两个基础设施Bean均不装配")
+    void shouldMatchExpectedBehavior003() {
         runner.withPropertyValues("ycr.cache.jetcache.enabled=false")
                 .run(context -> {
                     assertThat(context).doesNotHaveBean(JetCacheInterceptor.class);

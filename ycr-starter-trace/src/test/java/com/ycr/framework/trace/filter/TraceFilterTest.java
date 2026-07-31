@@ -3,6 +3,7 @@ package com.ycr.framework.trace.filter;
 import com.ycr.framework.trace.util.TraceUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -32,7 +33,8 @@ class TraceFilterTest {
     }
 
     @Test
-    void 上游头存在时应复用并回写响应头() throws Exception {
+    @DisplayName("上游头存在时应复用并回写响应头")
+    void shouldMatchExpectedBehavior001() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(HEADER, "up-123");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -51,7 +53,8 @@ class TraceFilterTest {
     }
 
     @Test
-    void 上游头缺失时应自动生成() throws Exception {
+    @DisplayName("上游头缺失时应自动生成")
+    void shouldMatchExpectedBehavior002() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         AtomicReference<String> insideChain = new AtomicReference<>();
@@ -64,7 +67,8 @@ class TraceFilterTest {
     }
 
     @Test
-    void 请求结束后应清理traceId() throws Exception {
+    @DisplayName("请求结束后应清理traceId")
+    void shouldMatchExpectedBehavior003() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -78,7 +82,8 @@ class TraceFilterTest {
     }
 
     @Test
-    void 链内抛异常仍应清理traceId() {
+    @DisplayName("链内抛异常仍应清理traceId")
+    void shouldMatchExpectedBehavior004() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain boom = (req, res) -> {
@@ -91,7 +96,8 @@ class TraceFilterTest {
     }
 
     @Test
-    void 上游requestId存在时应复用并回写响应头() throws Exception {
+    @DisplayName("上游requestId存在时应复用并回写响应头")
+    void shouldMatchExpectedBehavior005() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(REQUEST_HEADER, "request-123");
         MockHttpServletResponse response = new MockHttpServletResponse();

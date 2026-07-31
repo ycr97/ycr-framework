@@ -3,6 +3,7 @@ package com.ycr.framework.common.util;
 import com.ycr.framework.common.model.BaseTreeCodeDTO;
 import com.ycr.framework.common.model.BaseTreeDTO;
 import lombok.Getter;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -27,7 +28,8 @@ class TreeUtilsTest {
     }
 
     @Test
-    void parseTree_应按父子关系组装嵌套树() {
+    @DisplayName("parseTree_应按父子关系组装嵌套树")
+    void shouldMatchExpectedBehavior001() {
         List<Node> source = Arrays.asList(
                 new Node(1L, null, "root"),
                 new Node(2L, 1L, "a"),
@@ -48,7 +50,8 @@ class TreeUtilsTest {
     }
 
     @Test
-    void parseTree_父节点不在集合中时该节点视为顶层() {
+    @DisplayName("parseTree_父节点不在集合中时该节点视为顶层")
+    void shouldMatchExpectedBehavior002() {
         List<Node> source = Arrays.asList(
                 new Node(10L, 99L, "orphan"),
                 new Node(11L, 10L, "child")
@@ -62,14 +65,16 @@ class TreeUtilsTest {
     }
 
     @Test
-    void parseTree_空集合返回空列表() {
+    @DisplayName("parseTree_空集合返回空列表")
+    void shouldMatchExpectedBehavior003() {
         assertThat(TreeUtils.parseTree(Collections.<Node>emptyList(), null)).isEmpty();
         assertThat(TreeUtils.parseTree(null, null)).isEmpty();
         assertThat(TreeUtils.parseTree(Arrays.asList((Node) null, null), null)).isEmpty();
     }
 
     @Test
-    void parseTree_多个孤儿节点应按comparator重排为顶层() {
+    @DisplayName("parseTree_多个孤儿节点应按comparator重排为顶层")
+    void shouldMatchExpectedBehavior004() {
         // 默认 comparator 按 id 升序；source 故意乱序，验证孤儿被重排而非保持原序
         List<Node> source = Arrays.asList(
                 new Node(30L, 999L, "o30"),
@@ -83,7 +88,8 @@ class TreeUtilsTest {
     }
 
     @Test
-    void parseTree_自定义comparator决定同层顺序() {
+    @DisplayName("parseTree_自定义comparator决定同层顺序")
+    void shouldMatchExpectedBehavior005() {
         List<Node> source = Arrays.asList(
                 new Node(1L, null, "root1"),
                 new Node(3L, null, "root3"),
@@ -108,7 +114,8 @@ class TreeUtilsTest {
     }
 
     @Test
-    void parseTreeByCode_应按编码父子关系组装嵌套树() {
+    @DisplayName("parseTreeByCode_应按编码父子关系组装嵌套树")
+    void shouldMatchExpectedBehavior006() {
         List<CodeNode> source = Arrays.asList(
                 new CodeNode("A", null, "root"),
                 new CodeNode("A01", "A", "a"),
@@ -125,14 +132,16 @@ class TreeUtilsTest {
     }
 
     @Test
-    void parseTreeByCode_空集合返回空列表() {
+    @DisplayName("parseTreeByCode_空集合返回空列表")
+    void shouldMatchExpectedBehavior007() {
         assertThat(TreeUtils.parseTreeByCode(Collections.<CodeNode>emptyList(), null)).isEmpty();
         assertThat(TreeUtils.parseTreeByCode(null, null)).isEmpty();
         assertThat(TreeUtils.parseTreeByCode(Arrays.asList((CodeNode) null, null), null)).isEmpty();
     }
 
     @Test
-    void parseTreeByCode_父节点不在集合中时该节点视为顶层() {
+    @DisplayName("parseTreeByCode_父节点不在集合中时该节点视为顶层")
+    void shouldMatchExpectedBehavior008() {
         List<CodeNode> source = Arrays.asList(
                 new CodeNode("X01", "X", "orphan"),
                 new CodeNode("X0101", "X01", "child")
@@ -146,7 +155,8 @@ class TreeUtilsTest {
     }
 
     @Test
-    void parseTreeByCode_自定义comparator决定同层顺序() {
+    @DisplayName("parseTreeByCode_自定义comparator决定同层顺序")
+    void shouldMatchExpectedBehavior009() {
         List<CodeNode> source = Arrays.asList(
                 new CodeNode("A", null, "rootA"),
                 new CodeNode("C", null, "rootC"),

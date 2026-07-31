@@ -2,6 +2,7 @@ package com.ycr.framework.security.checker;
 
 import com.ycr.framework.context.holder.UserContextHolder;
 import com.ycr.framework.context.model.UserContext;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,8 @@ class ContextPermissionCheckerTest {
     }
 
     @Test
-    void 应从UserContext判断角色和权限() {
+    @DisplayName("应从UserContext判断角色和权限")
+    void shouldMatchExpectedBehavior001() {
         UserContext userContext = new UserContext();
         userContext.setRoles(Set.of("admin"));
         userContext.setPermissions(Set.of("order:create"));
@@ -39,7 +41,8 @@ class ContextPermissionCheckerTest {
     }
 
     @Test
-    void 无用户上下文时应返回false() {
+    @DisplayName("无用户上下文时应返回false")
+    void shouldMatchExpectedBehavior002() {
         assertFalse(checker.hasRole("admin"));
         assertFalse(checker.hasPermission("order:create"));
     }

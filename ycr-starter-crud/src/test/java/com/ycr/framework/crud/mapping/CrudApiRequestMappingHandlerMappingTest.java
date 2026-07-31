@@ -4,6 +4,7 @@ import com.ycr.framework.crud.annotation.CrudApi;
 import com.ycr.framework.crud.controller.AbstractCrudController;
 import com.ycr.framework.crud.enums.Api;
 import com.ycr.framework.data.model.BaseDO;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -40,19 +41,22 @@ class CrudApiRequestMappingHandlerMappingTest {
     }
 
     @Test
-    void disable命中的端点被判定关闭() throws Exception {
+    @DisplayName("disable命中的端点被判定关闭")
+    void shouldMatchExpectedBehavior001() throws Exception {
         assertTrue(mapping.isDisabled(RestrictedController.class, method("delete")));
         assertTrue(mapping.isDisabled(RestrictedController.class, method("create")));
     }
 
     @Test
-    void 未在disable中的端点不关闭() throws Exception {
+    @DisplayName("未在disable中的端点不关闭")
+    void shouldMatchExpectedBehavior002() throws Exception {
         assertFalse(mapping.isDisabled(RestrictedController.class, method("page")));
         assertFalse(mapping.isDisabled(RestrictedController.class, method("get")));
     }
 
     @Test
-    void 无CrudApi注解时全部不关闭() throws Exception {
+    @DisplayName("无CrudApi注解时全部不关闭")
+    void shouldMatchExpectedBehavior003() throws Exception {
         assertFalse(mapping.isDisabled(OpenController.class, method("delete")));
     }
 }

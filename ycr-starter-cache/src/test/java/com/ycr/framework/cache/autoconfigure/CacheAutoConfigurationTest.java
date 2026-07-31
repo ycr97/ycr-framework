@@ -1,6 +1,7 @@
 package com.ycr.framework.cache.autoconfigure;
 
 import com.ycr.framework.cache.util.RedisUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -18,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CacheAutoConfigurationTest {
 
     @Test
-    void 有Redisson时初始化工具类且关闭时不装配() {
+    @DisplayName("有Redisson时初始化工具类且关闭时不装配")
+    void shouldMatchExpectedBehavior001() {
         RedissonClient client = (RedissonClient) Proxy.newProxyInstance(
                 RedissonClient.class.getClassLoader(),
                 new Class<?>[]{RedissonClient.class},

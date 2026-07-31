@@ -1,5 +1,6 @@
 package com.ycr.framework.ddd.event;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -22,7 +23,8 @@ class DomainEventPublisherTest {
     }
 
     @Test
-    void publish委托ApplicationEventPublisher() {
+    @DisplayName("publish委托ApplicationEventPublisher")
+    void shouldMatchExpectedBehavior001() {
         ApplicationEventPublisher spring = mock(ApplicationEventPublisher.class);
         DomainEventPublisher publisher = new DomainEventPublisher(spring);
         SampleEvent event = new SampleEvent("src");
@@ -33,7 +35,8 @@ class DomainEventPublisherTest {
     }
 
     @Test
-    void 无事务时publishAfterCommit退化为立即发布() {
+    @DisplayName("无事务时publishAfterCommit退化为立即发布")
+    void shouldMatchExpectedBehavior002() {
         ApplicationEventPublisher spring = mock(ApplicationEventPublisher.class);
         DomainEventPublisher publisher = new DomainEventPublisher(spring);
         SampleEvent event = new SampleEvent("src");
@@ -45,7 +48,8 @@ class DomainEventPublisherTest {
     }
 
     @Test
-    void 事件携带eventId与occurredOn() {
+    @DisplayName("事件携带eventId与occurredOn")
+    void shouldMatchExpectedBehavior003() {
         SampleEvent a = new SampleEvent("s");
         SampleEvent b = new SampleEvent("s");
         assertNotNull(a.getEventId());

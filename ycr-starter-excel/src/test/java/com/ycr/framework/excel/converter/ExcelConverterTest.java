@@ -4,6 +4,7 @@ import cn.idev.excel.enums.CellDataTypeEnum;
 import cn.idev.excel.metadata.data.ReadCellData;
 import cn.idev.excel.metadata.data.WriteCellData;
 import com.ycr.framework.core.enums.BaseEnum;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class ExcelConverterTest {
 
     @Test
-    void 大数转换器写出字符串读回Long() throws Exception {
+    @DisplayName("大数转换器写出字符串读回Long")
+    void shouldMatchExpectedBehavior001() throws Exception {
         ExcelBigNumberConverter converter = new ExcelBigNumberConverter();
         long id = 123456789012345L;
 
@@ -29,7 +31,8 @@ class ExcelConverterTest {
     }
 
     @Test
-    void 枚举转换器写描述读回枚举() throws Exception {
+    @DisplayName("枚举转换器写描述读回枚举")
+    void shouldMatchExpectedBehavior002() throws Exception {
         StatusConverter converter = new StatusConverter();
 
         WriteCellData<?> write = converter.convertToExcelData(Status.ENABLED, null, null);
@@ -41,7 +44,8 @@ class ExcelConverterTest {
     }
 
     @Test
-    void 枚举转换器应解析泛型枚举类型() {
+    @DisplayName("枚举转换器应解析泛型枚举类型")
+    void shouldMatchExpectedBehavior003() {
         StatusConverter converter = new StatusConverter();
         assertEquals(Status.class, converter.supportJavaTypeKey());
     }

@@ -1,5 +1,6 @@
 package com.ycr.framework.ddd.extension;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,7 +20,8 @@ class ExtensionRepositoryTest {
     }
 
     @Test
-    void BizScenario三级身份与默认值() {
+    @DisplayName("BizScenario三级身份与默认值")
+    void shouldMatchExpectedBehavior001() {
         assertEquals("bizA#uc1#sc1", BizScenario.of("bizA", "uc1", "sc1").getUniqueIdentity());
         assertEquals("bizA#" + BizScenario.DEFAULT_USE_CASE + "#" + BizScenario.DEFAULT_SCENARIO,
                 BizScenario.of("bizA").getUniqueIdentity());
@@ -28,7 +30,8 @@ class ExtensionRepositoryTest {
     }
 
     @Test
-    void 精确命中() {
+    @DisplayName("精确命中")
+    void shouldMatchExpectedBehavior002() {
         ExtensionRepository repo = new ExtensionRepository();
         PriceExtPt ext = () -> 1;
         repo.register(PriceExtPt.class, BizScenario.of("b", "u", "s"), ext);
@@ -37,7 +40,8 @@ class ExtensionRepositoryTest {
     }
 
     @Test
-    void 降级_注册bizId级_查全场景命中() {
+    @DisplayName("降级_注册bizId级_查全场景命中")
+    void shouldMatchExpectedBehavior003() {
         ExtensionRepository repo = new ExtensionRepository();
         PriceExtPt bizLevel = () -> 2;
         repo.register(PriceExtPt.class, BizScenario.of("b"), bizLevel);
@@ -47,7 +51,8 @@ class ExtensionRepositoryTest {
     }
 
     @Test
-    void 降级_全局默认兜底() {
+    @DisplayName("降级_全局默认兜底")
+    void shouldMatchExpectedBehavior004() {
         ExtensionRepository repo = new ExtensionRepository();
         PriceExtPt def = () -> 9;
         repo.register(PriceExtPt.class, BizScenario.of(BizScenario.DEFAULT_BIZ_ID), def);
@@ -56,13 +61,15 @@ class ExtensionRepositoryTest {
     }
 
     @Test
-    void 全部未命中返null() {
+    @DisplayName("全部未命中返null")
+    void shouldMatchExpectedBehavior005() {
         ExtensionRepository repo = new ExtensionRepository();
         assertNull(repo.getExt(PriceExtPt.class, BizScenario.of("x")));
     }
 
     @Test
-    void 同键异实例冲突抛异常_同实例幂等() {
+    @DisplayName("同键异实例冲突抛异常_同实例幂等")
+    void shouldMatchExpectedBehavior006() {
         ExtensionRepository repo = new ExtensionRepository();
         PriceExtPt a = () -> 1;
         PriceExtPt b = () -> 2;

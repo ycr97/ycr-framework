@@ -1,5 +1,6 @@
 package com.ycr.framework.sdk;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -21,7 +22,8 @@ class AbstractFeignClientServiceTest {
     }
 
     @Test
-    void getClient应返回注入的Feign客户端() throws Exception {
+    @DisplayName("getClient应返回注入的Feign客户端")
+    void shouldMatchExpectedBehavior001() throws Exception {
         DummySdk sdk = new DummySdk();
         DummyClient client = () -> "hi";
 

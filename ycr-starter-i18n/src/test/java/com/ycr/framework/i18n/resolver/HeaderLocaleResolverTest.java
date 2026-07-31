@@ -1,5 +1,6 @@
 package com.ycr.framework.i18n.resolver;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -17,7 +18,8 @@ class HeaderLocaleResolverTest {
     private final HeaderLocaleResolver resolver = new HeaderLocaleResolver(Locale.SIMPLIFIED_CHINESE);
 
     @Test
-    void 应优先用X_Lang头() {
+    @DisplayName("应优先用X_Lang头")
+    void shouldMatchExpectedBehavior001() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(HeaderLocaleResolver.HEADER_LANG, "en");
 
@@ -25,7 +27,8 @@ class HeaderLocaleResolverTest {
     }
 
     @Test
-    void 无X_Lang时用AcceptLanguage首段() {
+    @DisplayName("无X_Lang时用AcceptLanguage首段")
+    void shouldMatchExpectedBehavior002() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8");
 
@@ -33,7 +36,8 @@ class HeaderLocaleResolverTest {
     }
 
     @Test
-    void 两者皆无时用默认语言() {
+    @DisplayName("两者皆无时用默认语言")
+    void shouldMatchExpectedBehavior003() {
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         assertEquals(Locale.SIMPLIFIED_CHINESE, resolver.resolveLocale(request));

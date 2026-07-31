@@ -9,6 +9,7 @@ import com.ycr.framework.context.enums.UserContextSource;
 import com.ycr.framework.context.holder.UserContextHolder;
 import com.ycr.framework.context.model.UserContext;
 import com.ycr.framework.context.resolver.UserContextResolveRequest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -32,7 +33,8 @@ class SaTokenUserContextResolverTest {
     }
 
     @Test
-    void tokenVerify模式应从SaToken会话还原上下文并忽略身份头() {
+    @DisplayName("tokenVerify模式应从SaToken会话还原上下文并忽略身份头")
+    void shouldMatchExpectedBehavior001() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(ContextHeaderConstants.HEADER_USER_ID, "999");
 
@@ -55,7 +57,8 @@ class SaTokenUserContextResolverTest {
     }
 
     @Test
-    void gatewayTrust模式不支持token解析() {
+    @DisplayName("gatewayTrust模式不支持token解析")
+    void shouldMatchExpectedBehavior002() {
         assertFalse(resolver.supports(new UserContextResolveRequest(
                 new MockHttpServletRequest(),
                 SecurityMode.GATEWAY_TRUST,

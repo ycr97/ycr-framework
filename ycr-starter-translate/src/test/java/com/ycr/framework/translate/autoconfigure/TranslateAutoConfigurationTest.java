@@ -8,6 +8,7 @@ import com.ycr.framework.translate.source.DictProvider;
 import com.ycr.framework.translate.source.DictTranslateSource;
 import com.ycr.framework.translate.source.EnumTranslateSource;
 import com.ycr.framework.translate.source.TranslateSourceRegistry;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -29,7 +30,8 @@ class TranslateAutoConfigurationTest {
                     JacksonAutoConfiguration.class, TranslateAutoConfiguration.class));
 
     @Test
-    void 默认装配注册表与内置枚举源_但无字典源() {
+    @DisplayName("默认装配注册表与内置枚举源_但无字典源")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(TranslateSourceRegistry.class);
             assertThat(context).hasSingleBean(EnumTranslateSource.class);
@@ -40,7 +42,8 @@ class TranslateAutoConfigurationTest {
     }
 
     @Test
-    void 提供DictProvider时装配字典源_且ObjectMapper翻译生效() {
+    @DisplayName("提供DictProvider时装配字典源_且ObjectMapper翻译生效")
+    void shouldMatchExpectedBehavior002() {
         runner.withUserConfiguration(DictConfig.class).run(context -> {
             assertThat(context).hasSingleBean(DictTranslateSource.class);
 
@@ -52,7 +55,8 @@ class TranslateAutoConfigurationTest {
     }
 
     @Test
-    void 关闭开关时不装配() {
+    @DisplayName("关闭开关时不装配")
+    void shouldMatchExpectedBehavior003() {
         runner.withPropertyValues("ycr.translate.enabled=false").run(context -> {
             assertThat(context).doesNotHaveBean(TranslateSourceRegistry.class);
             assertThat(context).doesNotHaveBean(EnumTranslateSource.class);

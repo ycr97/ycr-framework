@@ -1,6 +1,7 @@
 package com.ycr.framework.i18n.autoconfigure;
 
 import com.ycr.framework.i18n.resolver.HeaderLocaleResolver;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration;
@@ -26,7 +27,8 @@ class I18nAutoConfigurationTest {
                     MessageSourceAutoConfiguration.class, I18nAutoConfiguration.class));
 
     @Test
-    void 非web环境不注册LocaleResolver但应成功装配() {
+    @DisplayName("非web环境不注册LocaleResolver但应成功装配")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).hasNotFailed();
             assertThat(context).doesNotHaveBean(LocaleResolver.class);
@@ -34,7 +36,8 @@ class I18nAutoConfigurationTest {
     }
 
     @Test
-    void web环境应注册HeaderLocaleResolver() {
+    @DisplayName("web环境应注册HeaderLocaleResolver")
+    void shouldMatchExpectedBehavior002() {
         webRunner.run(context -> {
             assertThat(context).hasSingleBean(LocaleResolver.class);
             assertThat(context.getBean(LocaleResolver.class)).isInstanceOf(HeaderLocaleResolver.class);
@@ -42,7 +45,8 @@ class I18nAutoConfigurationTest {
     }
 
     @Test
-    void 关闭开关时不注册LocaleResolver() {
+    @DisplayName("关闭开关时不注册LocaleResolver")
+    void shouldMatchExpectedBehavior003() {
         webRunner.withPropertyValues("ycr.i18n.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(LocaleResolver.class));
     }

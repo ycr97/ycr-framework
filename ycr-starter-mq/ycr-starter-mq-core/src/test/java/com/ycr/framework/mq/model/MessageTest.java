@@ -1,5 +1,6 @@
 package com.ycr.framework.mq.model;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MessageTest {
 
     @Test
-    void builder构建并默认空属性表() {
+    @DisplayName("builder构建并默认空属性表")
+    void shouldMatchExpectedBehavior001() {
         Message message = Message.builder()
                 .topic("order-topic")
                 .tag("created")
@@ -29,7 +31,8 @@ class MessageTest {
     }
 
     @Test
-    void addProperty追加属性并支持链式() {
+    @DisplayName("addProperty追加属性并支持链式")
+    void shouldMatchExpectedBehavior002() {
         Message message = Message.builder().topic("t").build()
                 .addProperty("tenantId", "100")
                 .addProperty("traceId", "abc");

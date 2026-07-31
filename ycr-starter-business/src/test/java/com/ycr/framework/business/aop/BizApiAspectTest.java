@@ -4,6 +4,7 @@ import com.ycr.framework.business.annotation.BizApi;
 import com.ycr.framework.business.chain.BizContext;
 import com.ycr.framework.business.chain.BizInterceptor;
 import com.ycr.framework.business.chain.BizInterceptorChain;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
@@ -27,7 +28,8 @@ class BizApiAspectTest {
     }
 
     @Test
-    void 切面真织入_拦截器绕方法执行且上下文完整() {
+    @DisplayName("切面真织入_拦截器绕方法执行且上下文完整")
+    void shouldMatchExpectedBehavior001() {
         List<String> trace = new ArrayList<>();
         BizContext[] captured = new BizContext[1];
 
@@ -60,7 +62,8 @@ class BizApiAspectTest {
     }
 
     @Test
-    void before改写入参_目标方法以新参执行() {
+    @DisplayName("before改写入参_目标方法以新参执行")
+    void shouldMatchExpectedBehavior002() {
         // 在 before 阶段把入参规整为大写，目标方法应收到改写后的值
         BizInterceptor normalizer = new BizInterceptor() {
             @Override

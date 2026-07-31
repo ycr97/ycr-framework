@@ -26,6 +26,13 @@ scripts/check-autoconfiguration-tests.sh
 `*AutoConfigurationTest`。副作用能力契约维护在
 `scripts/autoconfiguration-side-effect-contracts.tsv`。
 
+## 测试命名
+
+- Java 测试方法统一使用 ASCII `lowerCamelCase`。
+- 推荐使用 `shouldDoSomethingWhenCondition` 表达行为与条件。
+- 中文场景说明使用 JUnit 5 `@DisplayName`，不进入 Java 标识符。
+- `scripts/check-test-method-names.sh` 会扫描全部测试源码；该检查已接入自动配置门禁。
+
 ## 迁移
 
 升级后需显式配置需要的能力：

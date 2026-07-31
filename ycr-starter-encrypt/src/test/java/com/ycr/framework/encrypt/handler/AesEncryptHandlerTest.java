@@ -1,5 +1,6 @@
 package com.ycr.framework.encrypt.handler;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,8 @@ class AesEncryptHandlerTest {
     }
 
     @Test
-    void 加密后再解密应得到原文() {
+    @DisplayName("加密后再解密应得到原文")
+    void shouldMatchExpectedBehavior001() {
         String plainText = "手机号13800138000";
         String encrypted = handler.encrypt(plainText);
         assertNotEquals(plainText, encrypted);
@@ -25,7 +27,8 @@ class AesEncryptHandlerTest {
     }
 
     @Test
-    void 相同明文每次加密结果不同_CBC随机IV() {
+    @DisplayName("相同明文每次加密结果不同_CBC随机IV")
+    void shouldMatchExpectedBehavior002() {
         String text = "测试数据";
         String enc1 = handler.encrypt(text);
         String enc2 = handler.encrypt(text);
@@ -36,7 +39,8 @@ class AesEncryptHandlerTest {
     }
 
     @Test
-    void null输入应返回null() {
+    @DisplayName("null输入应返回null")
+    void shouldMatchExpectedBehavior003() {
         assertNull(handler.encrypt(null));
         assertNull(handler.decrypt(null));
     }

@@ -1,6 +1,7 @@
 package com.ycr.framework.data.permission.scope;
 
 import com.ycr.framework.data.permission.exception.DataPermissionException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +24,8 @@ class DataScopeContextTest {
     }
 
     @Test
-    void 同请求内只解析一次() {
+    @DisplayName("同请求内只解析一次")
+    void shouldMatchExpectedBehavior001() {
         AtomicInteger calls = new AtomicInteger();
         DataScopeResolver resolver = () -> {
             calls.incrementAndGet();
@@ -36,7 +38,8 @@ class DataScopeContextTest {
     }
 
     @Test
-    void clear后重新解析() {
+    @DisplayName("clear后重新解析")
+    void shouldMatchExpectedBehavior002() {
         AtomicInteger calls = new AtomicInteger();
         DataScopeResolver resolver = () -> {
             calls.incrementAndGet();
@@ -50,7 +53,8 @@ class DataScopeContextTest {
     }
 
     @Test
-    void resolver异常_包装为DataPermissionException() {
+    @DisplayName("resolver异常_包装为DataPermissionException")
+    void shouldMatchExpectedBehavior003() {
         DataScopeResolver resolver = () -> {
             throw new IllegalStateException("远程取数失败");
         };

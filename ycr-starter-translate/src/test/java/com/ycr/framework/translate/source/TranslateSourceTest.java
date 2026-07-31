@@ -1,5 +1,6 @@
 package com.ycr.framework.translate.source;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -18,7 +19,8 @@ class TranslateSourceTest {
     private final EnumTranslateSource enumSource = new EnumTranslateSource();
 
     @Test
-    void 枚举源以类名加编码翻译为描述_容忍字符串数字差异() {
+    @DisplayName("枚举源以类名加编码翻译为描述_容忍字符串数字差异")
+    void shouldMatchExpectedBehavior001() {
         String key = StatusEnum.class.getName();
         assertEquals("启用", enumSource.translate(key, 1));
         assertEquals("启用", enumSource.translate(key, "1"));
@@ -26,7 +28,8 @@ class TranslateSourceTest {
     }
 
     @Test
-    void 枚举源非法输入返回null() {
+    @DisplayName("枚举源非法输入返回null")
+    void shouldMatchExpectedBehavior002() {
         String key = StatusEnum.class.getName();
         assertNull(enumSource.translate(key, 99));
         assertNull(enumSource.translate(key, null));
@@ -35,7 +38,8 @@ class TranslateSourceTest {
     }
 
     @Test
-    void 字典源委托DictProvider() {
+    @DisplayName("字典源委托DictProvider")
+    void shouldMatchExpectedBehavior003() {
         DictProvider provider = (dictCode, itemCode) ->
                 "user_status".equals(dictCode) && "1".equals(itemCode) ? "启用" : null;
         DictTranslateSource dictSource = new DictTranslateSource(provider);
@@ -47,7 +51,8 @@ class TranslateSourceTest {
     }
 
     @Test
-    void 注册表按名索引_未注册返回null_同名覆盖() {
+    @DisplayName("注册表按名索引_未注册返回null_同名覆盖")
+    void shouldMatchExpectedBehavior004() {
         TranslateSource custom = new TranslateSource() {
             @Override
             public String name() {

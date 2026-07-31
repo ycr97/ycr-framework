@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.core.exception.BizException;
 import feign.Request;
 import feign.Response;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -33,7 +34,8 @@ class FeignErrorDecoderTest {
     }
 
     @Test
-    void 下游R响应应解码为BizException() {
+    @DisplayName("下游R响应应解码为BizException")
+    void shouldMatchExpectedBehavior001() {
         Response response = responseWithBody("{\"code\":\"USER_001\",\"msg\":\"用户不存在\"}");
 
         Exception ex = decoder.decode("UserClient#get()", response);
@@ -44,7 +46,8 @@ class FeignErrorDecoderTest {
     }
 
     @Test
-    void 下游旧Message字段也应兼容解码为BizException() {
+    @DisplayName("下游旧Message字段也应兼容解码为BizException")
+    void shouldMatchExpectedBehavior002() {
         Response response = responseWithBody("{\"code\":\"USER_002\",\"message\":\"用户禁用\"}");
 
         Exception ex = decoder.decode("UserClient#get()", response);
@@ -55,7 +58,8 @@ class FeignErrorDecoderTest {
     }
 
     @Test
-    void 非框架响应应回退默认解码器() {
+    @DisplayName("非框架响应应回退默认解码器")
+    void shouldMatchExpectedBehavior003() {
         Response response = responseWithBody("{\"foo\":\"bar\"}");
 
         Exception ex = decoder.decode("UserClient#get()", response);

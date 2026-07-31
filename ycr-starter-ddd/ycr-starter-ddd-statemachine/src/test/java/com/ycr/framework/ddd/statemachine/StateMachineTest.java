@@ -4,6 +4,7 @@ import com.ycr.framework.core.exception.BizException;
 import com.ycr.framework.core.exception.SysException;
 import com.ycr.framework.ddd.statemachine.builder.StateMachineBuilder;
 import com.ycr.framework.ddd.statemachine.builder.StateMachineBuilderFactory;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -41,7 +42,8 @@ class StateMachineTest {
     }
 
     @Test
-    void 线性流转应按定义推进状态() {
+    @DisplayName("线性流转应按定义推进状态")
+    void shouldMatchExpectedBehavior001() {
         StateMachine<OrderState, OrderEvent, OrderContext> sm = linearMachine("linear");
         OrderContext ctx = new OrderContext("order001");
 
@@ -50,21 +52,24 @@ class StateMachineTest {
     }
 
     @Test
-    void 状态上无该事件的转换应抛BizException() {
+    @DisplayName("状态上无该事件的转换应抛BizException")
+    void shouldMatchExpectedBehavior002() {
         StateMachine<OrderState, OrderEvent, OrderContext> sm = linearMachine("noTransition");
         assertThrows(BizException.class,
                 () -> sm.fireEvent(OrderState.INIT, OrderEvent.SHIP, new OrderContext("order002")));
     }
 
     @Test
-    void 源状态未定义应抛BizException() {
+    @DisplayName("源状态未定义应抛BizException")
+    void shouldMatchExpectedBehavior003() {
         StateMachine<OrderState, OrderEvent, OrderContext> sm = linearMachine("noState");
         assertThrows(BizException.class,
                 () -> sm.fireEvent(OrderState.COMPLETED, OrderEvent.PAY, new OrderContext("order003")));
     }
 
     @Test
-    void 条件分支应按condition路由不同目标() {
+    @DisplayName("条件分支应按condition路由不同目标")
+    void shouldMatchExpectedBehavior004() {
         // REVIEW --SUBMIT--> APPROVED (score>=60) / 否则兜底 REJECTED
         StateMachineBuilder<ReviewState, ReviewEvent, OrderContext> builder = StateMachineBuilderFactory.create();
         builder.externalTransition().from(ReviewState.REVIEW).to(ReviewState.APPROVED).on(ReviewEvent.SUBMIT)
@@ -83,7 +88,8 @@ class StateMachineTest {
     }
 
     @Test
-    void 唯一转换条件不满足应抛BizException() {
+    @DisplayName("唯一转换条件不满足应抛BizException")
+    void shouldMatchExpectedBehavior005() {
         StateMachineBuilder<OrderState, OrderEvent, OrderContext> builder = StateMachineBuilderFactory.create();
         builder.externalTransition().from(OrderState.INIT).to(OrderState.PAID).on(OrderEvent.PAY)
                 .when(ctx -> false).perform((from, to, event, ctx) -> {});
@@ -94,7 +100,8 @@ class StateMachineTest {
     }
 
     @Test
-    void action应在流转时真实执行并收到正确入参() {
+    @DisplayName("action应在流转时真实执行并收到正确入参")
+    void shouldMatchExpectedBehavior006() {
         AtomicReference<String> seen = new AtomicReference<>();
         StateMachineBuilder<OrderState, OrderEvent, OrderContext> builder = StateMachineBuilderFactory.create();
         builder.externalTransition().from(OrderState.INIT).to(OrderState.PAID).on(OrderEvent.PAY)
@@ -113,7 +120,8 @@ class StateMachineTest {
     }
 
     @Test
-    void verify应反映转换是否定义() {
+    @DisplayName("verify应反映转换是否定义")
+    void shouldMatchExpectedBehavior007() {
         StateMachine<OrderState, OrderEvent, OrderContext> sm = linearMachine("verify");
         assertTrue(sm.verify(OrderState.INIT, OrderEvent.PAY));
         assertFalse(sm.verify(OrderState.INIT, OrderEvent.SHIP));
@@ -121,7 +129,8 @@ class StateMachineTest {
     }
 
     @Test
-    void Factory应支持注册与按id查找() {
+    @DisplayName("Factory应支持注册与按id查找")
+    void shouldMatchExpectedBehavior008() {
         StateMachine<OrderState, OrderEvent, OrderContext> sm = linearMachine("factoryReg");
         StateMachineFactory.register(sm);
         assertSame(sm, StateMachineFactory.get("factoryReg"));
@@ -129,7 +138,8 @@ class StateMachineTest {
     }
 
     @Test
-    void Factory重复注册同id异实例应failfast同实例幂等() {
+    @DisplayName("Factory重复注册同id异实例应failfast同实例幂等")
+    void shouldMatchExpectedBehavior009() {
         StateMachine<OrderState, OrderEvent, OrderContext> a = linearMachine("dupId");
         StateMachine<OrderState, OrderEvent, OrderContext> b = linearMachine("dupId");
         StateMachineFactory.register(a);
@@ -138,7 +148,8 @@ class StateMachineTest {
     }
 
     @Test
-    void 同源同事件出现两条无条件转换build应抛SysException() {
+    @DisplayName("同源同事件出现两条无条件转换build应抛SysException")
+    void shouldMatchExpectedBehavior010() {
         StateMachineBuilder<OrderState, OrderEvent, OrderContext> builder = StateMachineBuilderFactory.create();
         builder.externalTransition().from(OrderState.INIT).to(OrderState.PAID).on(OrderEvent.PAY)
                 .perform((from, to, event, ctx) -> {});

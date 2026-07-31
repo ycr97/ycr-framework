@@ -2,6 +2,7 @@ package com.ycr.framework.web.autoconfigure;
 
 import com.ycr.framework.web.handler.GlobalExceptionHandler;
 import com.ycr.framework.web.handler.UnifiedResponseBodyAdvice;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
@@ -15,7 +16,8 @@ class WebAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(JacksonAutoConfiguration.class, WebAutoConfiguration.class));
 
     @Test
-    void Web环境默认只应注册异常处理器() {
+    @DisplayName("Web环境默认只应注册异常处理器")
+    void shouldMatchExpectedBehavior001() {
         webRunner.run(context -> {
             assertThat(context).hasSingleBean(GlobalExceptionHandler.class);
             assertThat(context).doesNotHaveBean(UnifiedResponseBodyAdvice.class);
@@ -24,7 +26,8 @@ class WebAutoConfigurationTest {
     }
 
     @Test
-    void 显式开启响应包装时应注册响应包装器() {
+    @DisplayName("显式开启响应包装时应注册响应包装器")
+    void shouldMatchExpectedBehavior002() {
         webRunner.withPropertyValues("ycr.web.response.enabled=true")
                 .run(context -> {
                     assertThat(context).hasSingleBean(GlobalExceptionHandler.class);
@@ -33,7 +36,8 @@ class WebAutoConfigurationTest {
     }
 
     @Test
-    void 应绑定包含和排除路径配置() {
+    @DisplayName("应绑定包含和排除路径配置")
+    void shouldMatchExpectedBehavior003() {
         webRunner.withPropertyValues(
                         "ycr.web.response.include-paths[0]=/api/**",
                         "ycr.web.response.exclude-paths[0]=/api/raw/**")

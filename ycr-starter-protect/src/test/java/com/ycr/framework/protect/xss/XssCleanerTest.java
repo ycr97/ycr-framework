@@ -1,6 +1,7 @@
 package com.ycr.framework.protect.xss;
 
 import com.ycr.framework.protect.xss.enums.XssMode;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,14 +16,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class XssCleanerTest {
 
     @Test
-    void escape_转义危险字符() {
+    @DisplayName("escape_转义危险字符")
+    void shouldMatchExpectedBehavior001() {
         assertEquals("&lt;script&gt;alert(1)&lt;&#x2F;script&gt;",
                 XssCleaner.escape("<script>alert(1)</script>"));
         assertEquals("a&amp;b&quot;c&#x27;d", XssCleaner.escape("a&b\"c'd"));
     }
 
     @Test
-    void clean_移除脚本块与标签与事件与危险协议() {
+    @DisplayName("clean_移除脚本块与标签与事件与危险协议")
+    void shouldMatchExpectedBehavior002() {
         assertEquals("hello", XssCleaner.clean("<script>alert(1)</script>hello"));
         assertEquals("hi", XssCleaner.clean("<b onclick=\"x()\">hi</b>"));
         assertEquals("", XssCleaner.clean("<img src=x onerror=alert(1)>"));
@@ -33,7 +36,8 @@ class XssCleanerTest {
     }
 
     @Test
-    void sanitize_按模式分派_null安全() {
+    @DisplayName("sanitize_按模式分派_null安全")
+    void shouldMatchExpectedBehavior003() {
         assertNull(XssCleaner.sanitize(null, XssMode.ESCAPE));
         assertEquals("&lt;b&gt;", XssCleaner.sanitize("<b>", XssMode.ESCAPE));
         assertEquals("", XssCleaner.sanitize("<b></b>", XssMode.CLEAN));

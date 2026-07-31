@@ -3,6 +3,7 @@ package com.ycr.framework.mq.rocketmq;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.mq.model.Message;
 import org.apache.rocketmq.client.apis.producer.Producer;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -27,19 +28,22 @@ class RocketMqMessageProducerTest {
     }
 
     @Test
-    void resolveTopic按环境追加后缀() {
+    @DisplayName("resolveTopic按环境追加后缀")
+    void shouldMatchExpectedBehavior001() {
         RocketMqMessageProducer p = newProducer("prod");
         assertEquals("order-topic_prod", p.resolveTopic("order-topic"));
     }
 
     @Test
-    void resolveTopic无环境时原样返回且不重复追加() {
+    @DisplayName("resolveTopic无环境时原样返回且不重复追加")
+    void shouldMatchExpectedBehavior002() {
         assertEquals("order-topic", newProducer(null).resolveTopic("order-topic"));
         assertEquals("order-topic_prod", newProducer("prod").resolveTopic("order-topic_prod"));
     }
 
     @Test
-    void buildMessage序列化消息体并写入tag与key() {
+    @DisplayName("buildMessage序列化消息体并写入tag与key")
+    void shouldMatchExpectedBehavior003() {
         RocketMqMessageProducer p = newProducer(null);
         Message message = Message.builder()
                 .topic("order-topic")
@@ -59,7 +63,8 @@ class RocketMqMessageProducerTest {
     }
 
     @Test
-    void buildMessage透传自定义属性() {
+    @DisplayName("buildMessage透传自定义属性")
+    void shouldMatchExpectedBehavior004() {
         RocketMqMessageProducer p = newProducer(null);
         Message message = Message.builder().topic("t").body("x").build()
                 .addProperty("bizKey", "v1");

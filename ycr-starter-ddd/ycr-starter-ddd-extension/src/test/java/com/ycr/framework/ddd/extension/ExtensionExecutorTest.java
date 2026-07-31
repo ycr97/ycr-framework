@@ -1,5 +1,6 @@
 package com.ycr.framework.ddd.extension;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +26,8 @@ class ExtensionExecutorTest {
     }
 
     @Test
-    void execute命中并执行() {
+    @DisplayName("execute命中并执行")
+    void shouldMatchExpectedBehavior001() {
         BizScenario sc = BizScenario.of("b");
         ExtensionExecutor executor = executorWith(name -> "hi:" + name, sc);
 
@@ -34,14 +36,16 @@ class ExtensionExecutorTest {
     }
 
     @Test
-    void execute未命中抛异常() {
+    @DisplayName("execute未命中抛异常")
+    void shouldMatchExpectedBehavior002() {
         ExtensionExecutor executor = executorWith(null, null);
         assertThrows(IllegalStateException.class,
                 () -> executor.execute(GreetExtPt.class, BizScenario.of("b"), ext -> ext.greet("x")));
     }
 
     @Test
-    void executeWithDefault未命中返默认() {
+    @DisplayName("executeWithDefault未命中返默认")
+    void shouldMatchExpectedBehavior003() {
         ExtensionExecutor executor = executorWith(null, null);
         String r = executor.executeWithDefault(GreetExtPt.class, BizScenario.of("b"),
                 ext -> ext.greet("x"), "默认");

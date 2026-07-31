@@ -1,6 +1,7 @@
 package com.ycr.framework.ddd.aggregate;
 
 import lombok.Data;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
@@ -21,7 +22,8 @@ class DeepCopierTest {
     }
 
     @Test
-    void serializableDeepCopier_拷贝与原对象互不影响() {
+    @DisplayName("serializableDeepCopier_拷贝与原对象互不影响")
+    void shouldMatchExpectedBehavior001() {
         Box src = new Box("a", new int[]{1, 2, 3});
         Box copy = new SerializableDeepCopier().copy(src);
 
@@ -34,14 +36,16 @@ class DeepCopierTest {
     }
 
     @Test
-    void serializableDeepCopier_非Serializable应抛异常() {
+    @DisplayName("serializableDeepCopier_非Serializable应抛异常")
+    void shouldMatchExpectedBehavior002() {
         Object notSerializable = new Object();
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new SerializableDeepCopier().copy(notSerializable));
     }
 
     @Test
-    void javaUtilDeepComparator_深比较语义() {
+    @DisplayName("javaUtilDeepComparator_深比较语义")
+    void shouldMatchExpectedBehavior003() {
         DeepComparator comparator = new JavaUtilDeepComparator();
         Box a = new Box("a", new int[]{1, 2, 3});
         Box b = new Box("a", new int[]{1, 2, 3});

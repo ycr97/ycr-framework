@@ -1,6 +1,7 @@
 package com.ycr.framework.crud.autoconfigure;
 
 import com.ycr.framework.crud.mapping.CrudApiRequestMappingHandlerMapping;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
@@ -19,7 +20,8 @@ class CrudAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(CrudAutoConfiguration.class));
 
     @Test
-    void 装配WebMvcRegistrations并回传自定义HandlerMapping() {
+    @DisplayName("装配WebMvcRegistrations并回传自定义HandlerMapping")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(WebMvcRegistrations.class);
             WebMvcRegistrations registrations = context.getBean(WebMvcRegistrations.class);
@@ -29,7 +31,8 @@ class CrudAutoConfigurationTest {
     }
 
     @Test
-    void 应用已自定义WebMvcRegistrations时让位() {
+    @DisplayName("应用已自定义WebMvcRegistrations时让位")
+    void shouldMatchExpectedBehavior002() {
         runner.withBean(WebMvcRegistrations.class, () -> new WebMvcRegistrations() {
         }).run(context -> assertThat(context).hasSingleBean(WebMvcRegistrations.class));
     }

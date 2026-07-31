@@ -4,6 +4,7 @@ import cn.idev.excel.annotation.ExcelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -21,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class ExcelUtilsTest {
 
     @Test
-    void 导出再读回应得到相同数据() throws Exception {
+    @DisplayName("导出再读回应得到相同数据")
+    void shouldMatchExpectedBehavior001() throws Exception {
         List<Demo> data = List.of(new Demo("张三", 18), new Demo("李四", 30));
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -37,7 +39,8 @@ class ExcelUtilsTest {
     }
 
     @Test
-    void 导出到响应应设置下载头与字节() throws Exception {
+    @DisplayName("导出到响应应设置下载头与字节")
+    void shouldMatchExpectedBehavior002() throws Exception {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ExcelUtils.export(response, "用户列表", "Sheet1", Demo.class, List.of(new Demo("张三", 18)));

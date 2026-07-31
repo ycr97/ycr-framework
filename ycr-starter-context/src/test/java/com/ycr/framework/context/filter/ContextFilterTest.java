@@ -16,6 +16,7 @@ import com.ycr.framework.context.resolver.UserContextResolverChain;
 import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.context.sign.ContextHeaderSnapshot;
 import jakarta.servlet.FilterChain;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
@@ -105,7 +106,8 @@ class ContextFilterTest {
     }
 
     @Test
-    void gatewayTrust签名正确时应从请求头还原上下文() throws Exception {
+    @DisplayName("gatewayTrust签名正确时应从请求头还原上下文")
+    void shouldMatchExpectedBehavior001() throws Exception {
         ContextFilter filter = filter(gatewayTrustProperties());
 
         AtomicReference<UserContext> seen = new AtomicReference<>();
@@ -134,7 +136,8 @@ class ContextFilterTest {
     }
 
     @Test
-    void tokenVerify模式应忽略裸身份头() throws Exception {
+    @DisplayName("tokenVerify模式应忽略裸身份头")
+    void shouldMatchExpectedBehavior002() throws Exception {
         ContextProperties properties = new ContextProperties();
         properties.setSecurityMode(SecurityMode.TOKEN_VERIFY);
         ContextFilter filter = filter(properties);
@@ -148,7 +151,8 @@ class ContextFilterTest {
     }
 
     @Test
-    void gatewayTrust签名缺失时应拒绝请求() {
+    @DisplayName("gatewayTrust签名缺失时应拒绝请求")
+    void shouldMatchExpectedBehavior003() {
         ContextFilter filter = filter(gatewayTrustProperties());
         MockHttpServletRequest request = signedRequest();
         request.removeHeader(ContextHeaderConstants.HEADER_CONTEXT_SIGNATURE);
@@ -159,7 +163,8 @@ class ContextFilterTest {
     }
 
     @Test
-    void 已签名附加上下文被篡改时应拒绝请求() {
+    @DisplayName("已签名附加上下文被篡改时应拒绝请求")
+    void shouldMatchExpectedBehavior004() {
         ContextFilter filter = filter(gatewayTrustProperties());
         MockHttpServletRequest request = signedRequest();
         request.removeHeader(ContextHeaderConstants.HEADER_APP_ID);
@@ -171,7 +176,8 @@ class ContextFilterTest {
     }
 
     @Test
-    void 验签失败时不得占用nonce() {
+    @DisplayName("验签失败时不得占用nonce")
+    void shouldMatchExpectedBehavior005() {
         ContextProperties properties = gatewayTrustProperties();
         AtomicInteger replayChecks = new AtomicInteger();
         SignedHeaderUserContextResolver resolver = new SignedHeaderUserContextResolver(
@@ -192,7 +198,8 @@ class ContextFilterTest {
     }
 
     @Test
-    void 请求结束后应清理上下文() throws Exception {
+    @DisplayName("请求结束后应清理上下文")
+    void shouldMatchExpectedBehavior006() throws Exception {
         ContextFilter filter = filter(gatewayTrustProperties());
 
         // 链内确认确实被还原过
@@ -207,7 +214,8 @@ class ContextFilterTest {
     }
 
     @Test
-    void 链路抛异常时仍应清理上下文() {
+    @DisplayName("链路抛异常时仍应清理上下文")
+    void shouldMatchExpectedBehavior007() {
         ContextFilter filter = filter(gatewayTrustProperties());
 
         FilterChain chain = (req, resp) -> {
@@ -222,7 +230,8 @@ class ContextFilterTest {
     }
 
     @Test
-    void 用户租户客户端应在链内写入Mdc并在链外清理() throws Exception {
+    @DisplayName("用户租户客户端应在链内写入Mdc并在链外清理")
+    void shouldMatchExpectedBehavior008() throws Exception {
         ContextFilter filter = filter(gatewayTrustProperties());
 
         filter.doFilter(signedRequest(), new MockHttpServletResponse(), (req, resp) -> {

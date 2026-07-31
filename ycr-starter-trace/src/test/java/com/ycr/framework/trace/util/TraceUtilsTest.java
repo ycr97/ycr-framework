@@ -1,5 +1,6 @@
 package com.ycr.framework.trace.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
@@ -22,7 +23,8 @@ class TraceUtilsTest {
     }
 
     @Test
-    void 生成TraceId非空且无横线() {
+    @DisplayName("生成TraceId非空且无横线")
+    void shouldMatchExpectedBehavior001() {
         String traceId = TraceUtils.generateTraceId();
         assertNotNull(traceId);
         assertFalse(traceId.isEmpty());
@@ -30,7 +32,8 @@ class TraceUtilsTest {
     }
 
     @Test
-    void 设置后可从MDC读取() {
+    @DisplayName("设置后可从MDC读取")
+    void shouldMatchExpectedBehavior002() {
         String traceId = TraceUtils.generateTraceId();
         TraceUtils.setTraceId(traceId);
 
@@ -39,7 +42,8 @@ class TraceUtilsTest {
     }
 
     @Test
-    void 移除后应为空() {
+    @DisplayName("移除后应为空")
+    void shouldMatchExpectedBehavior003() {
         TraceUtils.setTraceId("test-trace-id");
         TraceUtils.removeTraceId();
 
@@ -47,7 +51,8 @@ class TraceUtilsTest {
     }
 
     @Test
-    void wrap应在子线程还原并清理traceId() throws InterruptedException {
+    @DisplayName("wrap应在子线程还原并清理traceId")
+    void shouldMatchExpectedBehavior004() throws InterruptedException {
         TraceUtils.setTraceId("abc");
         AtomicReference<String> seen = new AtomicReference<>();
         AtomicBoolean leaked = new AtomicBoolean(true);
@@ -69,7 +74,8 @@ class TraceUtilsTest {
     }
 
     @Test
-    void wrap应传播并恢复完整Mdc上下文() {
+    @DisplayName("wrap应传播并恢复完整Mdc上下文")
+    void shouldMatchExpectedBehavior005() {
         MDC.put(TraceUtils.TRACE_ID_KEY, "trace-1");
         MDC.put(TraceUtils.REQUEST_ID_KEY, "request-1");
         MDC.put("userId", "1001");
