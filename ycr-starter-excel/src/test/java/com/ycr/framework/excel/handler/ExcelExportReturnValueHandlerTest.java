@@ -6,6 +6,7 @@ import com.ycr.framework.excel.util.ExcelUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -43,17 +44,20 @@ class ExcelExportReturnValueHandlerTest {
     }
 
     @Test
-    void 注解方法应被支持() throws Exception {
+    @DisplayName("注解方法应被支持")
+    void shouldMatchExpectedBehavior001() throws Exception {
         assertTrue(handler.supportsReturnType(returnParam("exportMethod")));
     }
 
     @Test
-    void 无注解方法不应被支持() throws Exception {
+    @DisplayName("无注解方法不应被支持")
+    void shouldMatchExpectedBehavior002() throws Exception {
         assertFalse(handler.supportsReturnType(returnParam("plainMethod")));
     }
 
     @Test
-    void 应写出xlsx并标记请求已处理() throws Exception {
+    @DisplayName("应写出xlsx并标记请求已处理")
+    void shouldMatchExpectedBehavior003() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         ServletWebRequest webRequest = new ServletWebRequest(request, response);

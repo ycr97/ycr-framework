@@ -16,6 +16,7 @@ import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.trace.util.TraceUtils;
 import feign.Request;
 import feign.RequestTemplate;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,8 @@ class ContextPassInterceptorTest {
     }
 
     @Test
-    void 应透传用户租户应用上下文与TraceId() {
+    @DisplayName("应透传用户租户应用上下文与TraceId")
+    void shouldMatchExpectedBehavior001() {
         UserContext user = new UserContext();
         user.setUserId(1001L);
         user.setUsername("zhangsan");
@@ -118,7 +120,8 @@ class ContextPassInterceptorTest {
     }
 
     @Test
-    void 无上下文时不应写入请求头() {
+    @DisplayName("无上下文时不应写入请求头")
+    void shouldMatchExpectedBehavior002() {
         RequestTemplate template = new RequestTemplate();
         interceptor.apply(template);
 
@@ -129,7 +132,8 @@ class ContextPassInterceptorTest {
     }
 
     @Test
-    void 命中notMatcher时不透传上下文() {
+    @DisplayName("命中notMatcher时不透传上下文")
+    void shouldMatchExpectedBehavior003() {
         UserContext user = new UserContext();
         user.setUserId(1001L);
         UserContextHolder.set(user);

@@ -1,5 +1,6 @@
 package com.ycr.framework.core.model;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,7 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RTest {
 
     @Test
-    void ok_无参_应返回成功响应() {
+    @DisplayName("ok_无参_应返回成功响应")
+    void shouldMatchExpectedBehavior001() {
         R<Void> response = R.ok();
 
         assertEquals("200", response.getCode());
@@ -22,7 +24,8 @@ class RTest {
     }
 
     @Test
-    void ok_带数据_应包含数据() {
+    @DisplayName("ok_带数据_应包含数据")
+    void shouldMatchExpectedBehavior002() {
         R<String> response = R.ok("hello");
 
         assertEquals("200", response.getCode());
@@ -31,7 +34,8 @@ class RTest {
     }
 
     @Test
-    void fail_应返回失败响应() {
+    @DisplayName("fail_应返回失败响应")
+    void shouldMatchExpectedBehavior003() {
         R<Void> response = R.fail(500, "系统错误");
 
         assertEquals("500", response.getCode());
@@ -40,7 +44,8 @@ class RTest {
     }
 
     @Test
-    void fail_从ErrorCode构建() {
+    @DisplayName("fail_从ErrorCode构建")
+    void shouldMatchExpectedBehavior004() {
         R<Void> response = R.fail(400, "参数错误");
 
         assertEquals("400", response.getCode());

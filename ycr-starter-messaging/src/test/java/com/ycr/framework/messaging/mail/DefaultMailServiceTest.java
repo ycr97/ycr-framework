@@ -2,6 +2,7 @@ package com.ycr.framework.messaging.mail;
 
 import com.ycr.framework.messaging.autoconfigure.MessagingProperties;
 import jakarta.mail.internet.MimeMessage;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
@@ -28,7 +29,8 @@ class DefaultMailServiceTest {
     }
 
     @Test
-    void 发送纯文本应带正确字段() {
+    @DisplayName("发送纯文本应带正确字段")
+    void shouldMatchExpectedBehavior001() {
         JavaMailSender sender = mock(JavaMailSender.class);
         DefaultMailService service = build(sender, "noreply@ycr.com", "sys@ycr.com");
 
@@ -44,7 +46,8 @@ class DefaultMailServiceTest {
     }
 
     @Test
-    void mailFrom留空应回退spring用户名() {
+    @DisplayName("mailFrom留空应回退spring用户名")
+    void shouldMatchExpectedBehavior002() {
         JavaMailSender sender = mock(JavaMailSender.class);
         DefaultMailService service = build(sender, "", "sys@ycr.com");
 
@@ -56,7 +59,8 @@ class DefaultMailServiceTest {
     }
 
     @Test
-    void 发送HTML应提交MimeMessage() throws Exception {
+    @DisplayName("发送HTML应提交MimeMessage")
+    void shouldMatchExpectedBehavior003() throws Exception {
         JavaMailSender sender = mock(JavaMailSender.class);
         MimeMessage mime = new MimeMessage((jakarta.mail.Session) null);
         when(sender.createMimeMessage()).thenReturn(mime);
@@ -69,7 +73,8 @@ class DefaultMailServiceTest {
     }
 
     @Test
-    void 发送带附件应提交MimeMessage() {
+    @DisplayName("发送带附件应提交MimeMessage")
+    void shouldMatchExpectedBehavior004() {
         JavaMailSender sender = mock(JavaMailSender.class);
         MimeMessage mime = new MimeMessage((jakarta.mail.Session) null);
         when(sender.createMimeMessage()).thenReturn(mime);

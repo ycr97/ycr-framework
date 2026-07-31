@@ -3,6 +3,7 @@ package com.ycr.framework.ddd.extension.autoconfigure;
 import com.ycr.framework.ddd.extension.ExtensionBootstrap;
 import com.ycr.framework.ddd.extension.ExtensionExecutor;
 import com.ycr.framework.ddd.extension.ExtensionRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -20,7 +21,8 @@ class ExtensionAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(ExtensionAutoConfiguration.class));
 
     @Test
-    void 装配仓库_执行器_引导器() {
+    @DisplayName("装配仓库_执行器_引导器")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(ExtensionRepository.class);
             assertThat(context).hasSingleBean(ExtensionExecutor.class);

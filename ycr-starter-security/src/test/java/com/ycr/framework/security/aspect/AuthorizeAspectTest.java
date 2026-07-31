@@ -8,6 +8,7 @@ import com.ycr.framework.security.annotation.RequireRole;
 import com.ycr.framework.security.autoconfigure.SecurityAutoConfiguration;
 import com.ycr.framework.security.exception.AuthException;
 import com.ycr.framework.security.exception.ForbiddenException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -39,7 +40,8 @@ class AuthorizeAspectTest {
     }
 
     @Test
-    void service方法权限注解应生效() {
+    @DisplayName("service方法权限注解应生效")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             setUser("admin", "order:create");
             assertEquals("created", context.getBean(TestService.class).create());
@@ -50,13 +52,15 @@ class AuthorizeAspectTest {
     }
 
     @Test
-    void controller方法未登录应抛AuthException() {
+    @DisplayName("controller方法未登录应抛AuthException")
+    void shouldMatchExpectedBehavior002() {
         runner.run(context -> assertThatThrownBy(() -> context.getBean(TestController.class).profile())
                 .isInstanceOf(AuthException.class));
     }
 
     @Test
-    void 类级注解应作为默认要求且方法级可覆盖() {
+    @DisplayName("类级注解应作为默认要求且方法级可覆盖")
+    void shouldMatchExpectedBehavior003() {
         runner.run(context -> {
             setUser("user", "order:create");
 

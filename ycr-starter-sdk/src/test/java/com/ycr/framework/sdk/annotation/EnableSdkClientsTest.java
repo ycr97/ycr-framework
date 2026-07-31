@@ -1,5 +1,6 @@
 package com.ycr.framework.sdk.annotation;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.core.annotation.MergedAnnotation;
@@ -19,7 +20,8 @@ class EnableSdkClientsTest {
     }
 
     @Test
-    void basePackages应真转发给EnableFeignClients() {
+    @DisplayName("basePackages应真转发给EnableFeignClients")
+    void shouldMatchExpectedBehavior001() {
         MergedAnnotation<EnableFeignClients> merged = MergedAnnotations
                 .from(SampleConfig.class, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
                 .get(EnableFeignClients.class);

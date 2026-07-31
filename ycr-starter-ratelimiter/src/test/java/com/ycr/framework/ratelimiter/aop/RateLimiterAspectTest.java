@@ -4,6 +4,7 @@ import com.ycr.framework.core.exception.BizException;
 import com.ycr.framework.ratelimiter.annotation.RateLimiter;
 import com.ycr.framework.ratelimiter.autoconfigure.RateLimiterProperties;
 import com.ycr.framework.ratelimiter.exception.RateLimiterException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.redisson.api.RRateLimiter;
@@ -31,7 +32,8 @@ class RateLimiterAspectTest {
     }
 
     @Test
-    void 超过速率应抛限流异常且为业务码429() {
+    @DisplayName("超过速率应抛限流异常且为业务码429")
+    void shouldMatchExpectedBehavior001() {
         RedissonClient client = mock(RedissonClient.class);
         RRateLimiter limiter = mock(RRateLimiter.class);
         when(client.getRateLimiter(anyString())).thenReturn(limiter);
@@ -48,7 +50,8 @@ class RateLimiterAspectTest {
     }
 
     @Test
-    void SpEL键应拼入限流键() {
+    @DisplayName("SpEL键应拼入限流键")
+    void shouldMatchExpectedBehavior002() {
         RedissonClient client = mock(RedissonClient.class);
         RRateLimiter limiter = mock(RRateLimiter.class);
         when(client.getRateLimiter(anyString())).thenReturn(limiter);
@@ -64,7 +67,8 @@ class RateLimiterAspectTest {
     }
 
     @Test
-    void 首次应按OVERALL设置速率() {
+    @DisplayName("首次应按OVERALL设置速率")
+    void shouldMatchExpectedBehavior003() {
         RedissonClient client = mock(RedissonClient.class);
         RRateLimiter limiter = mock(RRateLimiter.class);
         when(client.getRateLimiter(anyString())).thenReturn(limiter);

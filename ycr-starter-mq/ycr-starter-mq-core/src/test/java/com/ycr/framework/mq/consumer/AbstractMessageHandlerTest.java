@@ -1,5 +1,6 @@
 package com.ycr.framework.mq.consumer;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -41,14 +42,16 @@ class AbstractMessageHandlerTest {
     }
 
     @Test
-    void 处理器接收消息体() throws Exception {
+    @DisplayName("处理器接收消息体")
+    void shouldMatchExpectedBehavior001() throws Exception {
         RecordingHandler handler = new RecordingHandler();
         handler.handle(new SimpleContext("hello"));
         assertEquals("hello", handler.received);
     }
 
     @Test
-    void 注解可解析订阅信息() {
+    @DisplayName("注解可解析订阅信息")
+    void shouldMatchExpectedBehavior002() {
         MqMessageListener annotation = RecordingHandler.class.getAnnotation(MqMessageListener.class);
         assertEquals("order-topic", annotation.topic());
         assertEquals("created", annotation.tag());
@@ -57,7 +60,8 @@ class AbstractMessageHandlerTest {
     }
 
     @Test
-    void 处理异常向外抛出() {
+    @DisplayName("处理异常向外抛出")
+    void shouldMatchExpectedBehavior003() {
         AbstractMessageHandler failing = new AbstractMessageHandler() {
             @Override
             public void handle(MessageContext context) {

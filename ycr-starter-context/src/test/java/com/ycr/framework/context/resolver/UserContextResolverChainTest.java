@@ -4,6 +4,7 @@ import com.ycr.framework.context.enums.SecurityMode;
 import com.ycr.framework.context.enums.UserContextSource;
 import com.ycr.framework.context.exception.ContextAuthException;
 import com.ycr.framework.context.model.UserContext;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -20,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class UserContextResolverChainTest {
 
     @Test
-    void mixed模式签名上下文优先于token() {
+    @DisplayName("mixed模式签名上下文优先于token")
+    void shouldMatchExpectedBehavior001() {
         UserContextResolverChain chain = new UserContextResolverChain(List.of(
                 resolver(UserContextSource.GATEWAY_HEADER, 1L),
                 resolver(UserContextSource.TOKEN, 1L)));
@@ -32,7 +34,8 @@ class UserContextResolverChainTest {
     }
 
     @Test
-    void mixed模式身份冲突时拒绝() {
+    @DisplayName("mixed模式身份冲突时拒绝")
+    void shouldMatchExpectedBehavior002() {
         UserContextResolverChain chain = new UserContextResolverChain(List.of(
                 resolver(UserContextSource.GATEWAY_HEADER, 1L),
                 resolver(UserContextSource.TOKEN, 2L)));
@@ -42,7 +45,8 @@ class UserContextResolverChainTest {
     }
 
     @Test
-    void mixed模式无可比对身份时应failClosed() {
+    @DisplayName("mixed模式无可比对身份时应failClosed")
+    void shouldMatchExpectedBehavior003() {
         UserContext signed = context(UserContextSource.GATEWAY_HEADER, null, "alice", 1L);
         UserContext token = context(UserContextSource.TOKEN, 1L, null, 1L);
         UserContextResolverChain chain = new UserContextResolverChain(List.of(
@@ -53,7 +57,8 @@ class UserContextResolverChainTest {
     }
 
     @Test
-    void mixed模式同一用户跨租户时应拒绝() {
+    @DisplayName("mixed模式同一用户跨租户时应拒绝")
+    void shouldMatchExpectedBehavior004() {
         UserContext signed = context(UserContextSource.GATEWAY_HEADER, 1L, "alice", 1L);
         UserContext token = context(UserContextSource.TOKEN, 1L, "alice", 2L);
         UserContextResolverChain chain = new UserContextResolverChain(List.of(

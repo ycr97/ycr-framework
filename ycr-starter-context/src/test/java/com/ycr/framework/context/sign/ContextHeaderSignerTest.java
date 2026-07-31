@@ -1,6 +1,7 @@
 package com.ycr.framework.context.sign;
 
 import com.ycr.framework.context.exception.ContextAuthException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -40,7 +41,8 @@ class ContextHeaderSignerTest {
     }
 
     @Test
-    void 相同快照和密钥应生成稳定签名() {
+    @DisplayName("相同快照和密钥应生成稳定签名")
+    void shouldMatchExpectedBehavior001() {
         String first = signer.sign(snapshot(), "secret");
         String second = signer.sign(snapshot(), "secret");
 
@@ -49,7 +51,8 @@ class ContextHeaderSignerTest {
     }
 
     @Test
-    void 字段变化应导致验签失败() {
+    @DisplayName("字段变化应导致验签失败")
+    void shouldMatchExpectedBehavior002() {
         ContextHeaderSnapshot snapshot = snapshot();
         String signature = signer.sign(snapshot, "secret");
         snapshot.setUserId("101");
@@ -58,7 +61,8 @@ class ContextHeaderSignerTest {
     }
 
     @Test
-    void 附加上下文字段变化应导致验签失败() {
+    @DisplayName("附加上下文字段变化应导致验签失败")
+    void shouldMatchExpectedBehavior003() {
         ContextHeaderSnapshot snapshot = snapshot();
         String signature = signer.sign(snapshot, "secret");
 
@@ -68,14 +72,16 @@ class ContextHeaderSignerTest {
     }
 
     @Test
-    void 时间戳超过ttl应过期() {
+    @DisplayName("时间戳超过ttl应过期")
+    void shouldMatchExpectedBehavior004() {
         Clock clock = Clock.fixed(Instant.ofEpochMilli(170000), ZoneOffset.UTC);
 
         assertTrue(signer.isExpired(snapshot(), Duration.ofSeconds(60), clock));
     }
 
     @Test
-    void 极端时间戳溢出时应视为过期() {
+    @DisplayName("极端时间戳溢出时应视为过期")
+    void shouldMatchExpectedBehavior005() {
         ContextHeaderSnapshot snapshot = snapshot();
         snapshot.setTimestamp(String.valueOf(Long.MIN_VALUE));
         Clock clock = Clock.fixed(Instant.ofEpochMilli(0), ZoneOffset.UTC);
@@ -84,7 +90,8 @@ class ContextHeaderSignerTest {
     }
 
     @Test
-    void 空密钥应failFast() {
+    @DisplayName("空密钥应failFast")
+    void shouldMatchExpectedBehavior006() {
         assertThrows(ContextAuthException.class, () -> signer.sign(snapshot(), ""));
     }
 }

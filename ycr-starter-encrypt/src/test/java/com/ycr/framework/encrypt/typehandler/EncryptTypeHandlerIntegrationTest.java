@@ -15,6 +15,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,8 @@ class EncryptTypeHandlerIntegrationTest {
     }
 
     @Test
-    void mybatis写入时应落密文读取时应返回明文() throws Exception {
+    @DisplayName("mybatis写入时应落密文读取时应返回明文")
+    void shouldMatchExpectedBehavior001() throws Exception {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             UserMapper mapper = session.getMapper(UserMapper.class);
             mapper.insert(new UserRecord(1L, "13800138000"));
@@ -76,7 +78,8 @@ class EncryptTypeHandlerIntegrationTest {
     }
 
     @Test
-    void mybatisPlus字段注解应能声明EncryptTypeHandler() throws Exception {
+    @DisplayName("mybatisPlus字段注解应能声明EncryptTypeHandler")
+    void shouldMatchExpectedBehavior002() throws Exception {
         TableField tableField = MybatisPlusUser.class.getDeclaredField("phone")
                 .getAnnotation(TableField.class);
 

@@ -8,6 +8,7 @@ import com.ycr.framework.data.model.BaseDO;
 import com.ycr.framework.data.model.PageQuery;
 import com.ycr.framework.data.model.PageResult;
 import com.ycr.framework.crud.service.CrudService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -55,7 +56,8 @@ class AbstractCrudControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void page_构建wrapper并R包装() throws Exception {
+    @DisplayName("page_构建wrapper并R包装")
+    void shouldMatchExpectedBehavior001() throws Exception {
         CrudService<Demo, Long> service = mock(CrudService.class);
         PageResult<Demo> pr = new PageResult<>(List.of(new Demo()), 1, 1, 10);
         when(service.page(any(), any())).thenReturn(pr);
@@ -74,7 +76,8 @@ class AbstractCrudControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void get_委托服务并R包装() throws Exception {
+    @DisplayName("get_委托服务并R包装")
+    void shouldMatchExpectedBehavior002() throws Exception {
         CrudService<Demo, Long> service = mock(CrudService.class);
         Demo demo = new Demo();
         when(service.get(5L)).thenReturn(demo);
@@ -87,7 +90,8 @@ class AbstractCrudControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void create_update_delete委托服务并透出布尔结果() throws Exception {
+    @DisplayName("create_update_delete委托服务并透出布尔结果")
+    void shouldMatchExpectedBehavior003() throws Exception {
         CrudService<Demo, Long> service = mock(CrudService.class);
         Demo demo = new Demo();
         when(service.create(demo)).thenReturn(true);

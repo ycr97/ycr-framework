@@ -3,6 +3,7 @@ package com.ycr.framework.tenant.handler;
 import com.ycr.framework.context.holder.TenantContextHolder;
 import com.ycr.framework.context.model.TenantContext;
 import com.ycr.framework.tenant.autoconfigure.TenantProperties;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +27,8 @@ class YcrTenantLineHandlerTest {
     }
 
     @Test
-    void 有租户上下文应注入租户ID() {
+    @DisplayName("有租户上下文应注入租户ID")
+    void shouldMatchExpectedBehavior001() {
         TenantContext ctx = new TenantContext();
         ctx.setTenantId(100L);
         TenantContextHolder.set(ctx);
@@ -35,18 +37,21 @@ class YcrTenantLineHandlerTest {
     }
 
     @Test
-    void 无租户上下文应抛异常_failClosed() {
+    @DisplayName("无租户上下文应抛异常_failClosed")
+    void shouldMatchExpectedBehavior002() {
         assertThrows(IllegalStateException.class, handler::getTenantId);
     }
 
     @Test
-    void 应返回配置的租户列名() {
+    @DisplayName("应返回配置的租户列名")
+    void shouldMatchExpectedBehavior003() {
         properties.setTenantIdColumn("tenant_no");
         assertEquals("tenant_no", handler.getTenantIdColumn());
     }
 
     @Test
-    void 忽略表判断应按配置() {
+    @DisplayName("忽略表判断应按配置")
+    void shouldMatchExpectedBehavior004() {
         properties.setIgnoreTables(List.of("sys_config", "sys_dict"));
 
         assertTrue(handler.ignoreTable("sys_config"));
@@ -54,7 +59,8 @@ class YcrTenantLineHandlerTest {
     }
 
     @Test
-    void TenantHelper作用域内任意表都忽略_且不触发failClosed() {
+    @DisplayName("TenantHelper作用域内任意表都忽略_且不触发failClosed")
+    void shouldMatchExpectedBehavior005() {
         // 旁路作用域内：业务表也被忽略
         com.ycr.framework.tenant.util.TenantHelper.run(() ->
                 assertTrue(handler.ignoreTable("biz_order")));

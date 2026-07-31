@@ -5,6 +5,7 @@ import com.ycr.framework.core.autoconfigure.CoreAutoConfiguration;
 import com.ycr.framework.core.enums.BaseEnum;
 import com.ycr.framework.core.util.SpringContextHolder;
 import com.ycr.framework.json.util.JsonUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -36,7 +37,8 @@ class JacksonAutoConfigurationTest {
     }
 
     @Test
-    void 应使用SpringObjectMapper覆盖JsonUtils默认Mapper并尊重大数字开关() {
+    @DisplayName("应使用SpringObjectMapper覆盖JsonUtils默认Mapper并尊重大数字开关")
+    void shouldMatchExpectedBehavior001() {
         contextRunner.withPropertyValues("ycr.json.big-number-to-string=false")
                 .run(context -> {
                     Field defaultMapperField = JsonUtils.class.getDeclaredField("DEFAULT_OBJECT_MAPPER");
@@ -49,7 +51,8 @@ class JacksonAutoConfigurationTest {
     }
 
     @Test
-    void 应支持BaseEnum序列化与反序列化() throws Exception {
+    @DisplayName("应支持BaseEnum序列化与反序列化")
+    void shouldMatchExpectedBehavior002() throws Exception {
         contextRunner.run(context -> {
             ObjectMapper objectMapper = context.getBean(ObjectMapper.class);
             String json = objectMapper.writeValueAsString(new EnumHolder(TestStatus.ENABLED));

@@ -3,6 +3,7 @@ package com.ycr.framework.security.checker;
 import com.ycr.framework.context.holder.UserContextHolder;
 import com.ycr.framework.context.model.UserContext;
 import com.ycr.framework.security.properties.SecurityProperties;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +24,8 @@ class CompositePermissionCheckerTest {
     }
 
     @Test
-    void mixed模式敏感权限走远程校验() {
+    @DisplayName("mixed模式敏感权限走远程校验")
+    void shouldMatchExpectedBehavior001() {
         SecurityProperties properties = new SecurityProperties();
         properties.getPermission().setMode(SecurityProperties.PermissionMode.MIXED);
         properties.getPermission().setSensitivePermissions(java.util.List.of("payment:refund"));
@@ -42,7 +44,8 @@ class CompositePermissionCheckerTest {
     }
 
     @Test
-    void 远程校验异常应failClosed() {
+    @DisplayName("远程校验异常应failClosed")
+    void shouldMatchExpectedBehavior002() {
         SecurityProperties properties = new SecurityProperties();
         properties.getPermission().setMode(SecurityProperties.PermissionMode.MIXED);
         properties.getPermission().setSensitivePermissions(java.util.List.of("payment:refund"));

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.protect.mask.annotation.JsonMask;
 import com.ycr.framework.protect.mask.enums.MaskType;
 import com.ycr.framework.protect.mask.strategy.MaskStrategy;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,7 +44,8 @@ class JsonMaskTest {
     }
 
     @Test
-    void 各脱敏类型按规则输出_未注解字段保持原样() throws Exception {
+    @DisplayName("各脱敏类型按规则输出_未注解字段保持原样")
+    void shouldMatchExpectedBehavior001() throws Exception {
         JsonNode node = objectMapper.readTree(objectMapper.writeValueAsString(new Demo()));
         assertEquals("138****5678", node.get("phone").asText());
         assertEquals("d****@126.com", node.get("email").asText());
@@ -55,7 +57,8 @@ class JsonMaskTest {
     }
 
     @Test
-    void 空值与null安全() throws Exception {
+    @DisplayName("空值与null安全")
+    void shouldMatchExpectedBehavior002() throws Exception {
         Demo demo = new Demo();
         demo.phone = "";
         demo.email = null;

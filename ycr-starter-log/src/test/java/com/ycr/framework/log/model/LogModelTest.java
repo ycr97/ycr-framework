@@ -3,6 +3,7 @@ package com.ycr.framework.log.model;
 import com.ycr.framework.log.autoconfigure.LogProperties;
 import com.ycr.framework.log.enums.Include;
 import com.ycr.framework.log.handler.IpRegionResolver;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class LogModelTest {
 
     @Test
-    void Include应包含新增采集项() {
+    @DisplayName("Include应包含新增采集项")
+    void shouldMatchExpectedBehavior001() {
         // valueOf 不抛即存在
         Include.valueOf("REQUEST_BODY");
         Include.valueOf("RESPONSE_BODY");
@@ -26,7 +28,8 @@ class LogModelTest {
     }
 
     @Test
-    void LogRecord新字段应可读写() {
+    @DisplayName("LogRecord新字段应可读写")
+    void shouldMatchExpectedBehavior002() {
         LogRecord r = new LogRecord();
         r.setRequestBody("rb");
         r.setResponseBody("resp");
@@ -43,13 +46,15 @@ class LogModelTest {
     }
 
     @Test
-    void IpRegionResolver应可实现() {
+    @DisplayName("IpRegionResolver应可实现")
+    void shouldMatchExpectedBehavior003() {
         IpRegionResolver r = ip -> "中国-浙江-杭州";
         assertEquals("中国-浙江-杭州", r.resolve("1.2.3.4"));
     }
 
     @Test
-    void maxBodyLength默认2000() {
+    @DisplayName("maxBodyLength默认2000")
+    void shouldMatchExpectedBehavior004() {
         assertEquals(2000, new LogProperties().getMaxBodyLength());
     }
 }

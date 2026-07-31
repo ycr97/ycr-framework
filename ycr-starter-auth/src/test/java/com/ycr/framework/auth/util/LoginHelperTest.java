@@ -4,6 +4,7 @@ import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.ycr.framework.context.holder.UserContextHolder;
 import com.ycr.framework.context.model.UserContext;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -35,7 +36,8 @@ class LoginHelperTest {
     }
 
     @Test
-    void 登录应签发token并写入会话与线程上下文() {
+    @DisplayName("登录应签发token并写入会话与线程上下文")
+    void shouldMatchExpectedBehavior001() {
         SaSession session = mock(SaSession.class);
         try (MockedStatic<StpUtil> stp = mockStatic(StpUtil.class)) {
             stp.when(StpUtil::getSession).thenReturn(session);
@@ -53,14 +55,16 @@ class LoginHelperTest {
     }
 
     @Test
-    void 登录上下文为空应抛异常() {
+    @DisplayName("登录上下文为空应抛异常")
+    void shouldMatchExpectedBehavior002() {
         assertThrows(IllegalArgumentException.class, () -> LoginHelper.login(null));
         UserContext noId = new UserContext();
         assertThrows(IllegalArgumentException.class, () -> LoginHelper.login(noId));
     }
 
     @Test
-    void 线程已有上下文时获取无需触碰SaToken() {
+    @DisplayName("线程已有上下文时获取无需触碰SaToken")
+    void shouldMatchExpectedBehavior003() {
         LoginHelper.setUserContext(newUser());
         try (MockedStatic<StpUtil> stp = mockStatic(StpUtil.class)) {
             UserContext ctx = LoginHelper.getUserContext();
@@ -72,7 +76,8 @@ class LoginHelperTest {
     }
 
     @Test
-    void 线程无上下文且已登录时应从会话懒加载还原() {
+    @DisplayName("线程无上下文且已登录时应从会话懒加载还原")
+    void shouldMatchExpectedBehavior004() {
         SaSession session = mock(SaSession.class);
         when(session.getModel(LoginHelper.SESSION_KEY_USER_CONTEXT, UserContext.class)).thenReturn(newUser());
         try (MockedStatic<StpUtil> stp = mockStatic(StpUtil.class)) {
@@ -89,7 +94,8 @@ class LoginHelperTest {
     }
 
     @Test
-    void 未登录时获取上下文应为空() {
+    @DisplayName("未登录时获取上下文应为空")
+    void shouldMatchExpectedBehavior005() {
         try (MockedStatic<StpUtil> stp = mockStatic(StpUtil.class)) {
             stp.when(StpUtil::isLogin).thenReturn(false);
 
@@ -99,7 +105,8 @@ class LoginHelperTest {
     }
 
     @Test
-    void 登出应注销并清理线程上下文() {
+    @DisplayName("登出应注销并清理线程上下文")
+    void shouldMatchExpectedBehavior006() {
         LoginHelper.setUserContext(newUser());
         try (MockedStatic<StpUtil> stp = mockStatic(StpUtil.class)) {
             LoginHelper.logout();
@@ -110,7 +117,8 @@ class LoginHelperTest {
     }
 
     @Test
-    void 登出时SaToken异常也应清理线程上下文() {
+    @DisplayName("登出时SaToken异常也应清理线程上下文")
+    void shouldMatchExpectedBehavior007() {
         LoginHelper.setUserContext(newUser());
         try (MockedStatic<StpUtil> stp = mockStatic(StpUtil.class)) {
             stp.when(StpUtil::logout).thenThrow(new RuntimeException("注销异常"));

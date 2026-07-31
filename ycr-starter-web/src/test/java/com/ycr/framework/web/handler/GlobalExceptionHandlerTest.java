@@ -5,6 +5,7 @@ import com.ycr.framework.core.exception.SysException;
 import com.ycr.framework.core.model.R;
 import com.ycr.framework.security.exception.AuthException;
 import com.ycr.framework.security.exception.ForbiddenException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +29,8 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void 处理BizException_应返回HTTP400与业务错误码() {
+    @DisplayName("处理BizException_应返回HTTP400与业务错误码")
+    void shouldMatchExpectedBehavior001() {
         ResponseEntity<R<Void>> response = handler.handleBizException(new BizException("USER_001", "用户不存在"));
 
         assertEquals(400, response.getStatusCode().value());
@@ -38,7 +40,8 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void 处理带自定义HTTP状态的BizException_状态应跟随() {
+    @DisplayName("处理带自定义HTTP状态的BizException_状态应跟随")
+    void shouldMatchExpectedBehavior002() {
         ResponseEntity<R<Void>> response = handler.handleBizException(new TooManyRequests());
 
         assertEquals(429, response.getStatusCode().value());
@@ -46,7 +49,8 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void 处理AuthException_应返回HTTP401() {
+    @DisplayName("处理AuthException_应返回HTTP401")
+    void shouldMatchExpectedBehavior003() {
         ResponseEntity<R<Void>> response = handler.handleBizException(new AuthException());
 
         assertEquals(401, response.getStatusCode().value());
@@ -54,7 +58,8 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void 处理ForbiddenException_应返回HTTP403() {
+    @DisplayName("处理ForbiddenException_应返回HTTP403")
+    void shouldMatchExpectedBehavior004() {
         ResponseEntity<R<Void>> response = handler.handleBizException(new ForbiddenException());
 
         assertEquals(403, response.getStatusCode().value());
@@ -69,7 +74,8 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void 处理SysException_应返回系统错误() {
+    @DisplayName("处理SysException_应返回系统错误")
+    void shouldMatchExpectedBehavior005() {
         R<Void> response = handler.handleSysException(new SysException("SYS_001", "数据库异常"));
 
         assertEquals("500", response.getCode());
@@ -78,14 +84,16 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void 处理未知异常_应返回通用错误() {
+    @DisplayName("处理未知异常_应返回通用错误")
+    void shouldMatchExpectedBehavior006() {
         R<Void> response = handler.handleException(new RuntimeException("未知异常"));
 
         assertEquals("500", response.getCode());
     }
 
     @Test
-    void 业务异常日志应包含稳定事件字段(CapturedOutput output) {
+    @DisplayName("业务异常日志应包含稳定事件字段")
+    void shouldMatchExpectedBehavior007(CapturedOutput output) {
         MDC.put("traceId", "trace-001");
         MDC.put("userId", "1001");
 

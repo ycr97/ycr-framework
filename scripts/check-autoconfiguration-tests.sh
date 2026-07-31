@@ -4,6 +4,8 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${repo_root}"
 
+"${repo_root}/scripts/check-test-method-names.sh"
+
 missing=0
 while IFS= read -r imports_file; do
   while IFS= read -r class_name; do

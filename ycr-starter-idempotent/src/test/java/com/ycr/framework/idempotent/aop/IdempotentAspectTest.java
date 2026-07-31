@@ -4,6 +4,7 @@ import com.ycr.framework.core.exception.BizException;
 import com.ycr.framework.idempotent.annotation.Idempotent;
 import com.ycr.framework.idempotent.autoconfigure.IdempotentProperties;
 import com.ycr.framework.idempotent.exception.IdempotentException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.redisson.api.RBucket;
@@ -32,7 +33,8 @@ class IdempotentAspectTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void 首次提交应放行并占位() {
+    @DisplayName("首次提交应放行并占位")
+    void shouldMatchExpectedBehavior001() {
         RedissonClient client = mock(RedissonClient.class);
         RBucket<Object> bucket = mock(RBucket.class);
         when(client.getBucket(anyString())).thenReturn((RBucket) bucket);
@@ -45,7 +47,8 @@ class IdempotentAspectTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void 重复提交应抛幂等异常且为业务码409() {
+    @DisplayName("重复提交应抛幂等异常且为业务码409")
+    void shouldMatchExpectedBehavior002() {
         RedissonClient client = mock(RedissonClient.class);
         RBucket<Object> bucket = mock(RBucket.class);
         when(client.getBucket(anyString())).thenReturn((RBucket) bucket);
@@ -60,7 +63,8 @@ class IdempotentAspectTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void 业务异常应释放键允许重试() {
+    @DisplayName("业务异常应释放键允许重试")
+    void shouldMatchExpectedBehavior003() {
         RedissonClient client = mock(RedissonClient.class);
         RBucket<Object> bucket = mock(RBucket.class);
         when(client.getBucket(anyString())).thenReturn((RBucket) bucket);
@@ -73,7 +77,8 @@ class IdempotentAspectTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void SpEL键应拼入幂等键() {
+    @DisplayName("SpEL键应拼入幂等键")
+    void shouldMatchExpectedBehavior004() {
         RedissonClient client = mock(RedissonClient.class);
         RBucket<Object> bucket = mock(RBucket.class);
         when(client.getBucket(anyString())).thenReturn((RBucket) bucket);

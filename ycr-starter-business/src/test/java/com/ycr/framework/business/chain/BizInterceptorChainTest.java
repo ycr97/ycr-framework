@@ -1,5 +1,6 @@
 package com.ycr.framework.business.chain;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -59,7 +60,8 @@ class BizInterceptorChainTest {
     }
 
     @Test
-    void 正常_before正序_after逆序_回填result() throws Throwable {
+    @DisplayName("正常_before正序_after逆序_回填result")
+    void shouldMatchExpectedBehavior001() throws Throwable {
         List<String> trace = new ArrayList<>();
         // 故意乱序传入，验证按 order 排序：a(order1) 先于 b(order2)
         BizInterceptorChain chain = new BizInterceptorChain(List.of(
@@ -78,7 +80,8 @@ class BizInterceptorChainTest {
     }
 
     @Test
-    void before否决_目标不执行_仅已成功者逆序onError() {
+    @DisplayName("before否决_目标不执行_仅已成功者逆序onError")
+    void shouldMatchExpectedBehavior002() {
         List<String> trace = new ArrayList<>();
         BizInterceptorChain chain = new BizInterceptorChain(List.of(
                 new Recorder("a", 1, trace, false),
@@ -100,7 +103,8 @@ class BizInterceptorChainTest {
     }
 
     @Test
-    void 目标动作抛出_全部逆序onError_after不调() {
+    @DisplayName("目标动作抛出_全部逆序onError_after不调")
+    void shouldMatchExpectedBehavior003() {
         List<String> trace = new ArrayList<>();
         BizInterceptorChain chain = new BizInterceptorChain(List.of(
                 new Recorder("a", 1, trace, false),
@@ -119,7 +123,8 @@ class BizInterceptorChainTest {
     }
 
     @Test
-    void attributes跨拦截器共享() throws Throwable {
+    @DisplayName("attributes跨拦截器共享")
+    void shouldMatchExpectedBehavior004() throws Throwable {
         List<String> seen = new ArrayList<>();
         BizInterceptor writer = new BizInterceptor() {
             @Override

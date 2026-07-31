@@ -3,6 +3,7 @@ package com.ycr.framework.encrypt.typehandler;
 import com.ycr.framework.encrypt.context.EncryptHandlerHolder;
 import com.ycr.framework.encrypt.handler.EncryptHandler;
 import org.apache.ibatis.type.JdbcType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,8 @@ class EncryptTypeHandlerTest {
     }
 
     @Test
-    void setNonNullParameter应加密后写入PreparedStatement() throws Exception {
+    @DisplayName("setNonNullParameter应加密后写入PreparedStatement")
+    void shouldMatchExpectedBehavior001() throws Exception {
         PreparedStatement statement = mock(PreparedStatement.class);
         when(encryptHandler.encrypt("plain")).thenReturn("cipher");
 
@@ -46,7 +48,8 @@ class EncryptTypeHandlerTest {
     }
 
     @Test
-    void getNullableResult_按列名_应解密非空值() throws Exception {
+    @DisplayName("getNullableResult_按列名_应解密非空值")
+    void shouldMatchExpectedBehavior002() throws Exception {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.getString("phone")).thenReturn("cipher");
         when(encryptHandler.decrypt("cipher")).thenReturn("plain");
@@ -58,7 +61,8 @@ class EncryptTypeHandlerTest {
     }
 
     @Test
-    void getNullableResult_按列序号_应解密非空值() throws Exception {
+    @DisplayName("getNullableResult_按列序号_应解密非空值")
+    void shouldMatchExpectedBehavior003() throws Exception {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.getString(2)).thenReturn("cipher");
         when(encryptHandler.decrypt("cipher")).thenReturn("plain");
@@ -70,7 +74,8 @@ class EncryptTypeHandlerTest {
     }
 
     @Test
-    void getNullableResult_CallableStatement_应解密非空值() throws Exception {
+    @DisplayName("getNullableResult_CallableStatement_应解密非空值")
+    void shouldMatchExpectedBehavior004() throws Exception {
         CallableStatement statement = mock(CallableStatement.class);
         when(statement.getString(3)).thenReturn("cipher");
         when(encryptHandler.decrypt("cipher")).thenReturn("plain");
@@ -82,7 +87,8 @@ class EncryptTypeHandlerTest {
     }
 
     @Test
-    void getNullableResult_数据库空值_应返回null() throws Exception {
+    @DisplayName("getNullableResult_数据库空值_应返回null")
+    void shouldMatchExpectedBehavior005() throws Exception {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.getString("phone")).thenReturn(null);
 

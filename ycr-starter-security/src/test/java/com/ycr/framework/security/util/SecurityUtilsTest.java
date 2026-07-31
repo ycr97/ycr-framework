@@ -3,6 +3,7 @@ package com.ycr.framework.security.util;
 import com.ycr.framework.context.holder.UserContextHolder;
 import com.ycr.framework.context.model.UserContext;
 import com.ycr.framework.core.util.SpringContextHolder;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -29,7 +30,8 @@ class SecurityUtilsTest {
     }
 
     @Test
-    void 登录态与用户ID转发() {
+    @DisplayName("登录态与用户ID转发")
+    void shouldMatchExpectedBehavior001() {
         UserContext userContext = new UserContext();
         userContext.setUserId(1001L);
         UserContextHolder.set(userContext);
@@ -39,7 +41,8 @@ class SecurityUtilsTest {
     }
 
     @Test
-    void 角色判定转发() {
+    @DisplayName("角色判定转发")
+    void shouldMatchExpectedBehavior002() {
         UserContext userContext = new UserContext();
         userContext.setRoles(Set.of("admin"));
         UserContextHolder.set(userContext);
@@ -51,7 +54,8 @@ class SecurityUtilsTest {
     }
 
     @Test
-    void 权限判定转发() {
+    @DisplayName("权限判定转发")
+    void shouldMatchExpectedBehavior003() {
         UserContext userContext = new UserContext();
         userContext.setPermissions(Set.of("user:add"));
         UserContextHolder.set(userContext);
@@ -63,7 +67,8 @@ class SecurityUtilsTest {
     }
 
     @Test
-    void Spring容器存在但权限检查器获取失败时不得降级() {
+    @DisplayName("Spring容器存在但权限检查器获取失败时不得降级")
+    void shouldMatchExpectedBehavior004() {
         ApplicationContext context = mock(ApplicationContext.class);
         when(context.getBean(com.ycr.framework.security.checker.PermissionChecker.class))
                 .thenThrow(new NoSuchBeanDefinitionException(

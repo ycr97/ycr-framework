@@ -9,6 +9,7 @@ import com.ycr.framework.data.permission.scope.DataScope;
 import com.ycr.framework.data.permission.scope.DataScopeContext;
 import com.ycr.framework.data.permission.scope.DataScopeResolver;
 import org.apache.ibatis.mapping.SqlCommandType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +53,8 @@ class DataPermissionSqlHandlerTest {
     }
 
     @Test
-    void SELECT_追加权限条件() {
+    @DisplayName("SELECT_追加权限条件")
+    void shouldMatchExpectedBehavior001() {
         DataPermissionInterceptor it = interceptor(id -> SqlCommandType.SELECT,
                 rule(EnumSet.allOf(SqlCommandType.class), s -> Predicate.in("factory_id", s.values("factory"))));
         String sql = it.parserSingle("SELECT * FROM biz_order WHERE status = 1", "m");
@@ -61,7 +63,8 @@ class DataPermissionSqlHandlerTest {
     }
 
     @Test
-    void UPDATE_追加权限条件() {
+    @DisplayName("UPDATE_追加权限条件")
+    void shouldMatchExpectedBehavior002() {
         DataPermissionInterceptor it = interceptor(id -> SqlCommandType.UPDATE,
                 rule(EnumSet.allOf(SqlCommandType.class), s -> Predicate.in("factory_id", s.values("factory"))));
         String sql = it.parserSingle("UPDATE biz_order SET status = 2 WHERE id = 5", "m");
@@ -69,7 +72,8 @@ class DataPermissionSqlHandlerTest {
     }
 
     @Test
-    void DELETE_追加权限条件() {
+    @DisplayName("DELETE_追加权限条件")
+    void shouldMatchExpectedBehavior003() {
         DataPermissionInterceptor it = interceptor(id -> SqlCommandType.DELETE,
                 rule(EnumSet.allOf(SqlCommandType.class), s -> Predicate.in("factory_id", s.values("factory"))));
         String sql = it.parserSingle("DELETE FROM biz_order WHERE id = 5", "m");
@@ -77,7 +81,8 @@ class DataPermissionSqlHandlerTest {
     }
 
     @Test
-    void SELECT_only规则不改写UPDATE() {
+    @DisplayName("SELECT_only规则不改写UPDATE")
+    void shouldMatchExpectedBehavior004() {
         DataPermissionInterceptor it = interceptor(id -> SqlCommandType.UPDATE,
                 rule(EnumSet.of(SqlCommandType.SELECT), s -> Predicate.in("factory_id", List.of(1))));
         String sql = it.parserSingle("UPDATE biz_order SET status = 2 WHERE id = 5", "m");
@@ -85,7 +90,8 @@ class DataPermissionSqlHandlerTest {
     }
 
     @Test
-    void resolver异常_抛DataPermissionException() {
+    @DisplayName("resolver异常_抛DataPermissionException")
+    void shouldMatchExpectedBehavior005() {
         DataScopeResolver bad = () -> {
             throw new IllegalStateException("down");
         };

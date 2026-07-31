@@ -1,6 +1,7 @@
 package com.ycr.framework.ddd.autoconfigure;
 
 import com.ycr.framework.ddd.event.DomainEventPublisher;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -19,12 +20,14 @@ class DddCoreAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(DddCoreAutoConfiguration.class));
 
     @Test
-    void 装配DomainEventPublisher() {
+    @DisplayName("装配DomainEventPublisher")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> assertThat(context).hasSingleBean(DomainEventPublisher.class));
     }
 
     @Test
-    void 已有自定义时让位() {
+    @DisplayName("已有自定义时让位")
+    void shouldMatchExpectedBehavior002() {
         runner.withBean(DomainEventPublisher.class,
                         () -> new DomainEventPublisher(org.mockito.Mockito.mock(ApplicationEventPublisher.class)))
                 .run(context -> assertThat(context).hasSingleBean(DomainEventPublisher.class));

@@ -3,6 +3,7 @@ package com.ycr.framework.captcha.autoconfigure;
 import com.ycr.framework.captcha.model.CaptchaResult;
 import com.ycr.framework.captcha.service.CaptchaService;
 import com.ycr.framework.captcha.service.HutoolCaptchaService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -22,7 +23,8 @@ class CaptchaAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(CaptchaAutoConfiguration.class));
 
     @Test
-    void 默认应装配Hutool实现() {
+    @DisplayName("默认应装配Hutool实现")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(CaptchaService.class);
             assertThat(context.getBean(CaptchaService.class)).isInstanceOf(HutoolCaptchaService.class);
@@ -30,13 +32,15 @@ class CaptchaAutoConfigurationTest {
     }
 
     @Test
-    void 关闭开关时不装配() {
+    @DisplayName("关闭开关时不装配")
+    void shouldMatchExpectedBehavior002() {
         runner.withPropertyValues("ycr.captcha.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(CaptchaService.class));
     }
 
     @Test
-    void 业务自定义实现应覆盖默认() {
+    @DisplayName("业务自定义实现应覆盖默认")
+    void shouldMatchExpectedBehavior003() {
         runner.withUserConfiguration(CustomConfig.class).run(context -> {
             assertThat(context).hasSingleBean(CaptchaService.class);
             assertThat(context.getBean(CaptchaService.class)).isInstanceOf(CustomCaptchaService.class);

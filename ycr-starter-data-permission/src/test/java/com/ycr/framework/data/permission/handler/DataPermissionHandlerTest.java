@@ -5,6 +5,7 @@ import com.ycr.framework.data.permission.rule.Predicate;
 import com.ycr.framework.data.permission.scope.DataScope;
 import net.sf.jsqlparser.expression.Expression;
 import org.apache.ibatis.mapping.SqlCommandType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
@@ -47,14 +48,16 @@ class DataPermissionHandlerTest {
             .dimension("factory", List.of(1, 2)).dimension("brand", List.of(9)).build();
 
     @Test
-    void Column谓词渲染为IN条件() {
+    @DisplayName("Column谓词渲染为IN条件")
+    void shouldMatchExpectedBehavior001() {
         DataPermissionHandler h = handlerWith(rule("biz_order", s -> Predicate.in("factory_id", s.values("factory"))));
         Expression e = h.buildExpression("biz_order", scope, SqlCommandType.SELECT, "m");
         assertEquals("factory_id IN (1, 2)", e.toString());
     }
 
     @Test
-    void 同表多规则AND合并() {
+    @DisplayName("同表多规则AND合并")
+    void shouldMatchExpectedBehavior002() {
         DataPermissionHandler h = handlerWith(
                 rule("biz_order", s -> Predicate.in("factory_id", s.values("factory"))),
                 rule("biz_order", s -> Predicate.in("brand_id", s.values("brand"))));
@@ -63,40 +66,46 @@ class DataPermissionHandlerTest {
     }
 
     @Test
-    void Deny渲染为1等于0() {
+    @DisplayName("Deny渲染为1等于0")
+    void shouldMatchExpectedBehavior003() {
         DataPermissionHandler h = handlerWith(rule("biz_order", s -> Predicate.deny()));
         Expression e = h.buildExpression("biz_order", scope, SqlCommandType.SELECT, "m");
         assertEquals("1 = 0", e.toString());
     }
 
     @Test
-    void 受治理表在效规则全Skip时fail_closed() {
+    @DisplayName("受治理表在效规则全Skip时fail_closed")
+    void shouldMatchExpectedBehavior004() {
         DataPermissionHandler h = handlerWith(rule("biz_order", s -> Predicate.skip()));
         Expression e = h.buildExpression("biz_order", scope, SqlCommandType.SELECT, "m");
         assertEquals("1 = 0", e.toString());
     }
 
     @Test
-    void 非受治理表不改写返回null() {
+    @DisplayName("非受治理表不改写返回null")
+    void shouldMatchExpectedBehavior005() {
         DataPermissionHandler h = handlerWith(rule("biz_order", s -> Predicate.skip()));
         assertNull(h.buildExpression("other_table", scope, SqlCommandType.SELECT, "m"));
     }
 
     @Test
-    void 命令不匹配的规则不在效_无在效规则则不改写() {
+    @DisplayName("命令不匹配的规则不在效_无在效规则则不改写")
+    void shouldMatchExpectedBehavior006() {
         DataPermissionHandler h = handlerWith(
                 rule("biz_order", EnumSet.of(SqlCommandType.SELECT), s -> Predicate.in("factory_id", List.of(1))));
         assertNull(h.buildExpression("biz_order", scope, SqlCommandType.UPDATE, "m"));
     }
 
     @Test
-    void Raw谓词原样解析() {
+    @DisplayName("Raw谓词原样解析")
+    void shouldMatchExpectedBehavior007() {
         DataPermissionHandler h = handlerWith(rule("biz_order", s -> new Predicate.Raw("factory_id = 5")));
         assertEquals("factory_id = 5", h.buildExpression("biz_order", scope, SqlCommandType.SELECT, "m").toString());
     }
 
     @Test
-    void 字符串值转义渲染() {
+    @DisplayName("字符串值转义渲染")
+    void shouldMatchExpectedBehavior008() {
         DataPermissionHandler h = handlerWith(rule("biz_order", s -> Predicate.in("code", List.of("A", "B'x"))));
         assertEquals("code IN ('A', 'B''x')", h.buildExpression("biz_order", scope, SqlCommandType.SELECT, "m").toString());
     }

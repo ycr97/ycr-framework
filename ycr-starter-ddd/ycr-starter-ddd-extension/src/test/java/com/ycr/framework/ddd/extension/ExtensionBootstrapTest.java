@@ -1,5 +1,6 @@
 package com.ycr.framework.ddd.extension;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.context.ApplicationContext;
@@ -37,7 +38,8 @@ class ExtensionBootstrapTest {
     }
 
     @Test
-    void 扫描注册普通Extension_按身份可路由() {
+    @DisplayName("扫描注册普通Extension_按身份可路由")
+    void shouldMatchExpectedBehavior001() {
         ExtensionRepository repo = new ExtensionRepository();
         VipPay bean = new VipPay();
         fireRefresh(new ExtensionBootstrap(repo), Map.of("vipPay", bean));
@@ -46,7 +48,8 @@ class ExtensionBootstrapTest {
     }
 
     @Test
-    void 代理安全_AOP代理的Extension仍按目标类注册() {
+    @DisplayName("代理安全_AOP代理的Extension仍按目标类注册")
+    void shouldMatchExpectedBehavior002() {
         ExtensionRepository repo = new ExtensionRepository();
         VipPay target = new VipPay();
         // 构造 Spring AOP 代理（代理类上没有 @Extension，注解在目标类）

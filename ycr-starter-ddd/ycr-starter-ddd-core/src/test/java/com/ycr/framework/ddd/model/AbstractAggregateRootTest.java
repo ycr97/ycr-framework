@@ -2,6 +2,7 @@ package com.ycr.framework.ddd.model;
 
 import com.ycr.framework.ddd.event.DomainEvent;
 import com.ycr.framework.ddd.event.DomainEventPublisher;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -43,7 +44,8 @@ class AbstractAggregateRootTest {
     }
 
     @Test
-    void 注册事件后可读且只读_清空生效() {
+    @DisplayName("注册事件后可读且只读_清空生效")
+    void shouldMatchExpectedBehavior001() {
         OrderAggregate order = new OrderAggregate(1L);
         order.create();
 
@@ -56,7 +58,8 @@ class AbstractAggregateRootTest {
     }
 
     @Test
-    void publishEvents逐个发布并清空() {
+    @DisplayName("publishEvents逐个发布并清空")
+    void shouldMatchExpectedBehavior002() {
         OrderAggregate order = new OrderAggregate(2L);
         order.create();
         order.create();

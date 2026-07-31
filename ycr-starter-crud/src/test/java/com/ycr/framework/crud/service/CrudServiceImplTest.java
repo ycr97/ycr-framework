@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ycr.framework.data.model.PageQuery;
 import com.ycr.framework.data.model.PageResult;
 import com.ycr.framework.data.mp.mapper.BaseMapperX;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -42,7 +43,8 @@ class CrudServiceImplTest {
     }
 
     @Test
-    void get_create_update_delete透传与布尔语义() throws Exception {
+    @DisplayName("get_create_update_delete透传与布尔语义")
+    void shouldMatchExpectedBehavior001() throws Exception {
         DemoMapper mapper = mock(DemoMapper.class);
         when(mapper.selectById(1L)).thenReturn("row");
         when(mapper.insert("a")).thenReturn(1);
@@ -59,7 +61,8 @@ class CrudServiceImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void page_经selectPage并转PageResult() throws Exception {
+    @DisplayName("page_经selectPage并转PageResult")
+    void shouldMatchExpectedBehavior002() throws Exception {
         DemoMapper mapper = mock(DemoMapper.class);
         Page<String> mpResult = new Page<>(2, 10, 30);
         mpResult.setRecords(List.of("x", "y"));
@@ -78,7 +81,8 @@ class CrudServiceImplTest {
     }
 
     @Test
-    void list_透传wrapper() throws Exception {
+    @DisplayName("list_透传wrapper")
+    void shouldMatchExpectedBehavior003() throws Exception {
         DemoMapper mapper = mock(DemoMapper.class);
         QueryWrapper<String> wrapper = new QueryWrapper<>();
         List<String> rows = List.of("a", "b");

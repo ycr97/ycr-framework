@@ -2,6 +2,7 @@ package com.ycr.framework.mq.rocketmq;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.mq.producer.MessageProducer;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.apache.rocketmq.client.apis.producer.Producer;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -24,7 +25,8 @@ class RocketMqAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(RocketMqAutoConfiguration.class));
 
     @Test
-    void 默认关闭时不装配任何mq组件() {
+    @DisplayName("默认关闭时不装配任何mq组件")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).doesNotHaveBean(MessageProducer.class);
             assertThat(context).doesNotHaveBean(RocketMqListenerProcessor.class);
@@ -32,13 +34,15 @@ class RocketMqAutoConfigurationTest {
     }
 
     @Test
-    void 关闭开关显式为false时不装配() {
+    @DisplayName("关闭开关显式为false时不装配")
+    void shouldMatchExpectedBehavior002() {
         runner.withPropertyValues("ycr.mq.rocketmq.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(MessageProducer.class));
     }
 
     @Test
-    void 显式开启时应装配mq组件() {
+    @DisplayName("显式开启时应装配mq组件")
+    void shouldMatchExpectedBehavior003() {
         runner.withBean(RocketMqClientFactory.class, () -> mock(RocketMqClientFactory.class))
                 .withBean(Producer.class, () -> mock(Producer.class))
                 .withPropertyValues("ycr.mq.rocketmq.enabled=true")

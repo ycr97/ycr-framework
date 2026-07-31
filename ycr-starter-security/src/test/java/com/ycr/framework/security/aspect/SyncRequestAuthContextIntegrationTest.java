@@ -20,6 +20,7 @@ import com.ycr.framework.trace.filter.TraceFilter;
 import com.ycr.framework.trace.util.TraceUtils;
 import feign.Request;
 import feign.RequestTemplate;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -58,7 +59,8 @@ class SyncRequestAuthContextIntegrationTest {
     }
 
     @Test
-    void 请求链路应还原上下文鉴权并向Feign传播签名上下文() throws Exception {
+    @DisplayName("请求链路应还原上下文鉴权并向Feign传播签名上下文")
+    void shouldMatchExpectedBehavior001() throws Exception {
         runner.run(context -> {
             ContextProperties properties = contextProperties();
             TraceFilter traceFilter = new TraceFilter(

@@ -1,6 +1,7 @@
 package com.ycr.framework.context.autoconfigure;
 
 import com.ycr.framework.context.filter.ContextFilter;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
@@ -16,7 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ContextServletAutoConfigurationTest {
 
     @Test
-    void Servlet环境应装配上下文过滤器() {
+    @DisplayName("Servlet环境应装配上下文过滤器")
+    void shouldMatchExpectedBehavior001() {
         new WebApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(
                         ContextAutoConfiguration.class,

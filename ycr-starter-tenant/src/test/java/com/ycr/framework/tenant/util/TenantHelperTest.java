@@ -1,5 +1,6 @@
 package com.ycr.framework.tenant.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,14 +15,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TenantHelperTest {
 
     @Test
-    void run作用域内忽略_退出后恢复() {
+    @DisplayName("run作用域内忽略_退出后恢复")
+    void shouldMatchExpectedBehavior001() {
         assertFalse(TenantHelper.isIgnored());
         TenantHelper.run(() -> assertTrue(TenantHelper.isIgnored()));
         assertFalse(TenantHelper.isIgnored());
     }
 
     @Test
-    void call返回结果且作用域内忽略() {
+    @DisplayName("call返回结果且作用域内忽略")
+    void shouldMatchExpectedBehavior002() {
         String r = TenantHelper.call(() -> {
             assertTrue(TenantHelper.isIgnored());
             return "ok";
@@ -31,7 +34,8 @@ class TenantHelperTest {
     }
 
     @Test
-    void 嵌套作用域计数正确_内层退出不误关外层() {
+    @DisplayName("嵌套作用域计数正确_内层退出不误关外层")
+    void shouldMatchExpectedBehavior003() {
         TenantHelper.run(() -> {
             assertTrue(TenantHelper.isIgnored());
             TenantHelper.run(() -> assertTrue(TenantHelper.isIgnored()));
@@ -42,7 +46,8 @@ class TenantHelperTest {
     }
 
     @Test
-    void 异常时也能成对退出() {
+    @DisplayName("异常时也能成对退出")
+    void shouldMatchExpectedBehavior004() {
         try {
             TenantHelper.run(() -> {
                 throw new RuntimeException("boom");

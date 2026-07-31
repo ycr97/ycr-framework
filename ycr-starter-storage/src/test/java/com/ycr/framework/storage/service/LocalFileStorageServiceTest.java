@@ -1,6 +1,7 @@
 package com.ycr.framework.storage.service;
 
 import com.ycr.framework.storage.model.FileInfo;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -30,7 +31,8 @@ class LocalFileStorageServiceTest {
     }
 
     @Test
-    void 上传下载应往返一致并填充FileInfo() throws Exception {
+    @DisplayName("上传下载应往返一致并填充FileInfo")
+    void shouldMatchExpectedBehavior001() throws Exception {
         byte[] bytes = "hello-存储".getBytes(StandardCharsets.UTF_8);
         FileInfo info = service.upload(new ByteArrayInputStream(bytes), "photo.PNG");
 
@@ -48,7 +50,8 @@ class LocalFileStorageServiceTest {
     }
 
     @Test
-    void 删除后应不存在() {
+    @DisplayName("删除后应不存在")
+    void shouldMatchExpectedBehavior002() {
         FileInfo info = service.upload(new ByteArrayInputStream("x".getBytes()), "a.txt");
         assertTrue(service.exists(info.getPath()));
 
@@ -57,12 +60,14 @@ class LocalFileStorageServiceTest {
     }
 
     @Test
-    void 下载越权路径应被拒绝() {
+    @DisplayName("下载越权路径应被拒绝")
+    void shouldMatchExpectedBehavior003() {
         assertThrows(IllegalArgumentException.class, () -> service.download("../../etc/passwd"));
     }
 
     @Test
-    void 删除越权路径应被拒绝() {
+    @DisplayName("删除越权路径应被拒绝")
+    void shouldMatchExpectedBehavior004() {
         assertThrows(IllegalArgumentException.class, () -> service.delete("../secret"));
     }
 }

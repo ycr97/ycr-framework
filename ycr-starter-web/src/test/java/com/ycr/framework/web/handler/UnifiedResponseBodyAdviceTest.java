@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ycr.framework.core.model.R;
 import com.ycr.framework.web.autoconfigure.WebResponseProperties;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -28,7 +29,8 @@ class UnifiedResponseBodyAdviceTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    void 普通对象应包装为统一响应() throws Exception {
+    @DisplayName("普通对象应包装为统一响应")
+    void shouldMatchExpectedBehavior001() throws Exception {
         UnifiedResponseBodyAdvice advice = newAdvice(new WebResponseProperties());
 
         Object body = advice.beforeBodyWrite(Map.of("name", "ycr"), methodParameter("objectResult"),
@@ -42,7 +44,8 @@ class UnifiedResponseBodyAdviceTest {
     }
 
     @Test
-    void 字符串响应应序列化为Json字符串() throws Exception {
+    @DisplayName("字符串响应应序列化为Json字符串")
+    void shouldMatchExpectedBehavior002() throws Exception {
         UnifiedResponseBodyAdvice advice = newAdvice(new WebResponseProperties());
         ServletServerHttpResponse response = response();
 
@@ -58,7 +61,8 @@ class UnifiedResponseBodyAdviceTest {
     }
 
     @Test
-    void 已包装响应不应重复包装() throws Exception {
+    @DisplayName("已包装响应不应重复包装")
+    void shouldMatchExpectedBehavior003() throws Exception {
         UnifiedResponseBodyAdvice advice = newAdvice(new WebResponseProperties());
         R<String> original = R.ok("ok");
 
@@ -70,7 +74,8 @@ class UnifiedResponseBodyAdviceTest {
     }
 
     @Test
-    void 排除路径不应包装() throws Exception {
+    @DisplayName("排除路径不应包装")
+    void shouldMatchExpectedBehavior004() throws Exception {
         WebResponseProperties properties = new WebResponseProperties();
         properties.setExcludePaths(List.of("/open/**"));
         UnifiedResponseBodyAdvice advice = newAdvice(properties);
@@ -83,7 +88,8 @@ class UnifiedResponseBodyAdviceTest {
     }
 
     @Test
-    void 未命中包含路径不应包装() throws Exception {
+    @DisplayName("未命中包含路径不应包装")
+    void shouldMatchExpectedBehavior005() throws Exception {
         WebResponseProperties properties = new WebResponseProperties();
         properties.setIncludePaths(List.of("/api/**"));
         UnifiedResponseBodyAdvice advice = newAdvice(properties);
@@ -96,7 +102,8 @@ class UnifiedResponseBodyAdviceTest {
     }
 
     @Test
-    void 关闭开关时不支持包装() throws Exception {
+    @DisplayName("关闭开关时不支持包装")
+    void shouldMatchExpectedBehavior006() throws Exception {
         WebResponseProperties properties = new WebResponseProperties();
         properties.setEnabled(false);
         UnifiedResponseBodyAdvice advice = newAdvice(properties);
@@ -106,7 +113,8 @@ class UnifiedResponseBodyAdviceTest {
     }
 
     @Test
-    void 流式响应不支持包装() throws Exception {
+    @DisplayName("流式响应不支持包装")
+    void shouldMatchExpectedBehavior007() throws Exception {
         UnifiedResponseBodyAdvice advice = newAdvice(new WebResponseProperties());
 
         assertThat(advice.supports(methodParameter("streamingResult"),

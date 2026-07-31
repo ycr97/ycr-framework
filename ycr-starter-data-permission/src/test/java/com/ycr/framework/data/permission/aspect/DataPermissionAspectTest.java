@@ -3,6 +3,7 @@ package com.ycr.framework.data.permission.aspect;
 import com.baomidou.mybatisplus.core.plugins.InterceptorIgnoreHelper;
 import com.ycr.framework.data.permission.annotation.DataPermission;
 import com.ycr.framework.data.permission.annotation.DataPermissionIgnore;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
@@ -27,7 +28,8 @@ class DataPermissionAspectTest {
             .withBean(IgnoredClassService.class);
 
     @Test
-    void 方法级Ignore注解应忽略数据权限() {
+    @DisplayName("方法级Ignore注解应忽略数据权限")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             DemoService service = context.getBean(DemoService.class);
             assertTrue(service.ignoredMethod(), "标注 @DataPermissionIgnore 的方法内应忽略数据权限");
@@ -37,7 +39,8 @@ class DataPermissionAspectTest {
     }
 
     @Test
-    void 普通方法不应忽略数据权限() {
+    @DisplayName("普通方法不应忽略数据权限")
+    void shouldMatchExpectedBehavior002() {
         runner.run(context -> {
             DemoService service = context.getBean(DemoService.class);
             assertFalse(service.plainMethod(), "无注解方法应维持默认（数据权限生效）");
@@ -45,7 +48,8 @@ class DataPermissionAspectTest {
     }
 
     @Test
-    void 类级Ignore下方法级DataPermission应强制启用() {
+    @DisplayName("类级Ignore下方法级DataPermission应强制启用")
+    void shouldMatchExpectedBehavior003() {
         runner.run(context -> {
             IgnoredClassService service = context.getBean(IgnoredClassService.class);
             assertTrue(service.normalQuery(), "类级 @DataPermissionIgnore 应忽略数据权限");

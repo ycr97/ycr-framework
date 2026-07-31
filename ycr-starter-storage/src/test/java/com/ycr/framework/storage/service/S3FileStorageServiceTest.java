@@ -1,6 +1,7 @@
 package com.ycr.framework.storage.service;
 
 import com.ycr.framework.storage.model.FileInfo;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -43,12 +44,14 @@ class S3FileStorageServiceTest {
             new S3FileStorageService(s3Client, "my-bucket", "https://cdn.example.com/");
 
     @Test
-    void 构造时bucket为空应抛异常() {
+    @DisplayName("构造时bucket为空应抛异常")
+    void shouldMatchExpectedBehavior001() {
         assertThrows(IllegalArgumentException.class, () -> new S3FileStorageService(s3Client, "  ", ""));
     }
 
     @Test
-    void upload_生成日期键并映射FileInfo() {
+    @DisplayName("upload_生成日期键并映射FileInfo")
+    void shouldMatchExpectedBehavior002() {
         when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
                 .thenReturn(PutObjectResponse.builder().build());
 
@@ -70,7 +73,8 @@ class S3FileStorageServiceTest {
     }
 
     @Test
-    void upload_urlPrefix为空时url为空() {
+    @DisplayName("upload_urlPrefix为空时url为空")
+    void shouldMatchExpectedBehavior003() {
         S3FileStorageService noUrl = new S3FileStorageService(s3Client, "my-bucket", "");
         when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
                 .thenReturn(PutObjectResponse.builder().build());
@@ -80,7 +84,8 @@ class S3FileStorageServiceTest {
     }
 
     @Test
-    void download_返回对象流() throws Exception {
+    @DisplayName("download_返回对象流")
+    void shouldMatchExpectedBehavior004() throws Exception {
         byte[] data = "file-content".getBytes(StandardCharsets.UTF_8);
         ResponseInputStream<GetObjectResponse> ris = new ResponseInputStream<>(
                 GetObjectResponse.builder().build(),
@@ -93,7 +98,8 @@ class S3FileStorageServiceTest {
     }
 
     @Test
-    void exists_命中返回true_不存在返回false() {
+    @DisplayName("exists_命中返回true_不存在返回false")
+    void shouldMatchExpectedBehavior005() {
         when(s3Client.headObject(any(HeadObjectRequest.class)))
                 .thenReturn(HeadObjectResponse.builder().build());
         assertTrue(service.exists("k1"));
@@ -104,7 +110,8 @@ class S3FileStorageServiceTest {
     }
 
     @Test
-    void delete_存在则删除返回true() {
+    @DisplayName("delete_存在则删除返回true")
+    void shouldMatchExpectedBehavior006() {
         when(s3Client.headObject(any(HeadObjectRequest.class)))
                 .thenReturn(HeadObjectResponse.builder().build());
         when(s3Client.deleteObject(any(DeleteObjectRequest.class)))
@@ -115,7 +122,8 @@ class S3FileStorageServiceTest {
     }
 
     @Test
-    void delete_不存在返回false且不调用删除() {
+    @DisplayName("delete_不存在返回false且不调用删除")
+    void shouldMatchExpectedBehavior007() {
         when(s3Client.headObject(any(HeadObjectRequest.class)))
                 .thenThrow(NoSuchKeyException.builder().build());
 

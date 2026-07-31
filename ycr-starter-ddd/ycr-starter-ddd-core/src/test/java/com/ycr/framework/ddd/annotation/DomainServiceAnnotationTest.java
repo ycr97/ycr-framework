@@ -1,5 +1,6 @@
 package com.ycr.framework.ddd.annotation;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
@@ -24,7 +25,8 @@ class DomainServiceAnnotationTest {
     }
 
     @Test
-    void DomainService组合出Service且value真转发() {
+    @DisplayName("DomainService组合出Service且value真转发")
+    void shouldMatchExpectedBehavior001() {
         MergedAnnotation<Service> service = MergedAnnotations
                 .from(SampleDomainService.class, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
                 .get(Service.class);
@@ -34,7 +36,8 @@ class DomainServiceAnnotationTest {
     }
 
     @Test
-    void ApplicationService组合出Service且value真转发() {
+    @DisplayName("ApplicationService组合出Service且value真转发")
+    void shouldMatchExpectedBehavior002() {
         MergedAnnotation<Service> service = MergedAnnotations
                 .from(SampleAppService.class, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
                 .get(Service.class);

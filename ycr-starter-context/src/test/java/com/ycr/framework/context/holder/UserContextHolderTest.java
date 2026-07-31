@@ -2,6 +2,7 @@ package com.ycr.framework.context.holder;
 
 import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.ycr.framework.context.model.UserContext;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,8 @@ class UserContextHolderTest {
     }
 
     @Test
-    void 设置和获取用户上下文() {
+    @DisplayName("设置和获取用户上下文")
+    void shouldMatchExpectedBehavior001() {
         UserContext ctx = new UserContext();
         ctx.setUserId(1001L);
         ctx.setUsername("张三");
@@ -37,7 +39,8 @@ class UserContextHolderTest {
     }
 
     @Test
-    void 清除上下文后应返回null() {
+    @DisplayName("清除上下文后应返回null")
+    void shouldMatchExpectedBehavior002() {
         UserContext ctx = new UserContext();
         ctx.setUserId(1001L);
         UserContextHolder.set(ctx);
@@ -47,7 +50,8 @@ class UserContextHolderTest {
     }
 
     @Test
-    void TTL支持线程池透传() throws Exception {
+    @DisplayName("TTL支持线程池透传")
+    void shouldMatchExpectedBehavior003() throws Exception {
         ThreadPoolExecutor rawExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
         rawExecutor.prestartAllCoreThreads();
         ExecutorService executor = TtlExecutors.getTtlExecutorService(rawExecutor);

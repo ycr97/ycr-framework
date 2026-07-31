@@ -2,6 +2,7 @@ package com.ycr.framework.ddd.aggregate;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -27,7 +28,8 @@ class DataObjectUtilsTest {
     }
 
     @Test
-    void getDelta_仅变更字段有值未变更为null() {
+    @DisplayName("getDelta_仅变更字段有值未变更为null")
+    void shouldMatchExpectedBehavior001() {
         SampleDO old = of("1", 10, 1.0);
         SampleDO current = of("1", 10, 2.0);
 
@@ -39,7 +41,8 @@ class DataObjectUtilsTest {
     }
 
     @Test
-    void getDelta_可忽略指定字段() {
+    @DisplayName("getDelta_可忽略指定字段")
+    void shouldMatchExpectedBehavior002() {
         SampleDO old = of("1", 10, 1.0);
         SampleDO current = of("1", 20, 2.0);
 
@@ -50,7 +53,8 @@ class DataObjectUtilsTest {
     }
 
     @Test
-    void getChangedFields_返回变更字段名集合() {
+    @DisplayName("getChangedFields_返回变更字段名集合")
+    void shouldMatchExpectedBehavior003() {
         SampleDO old = of("1", 10, 1.0);
         SampleDO current = of("1", 20, 2.0);
 

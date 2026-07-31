@@ -8,6 +8,7 @@ import com.ycr.framework.log.annotation.MethodLog;
 import com.ycr.framework.log.autoconfigure.LogProperties;
 import com.ycr.framework.log.enums.Level;
 import com.ycr.framework.log.util.LogJsonSupport;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +62,8 @@ class MethodLogAspectTest {
     }
 
     @Test
-    void 应打印入参与出参() {
+    @DisplayName("应打印入参与出参")
+    void shouldMatchExpectedBehavior001() {
         DemoService proxy = weave(config(Level.DEBUG));
         assertEquals("ok:张三", proxy.create("张三"));
 
@@ -72,7 +74,8 @@ class MethodLogAspectTest {
     }
 
     @Test
-    void 级别未开启应跳过不打印() {
+    @DisplayName("级别未开启应跳过不打印")
+    void shouldMatchExpectedBehavior002() {
         aspectLogger.setLevel(ch.qos.logback.classic.Level.INFO);  // 高于配置的 DEBUG
         DemoService proxy = weave(config(Level.DEBUG));
         proxy.create("张三");
@@ -80,7 +83,8 @@ class MethodLogAspectTest {
     }
 
     @Test
-    void 异常应打印异常段并原样抛出() {
+    @DisplayName("异常应打印异常段并原样抛出")
+    void shouldMatchExpectedBehavior003() {
         DemoService proxy = weave(config(Level.DEBUG));
         assertThrows(IllegalStateException.class, proxy::boom);
         assertTrue(appender.list.stream().anyMatch(e -> e.getFormattedMessage().contains("异常")),

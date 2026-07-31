@@ -1,6 +1,7 @@
 package com.ycr.framework.feign.interceptor;
 
 import feign.RequestTemplate;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -24,14 +25,16 @@ class AbstractMatchableFeignInterceptorTest {
     }
 
     @Test
-    void 默认匹配器命中时执行doApply() {
+    @DisplayName("默认匹配器命中时执行doApply")
+    void shouldMatchExpectedBehavior001() {
         RecordingInterceptor interceptor = new RecordingInterceptor();
         interceptor.apply(new RequestTemplate());
         assertTrue(interceptor.applied);
     }
 
     @Test
-    void 命中notMatcher时跳过() {
+    @DisplayName("命中notMatcher时跳过")
+    void shouldMatchExpectedBehavior002() {
         RecordingInterceptor interceptor = new RecordingInterceptor();
         interceptor.addNotMatcher(template -> true);
         interceptor.apply(new RequestTemplate());
@@ -39,7 +42,8 @@ class AbstractMatchableFeignInterceptorTest {
     }
 
     @Test
-    void 配置了matcher但未命中时跳过() {
+    @DisplayName("配置了matcher但未命中时跳过")
+    void shouldMatchExpectedBehavior003() {
         RecordingInterceptor interceptor = new RecordingInterceptor();
         interceptor.addMatcher(template -> false);
         interceptor.apply(new RequestTemplate());
@@ -47,7 +51,8 @@ class AbstractMatchableFeignInterceptorTest {
     }
 
     @Test
-    void 配置了matcher且命中时执行() {
+    @DisplayName("配置了matcher且命中时执行")
+    void shouldMatchExpectedBehavior004() {
         RecordingInterceptor interceptor = new RecordingInterceptor();
         interceptor.addMatcher(template -> true);
         interceptor.apply(new RequestTemplate());
@@ -55,7 +60,8 @@ class AbstractMatchableFeignInterceptorTest {
     }
 
     @Test
-    void notMatcher优先级高于matcher() {
+    @DisplayName("notMatcher优先级高于matcher")
+    void shouldMatchExpectedBehavior005() {
         RecordingInterceptor interceptor = new RecordingInterceptor();
         interceptor.addMatcher(template -> true);
         interceptor.addNotMatcher(template -> true);

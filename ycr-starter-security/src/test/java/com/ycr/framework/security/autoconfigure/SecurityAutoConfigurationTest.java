@@ -1,5 +1,6 @@
 package com.ycr.framework.security.autoconfigure;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -18,7 +19,8 @@ class SecurityAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(SecurityAutoConfiguration.class));
 
     @Test
-    void 默认只应注册权限校验器() {
+    @DisplayName("默认只应注册权限校验器")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context).doesNotHaveBean("authorizeAspect");
             assertThat(context).hasBean("permissionChecker");
@@ -26,7 +28,8 @@ class SecurityAutoConfigurationTest {
     }
 
     @Test
-    void 显式开启时应注册鉴权切面() {
+    @DisplayName("显式开启时应注册鉴权切面")
+    void shouldMatchExpectedBehavior002() {
         runner.withPropertyValues("ycr.security.enabled=true")
                 .run(context -> {
                     assertThat(context).hasBean("authorizeAspect");

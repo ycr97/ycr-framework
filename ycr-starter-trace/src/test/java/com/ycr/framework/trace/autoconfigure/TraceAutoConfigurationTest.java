@@ -3,6 +3,7 @@ package com.ycr.framework.trace.autoconfigure;
 import com.ycr.framework.trace.filter.TraceFilter;
 import com.ycr.framework.trace.generator.TraceIdGenerator;
 import com.ycr.framework.trace.generator.UuidTraceIdGenerator;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
@@ -24,7 +25,8 @@ class TraceAutoConfigurationTest {
 
     @Test
     @SuppressWarnings("rawtypes")
-    void 默认应装配链路与慢请求过滤器及默认生成器() {
+    @DisplayName("默认应装配链路与慢请求过滤器及默认生成器")
+    void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
             assertThat(context.getBeansOfType(FilterRegistrationBean.class)).hasSize(2);
             assertThat(context).hasSingleBean(TraceIdGenerator.class);
@@ -34,7 +36,8 @@ class TraceAutoConfigurationTest {
 
     @Test
     @SuppressWarnings("rawtypes")
-    void 关闭慢请求时只保留链路过滤器() {
+    @DisplayName("关闭慢请求时只保留链路过滤器")
+    void shouldMatchExpectedBehavior002() {
         runner.withPropertyValues("ycr.trace.slow-request.enabled=false")
                 .run(context -> {
                     assertThat(context.getBeansOfType(FilterRegistrationBean.class)).hasSize(1);
@@ -45,13 +48,15 @@ class TraceAutoConfigurationTest {
 
     @Test
     @SuppressWarnings("rawtypes")
-    void 关闭开关时不装配过滤器() {
+    @DisplayName("关闭开关时不装配过滤器")
+    void shouldMatchExpectedBehavior003() {
         runner.withPropertyValues("ycr.trace.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(FilterRegistrationBean.class));
     }
 
     @Test
-    void 业务自定义生成器应覆盖默认() {
+    @DisplayName("业务自定义生成器应覆盖默认")
+    void shouldMatchExpectedBehavior004() {
         runner.withUserConfiguration(CustomGeneratorConfig.class).run(context -> {
             assertThat(context).hasSingleBean(TraceIdGenerator.class);
             assertThat(context.getBean(TraceIdGenerator.class)).isInstanceOf(CustomGenerator.class);
