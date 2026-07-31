@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Bean;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(EncryptProperties.class)
-@ConditionalOnProperty(prefix = "ycr.encrypt", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "ycr.encrypt", name = "enabled", havingValue = "true")
 public class EncryptAutoConfiguration {
 
     @Bean

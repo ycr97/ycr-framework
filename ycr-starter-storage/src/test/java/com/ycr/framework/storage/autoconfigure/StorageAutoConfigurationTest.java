@@ -32,22 +32,22 @@ class StorageAutoConfigurationTest {
     }
 
     @Test
-    void 默认应装配本地实现() {
-        runner().run(context -> {
+    void 默认不应装配本地实现() {
+        runner().run(context -> assertThat(context).doesNotHaveBean(FileStorageService.class));
+    }
+
+    @Test
+    void 显式开启时应装配本地实现() {
+        runner().withPropertyValues("ycr.storage.enabled=true").run(context -> {
             assertThat(context).hasSingleBean(FileStorageService.class);
             assertThat(context.getBean(FileStorageService.class)).isInstanceOf(LocalFileStorageService.class);
         });
     }
 
     @Test
-    void 关闭开关时不装配() {
-        runner().withPropertyValues("ycr.storage.enabled=false")
-                .run(context -> assertThat(context).doesNotHaveBean(FileStorageService.class));
-    }
-
-    @Test
     void 业务自定义实现应覆盖默认() {
-        runner().withUserConfiguration(CustomConfig.class).run(context -> {
+        runner().withPropertyValues("ycr.storage.enabled=true")
+                .withUserConfiguration(CustomConfig.class).run(context -> {
             assertThat(context).hasSingleBean(FileStorageService.class);
             assertThat(context.getBean(FileStorageService.class)).isInstanceOf(CustomStorage.class);
         });

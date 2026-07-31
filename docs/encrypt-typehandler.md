@@ -27,11 +27,11 @@ ycr:
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.encrypt.enabled` | `true` | 是否启用加密 starter |
+| `ycr.encrypt.enabled` | `false` | 是否启用加密 starter，须显式开启 |
 | `ycr.encrypt.algorithm` | `AES` | 默认算法 |
 | `ycr.encrypt.aes-key` | 空 | AES 密钥，长度必须是 16/24/32 字节 |
 
-`EncryptHandler` 支持自定义 Bean。业务侧声明自己的 `EncryptHandler` 后，自动配置不会再创建默认 AES handler。
+引入 starter 不会初始化加密生命周期。启用时必须提供合法 AES 密钥，或注册自定义 `EncryptHandler`；业务侧声明自定义 Bean 后，自动配置不会再创建默认 AES handler。
 
 ## MyBatis-Plus 实体示例
 

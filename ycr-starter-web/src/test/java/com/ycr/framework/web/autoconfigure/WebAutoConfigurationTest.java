@@ -15,20 +15,20 @@ class WebAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(JacksonAutoConfiguration.class, WebAutoConfiguration.class));
 
     @Test
-    void Web环境默认应注册异常处理器和响应包装器() {
+    void Web环境默认只应注册异常处理器() {
         webRunner.run(context -> {
             assertThat(context).hasSingleBean(GlobalExceptionHandler.class);
-            assertThat(context).hasSingleBean(UnifiedResponseBodyAdvice.class);
+            assertThat(context).doesNotHaveBean(UnifiedResponseBodyAdvice.class);
             assertThat(context).hasSingleBean(WebResponseProperties.class);
         });
     }
 
     @Test
-    void 关闭响应包装开关时不应注册响应包装器() {
-        webRunner.withPropertyValues("ycr.web.response.enabled=false")
+    void 显式开启响应包装时应注册响应包装器() {
+        webRunner.withPropertyValues("ycr.web.response.enabled=true")
                 .run(context -> {
                     assertThat(context).hasSingleBean(GlobalExceptionHandler.class);
-                    assertThat(context).doesNotHaveBean(UnifiedResponseBodyAdvice.class);
+                    assertThat(context).hasSingleBean(UnifiedResponseBodyAdvice.class);
                 });
     }
 

@@ -28,15 +28,37 @@ class ForbiddenContentValidatorTest {
     }
 
     @Test
-    void 检出SQL关键字() {
+    void 检出标签事件属性XSS不被video等标签绕过() {
+        assertFalse(validator.isValid("<video onerror=alert(1)>", null));
+        assertFalse(validator.isValid("<video onloadstart=alert(1)>", null));
+        assertFalse(validator.isValid("<img src=x onerror=alert(1)>", null));
+        assertFalse(validator.isValid("<div onclick=\"alert(1)\">x</div>", null));
+    }
+
+    @Test
+    void 检出SQL注入组合特征() {
         assertFalse(validator.isValid("1 UNION SELECT password FROM users", null));
         assertFalse(validator.isValid("DROP TABLE orders", null));
+        assertFalse(validator.isValid("'; DROP TABLE users--", null));
+    }
+
+    @Test
+    void 普通业务英文文本不被SQL规则误杀() {
+        assertTrue(validator.isValid("please select a city", null));
+        assertTrue(validator.isValid("update profile", null));
+        assertTrue(validator.isValid("create a new account", null));
     }
 
     @Test
     void 检出爬虫特征() {
         assertFalse(validator.isValid("curl http://x", null));
         assertFalse(validator.isValid("this is a spider", null));
+    }
+
+    @Test
+    void 含bot子串的普通词不被爬虫规则误杀() {
+        assertTrue(validator.isValid("robot framework", null));
+        assertTrue(validator.isValid("abbot street", null));
     }
 
     @Test

@@ -13,12 +13,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class DataPermissionProperties {
 
     /**
-     * 是否启用数据权限（SQL 行级过滤拦截器与注解切面），默认启用。
+     * 是否启用数据权限（SQL 行级过滤拦截器与注解切面），默认关闭。
      *
-     * <p>默认 {@code true}：数据权限属限制性能力，默认开启取安全侧，避免漏配导致越权查询。
-     * 设为 {@code false} 可整体关闭数据权限链路。</p>
+     * <p>数据权限会改写 SQL，须由应用完成规则和数据范围配置后显式开启；
+     * 开启后，受治理表仍保持 fail-closed。</p>
      */
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     /**
      * 是否输出每张表实际追加的数据权限条件（含 traceId）的 debug 日志，默认关。

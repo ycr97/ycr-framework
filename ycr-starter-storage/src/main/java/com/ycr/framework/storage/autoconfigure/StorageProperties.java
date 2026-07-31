@@ -12,8 +12,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "ycr.storage")
 public class StorageProperties {
 
-    /** 是否启用文件存储，默认启用 */
-    private boolean enabled = true;
+    /** 是否启用文件存储，默认关闭 */
+    private boolean enabled = false;
 
     /** 存储类型：{@code local}（默认）或 {@code s3}（S3 兼容：AWS S3 / MinIO / 阿里云 OSS 等） */
     private String type = "local";

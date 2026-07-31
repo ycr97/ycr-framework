@@ -17,8 +17,10 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.idempotent.enabled` | `true` | 是否启用幂等切面 |
+| `ycr.idempotent.enabled` | `false` | 是否启用幂等切面，须显式开启 |
 | `ycr.idempotent.key-prefix` | `ycr:idempotent` | Redis 键前缀 |
+
+使用 `@Idempotent` 前必须配置 `ycr.idempotent.enabled=true`。
 
 ## 用法
 

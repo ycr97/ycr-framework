@@ -1,5 +1,7 @@
 package com.ycr.framework.data.model;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,14 +18,18 @@ import java.time.LocalDateTime;
 public abstract class BaseDO implements Serializable {
 
     /** 创建时间 */
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /** 修改时间 */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /** 创建人ID */
+    @TableField(fill = FieldFill.INSERT)
     private Long createUser;
 
     /** 修改人ID */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
 }

@@ -14,18 +14,19 @@ import java.io.IOException;
 /**
  * 链路追踪过滤器
  *
- * <p>请求入口：优先取上游请求头中的 TraceId，缺失则自动生成，写入 MDC 并回写响应头供下游/前端串联；
- * 请求出口（finally）清理 MDC，避免线程池复用导致 traceId 残留。</p>
+ * <p>请求入口：优先取上游请求头中的 TraceId 和 RequestId，缺失则自动生成，写入 MDC 并回写响应头；
+ * 请求出口（finally）清理 MDC，避免线程池复用导致标识残留。</p>
  *
  * @author ycr
  */
 public class TraceFilter implements Filter {
 
-    /** TraceId 透传头名称 */
-    private final String headerName;
+    private final String traceHeaderName;
+    private final String requestHeaderName;
 
-    public TraceFilter(String headerName) {
-        this.headerName = headerName;
+    public TraceFilter(String traceHeaderName, String requestHeaderName) {
+        this.traceHeaderName = traceHeaderName;
+        this.requestHeaderName = requestHeaderName;
     }
 
     @Override
@@ -34,17 +35,23 @@ public class TraceFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        try {
-            // 优先复用上游传递的 TraceId，缺失则生成新的
-            String traceId = request.getHeader(headerName);
-            if (traceId == null || traceId.isBlank()) {
-                traceId = TraceUtils.generateTraceId();
-            }
-            TraceUtils.setTraceId(traceId);
-            response.setHeader(headerName, traceId);
+        String traceId = request.getHeader(traceHeaderName);
+        if (traceId == null || traceId.isBlank()) {
+            traceId = TraceUtils.generateTraceId();
+        }
+        String requestId = request.getHeader(requestHeaderName);
+        if (requestId == null || requestId.isBlank()) {
+            requestId = TraceUtils.generateTraceId();
+        }
+        TraceUtils.setTraceId(traceId);
+        TraceUtils.setRequestId(requestId);
+        response.setHeader(traceHeaderName, traceId);
+        response.setHeader(requestHeaderName, requestId);
 
+        try {
             chain.doFilter(request, response);
         } finally {
+            TraceUtils.removeRequestId();
             TraceUtils.removeTraceId();
         }
     }

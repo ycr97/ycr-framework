@@ -1,16 +1,28 @@
 package com.ycr.framework.feign.interceptor;
 
+import com.ycr.framework.context.autoconfigure.ContextProperties;
 import com.ycr.framework.context.constant.ContextHeaderConstants;
+import com.ycr.framework.context.enums.SecurityMode;
+import com.ycr.framework.context.enums.UserContextSource;
 import com.ycr.framework.context.holder.AppContextHolder;
 import com.ycr.framework.context.holder.TenantContextHolder;
 import com.ycr.framework.context.holder.UserContextHolder;
 import com.ycr.framework.context.model.AppContext;
 import com.ycr.framework.context.model.TenantContext;
 import com.ycr.framework.context.model.UserContext;
+import com.ycr.framework.context.resolver.SignedHeaderUserContextResolver;
+import com.ycr.framework.context.resolver.UserContextResolveRequest;
+import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.trace.util.TraceUtils;
+import feign.Request;
 import feign.RequestTemplate;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Collection;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +33,19 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ContextPassInterceptorTest {
 
-    private final ContextPassInterceptor interceptor = new ContextPassInterceptor();
+    private static final String SECRET = "feign-context-secret";
+
+    private ContextProperties contextProperties;
+
+    private ContextPassInterceptor interceptor;
+
+    @BeforeEach
+    void setUp() {
+        contextProperties = new ContextProperties();
+        contextProperties.setSecurityMode(SecurityMode.GATEWAY_TRUST);
+        contextProperties.getHeaderSign().setSecret(SECRET);
+        interceptor = new ContextPassInterceptor(contextProperties, new ContextHeaderSigner());
+    }
 
     @AfterEach
     void tearDown() {
@@ -36,8 +60,13 @@ class ContextPassInterceptorTest {
         UserContext user = new UserContext();
         user.setUserId(1001L);
         user.setUsername("zhangsan");
-        user.setRoles("admin");
+        user.setNickname("张三");
+        user.setRoles(Set.of("admin"));
+        user.setPermissions(Set.of("order:create"));
         user.setDeptId(9L);
+        user.setTenantId(100L);
+        user.setClientId("web");
+        user.setSource(UserContextSource.TOKEN.name());
         UserContextHolder.set(user);
 
         TenantContext tenant = new TenantContext();
@@ -51,17 +80,41 @@ class ContextPassInterceptorTest {
 
         TraceUtils.setTraceId("trace-xyz");
 
-        RequestTemplate template = new RequestTemplate();
+        RequestTemplate template = new RequestTemplate()
+                .method(Request.HttpMethod.GET)
+                .uri("/api/orders");
         interceptor.apply(template);
 
         assertTrue(template.headers().get(ContextHeaderConstants.HEADER_USER_ID).contains("1001"));
         assertTrue(template.headers().get(ContextHeaderConstants.HEADER_USERNAME).contains("zhangsan"));
+        assertTrue(template.headers().get(ContextHeaderConstants.HEADER_NICKNAME).contains("张三"));
         assertTrue(template.headers().get(ContextHeaderConstants.HEADER_ROLES).contains("admin"));
+        assertTrue(template.headers().get(ContextHeaderConstants.HEADER_PERMISSIONS).contains("order:create"));
         assertTrue(template.headers().get(ContextHeaderConstants.HEADER_DEPT_ID).contains("9"));
         assertTrue(template.headers().get(ContextHeaderConstants.HEADER_TENANT_ID).contains("100"));
         assertTrue(template.headers().get(ContextHeaderConstants.HEADER_TENANT_CODE).contains("tenant_a"));
         assertTrue(template.headers().get(ContextHeaderConstants.HEADER_APP_ID).contains("app-1"));
+        assertTrue(template.headers().get(ContextHeaderConstants.HEADER_CLIENT_ID).contains("web"));
+        assertTrue(template.headers().get(ContextHeaderConstants.HEADER_USER_SOURCE).contains(UserContextSource.TOKEN.name()));
         assertTrue(template.headers().get(TraceUtils.HEADER_TRACE_ID).contains("trace-xyz"));
+        assertTrue(template.headers().containsKey(ContextHeaderConstants.HEADER_CONTEXT_TIMESTAMP));
+        assertTrue(template.headers().containsKey(ContextHeaderConstants.HEADER_CONTEXT_NONCE));
+        assertTrue(template.headers().containsKey(ContextHeaderConstants.HEADER_CONTEXT_SIGNATURE));
+
+        MockHttpServletRequest request = toRequest(template, "GET", "/api/orders");
+        SignedHeaderUserContextResolver resolver = new SignedHeaderUserContextResolver(
+                contextProperties,
+                new ContextHeaderSigner(),
+                (nonce, ttl) -> false);
+        UserContext resolved = resolver.resolve(new UserContextResolveRequest(
+                request,
+                SecurityMode.GATEWAY_TRUST,
+                "trace-xyz"));
+
+        assertNotNull(resolved);
+        assertEquals(1001L, resolved.getUserId());
+        assertEquals(Set.of("admin"), resolved.getRoles());
+        assertEquals(Set.of("order:create"), resolved.getPermissions());
     }
 
     @Test
@@ -87,5 +140,17 @@ class ContextPassInterceptorTest {
         interceptor.apply(template);
 
         assertFalse(template.headers().containsKey(ContextHeaderConstants.HEADER_USER_ID));
+    }
+
+    private MockHttpServletRequest toRequest(RequestTemplate template, String method, String path) {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setMethod(method);
+        request.setRequestURI(path);
+        template.headers().forEach((name, values) -> addHeaders(request, name, values));
+        return request;
+    }
+
+    private void addHeaders(MockHttpServletRequest request, String name, Collection<String> values) {
+        values.forEach(value -> request.addHeader(name, value));
     }
 }

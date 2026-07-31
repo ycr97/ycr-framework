@@ -68,7 +68,7 @@ private String idCard;
 
 ## 二、XSS 过滤
 
-`XssFilter` 对请求参数与请求头清理，防止跨站脚本注入。Servlet Web 环境下自动注册。
+`XssFilter` 对请求参数和普通业务请求头进行清理，防止跨站脚本注入。认证、内容类型、签名和链路追踪等协议敏感请求头保持原值。
 
 ### 配置
 
@@ -76,7 +76,7 @@ private String idCard;
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.protect.xss.enabled` | `true` | 是否启用 |
+| `ycr.protect.xss.enabled` | `false` | 是否启用，须显式开启 |
 | `ycr.protect.xss.mode` | `ESCAPE` | 处理模式：`ESCAPE`（转义，无损，推荐）或 `CLEAN`（去标签，有损） |
 | `ycr.protect.xss.include-patterns` | `[]` | 仅过滤这些路径（Ant 风格），留空表示全部 |
 | `ycr.protect.xss.exclude-patterns` | `[]` | 放行路径（优先级高于 include） |
@@ -85,6 +85,7 @@ private String idCard;
 ycr:
   protect:
     xss:
+      enabled: true
       mode: ESCAPE
       exclude-patterns:
         - /webhook/**
@@ -96,4 +97,4 @@ ycr:
 - **`ESCAPE`（默认）**：把 `< > & " ' /` 转为 HTML 实体，**保留原始内容**，渲染时不执行脚本。推荐——无损、无误伤。
 - **`CLEAN`**：逐层移除脚本/样式块、事件处理器（`onclick=` 等）、危险协议（`javascript:` 等）与所有标签，**有损**。
 
-> XSS 过滤覆盖请求参数与请求头，作为输入侧的纵深防御；输出渲染时仍应做转义，二者互补而非替代。
+> XSS 过滤覆盖请求参数与普通业务请求头，作为输入侧的纵深防御；输出渲染时仍应做转义，二者互补而非替代。

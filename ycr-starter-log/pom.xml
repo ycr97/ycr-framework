@@ -21,6 +21,11 @@
             <artifactId>ycr-starter-context</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>com.ycr.framework</groupId>
+            <artifactId>ycr-starter-trace</artifactId>
+            <version>${revision}</version>
+        </dependency>
         <!-- AspectJ 切面 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -35,6 +40,11 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
+        </dependency>
+        <!-- UA 解析（UserAgentUtil） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -64,6 +74,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.5</version>
+                <configuration>
+                    <argLine>-javaagent:"${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${byte-buddy.version}/byte-buddy-agent-${byte-buddy.version}.jar"</argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>

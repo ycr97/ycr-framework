@@ -16,8 +16,8 @@ import java.util.List;
 @ConfigurationProperties(prefix = "ycr.protect.xss")
 public class XssProperties {
 
-    /** 是否启用 XSS 过滤，默认启用 */
-    private boolean enabled = true;
+    /** 是否启用 XSS 过滤，默认关闭 */
+    private boolean enabled = false;
 
     /** 处理模式，默认 {@link XssMode#ESCAPE}（无损转义） */
     private XssMode mode = XssMode.ESCAPE;

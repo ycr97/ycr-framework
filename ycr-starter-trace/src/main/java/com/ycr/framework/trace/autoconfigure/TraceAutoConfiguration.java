@@ -1,6 +1,7 @@
 package com.ycr.framework.trace.autoconfigure;
 
 import com.ycr.framework.trace.filter.TraceFilter;
+import com.ycr.framework.trace.filter.SlowRequestFilter;
 import com.ycr.framework.trace.generator.TraceIdGenerator;
 import com.ycr.framework.trace.generator.UuidTraceIdGenerator;
 import com.ycr.framework.trace.util.TraceUtils;
@@ -43,10 +44,29 @@ public class TraceAutoConfiguration {
                                                                           TraceIdGenerator traceIdGenerator) {
         TraceUtils.setGenerator(traceIdGenerator);
         FilterRegistrationBean<TraceFilter> registration =
-                new FilterRegistrationBean<>(new TraceFilter(properties.getHeaderName()));
+                new FilterRegistrationBean<>(
+                        new TraceFilter(properties.getHeaderName(), properties.getRequestHeaderName()));
         registration.addUrlPatterns("/*");
         registration.setName("ycrTraceFilter");
         registration.setOrder(properties.getFilterOrder());
+        return registration;
+    }
+
+    /**
+     * 注册慢请求日志过滤器。
+     */
+    @Bean
+    @ConditionalOnProperty(
+            prefix = "ycr.trace.slow-request",
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true)
+    public FilterRegistrationBean<SlowRequestFilter> ycrSlowRequestFilterRegistration(TraceProperties properties) {
+        FilterRegistrationBean<SlowRequestFilter> registration = new FilterRegistrationBean<>(
+                new SlowRequestFilter(properties.getSlowRequest().getThresholdMs()));
+        registration.addUrlPatterns("/*");
+        registration.setName("ycrSlowRequestFilter");
+        registration.setOrder(properties.getSlowRequest().getFilterOrder());
         return registration;
     }
 }

@@ -20,8 +20,10 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.data.permission.enabled` | `true` | 是否启用数据权限（拦截器 + 注解切面）。默认开启取安全侧；`false` 整体关闭 |
+| `ycr.data.permission.enabled` | `false` | 是否启用数据权限（拦截器 + 注解切面），须显式开启 |
 | `ycr.data.permission.log-applied-conditions` | `false` | 是否输出每张表实际追加的权限条件（含 traceId）的 debug 日志，排障用 |
+
+> 引入 starter 不会修改 SQL。生产应用完成规则配置和验证后，再显式设置为 `true`。
 
 ## 工作原理
 
@@ -145,6 +147,8 @@ public boolean appliesTo(String mappedStatementId) {
 ```
 
 ## 注解控制
+
+显式开启后，数据权限对匹配规则的查询生效，可用注解局部调整：
 
 | 注解 | 作用 | 目标 |
 | --- | --- | --- |

@@ -29,7 +29,7 @@ import java.net.URI;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(StorageProperties.class)
-@ConditionalOnProperty(prefix = "ycr.storage", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "ycr.storage", name = "enabled", havingValue = "true")
 public class StorageAutoConfiguration {
 
     @Bean
