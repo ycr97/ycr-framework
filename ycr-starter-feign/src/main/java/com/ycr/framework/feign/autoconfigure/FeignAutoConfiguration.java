@@ -7,6 +7,7 @@ import com.ycr.framework.feign.decoder.FeignErrorDecoder;
 import com.ycr.framework.feign.interceptor.ContextPassInterceptor;
 import com.ycr.framework.feign.interceptor.LocalePassInterceptor;
 import com.ycr.framework.feign.interceptor.TokenPassInterceptor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -32,8 +33,14 @@ public class FeignAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = "ycr.feign", name = "context-pass-enabled", havingValue = "true", matchIfMissing = true)
-    public ContextPassInterceptor contextPassInterceptor(ContextProperties contextProperties,
-                                                         ContextHeaderSigner contextHeaderSigner) {
+    public ContextPassInterceptor contextPassInterceptor(ObjectProvider<ContextProperties> contextPropertiesProvider,
+                                                         ObjectProvider<ContextHeaderSigner> contextHeaderSignerProvider) {
+        ContextProperties contextProperties = contextPropertiesProvider.getIfAvailable();
+        if (contextProperties == null) {
+            return new ContextPassInterceptor();
+        }
+        ContextHeaderSigner contextHeaderSigner =
+                contextHeaderSignerProvider.getIfAvailable(ContextHeaderSigner::new);
         return new ContextPassInterceptor(contextProperties, contextHeaderSigner);
     }
 
