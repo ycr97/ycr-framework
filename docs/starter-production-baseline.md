@@ -22,6 +22,10 @@
 scripts/check-autoconfiguration-tests.sh
 ```
 
+该门禁同时校验所有自动配置均有测试、显式开启能力不存在 `matchIfMissing`，并实际执行全部
+`*AutoConfigurationTest`。副作用能力契约维护在
+`scripts/autoconfiguration-side-effect-contracts.tsv`。
+
 ## 迁移
 
 升级后需显式配置需要的能力：
