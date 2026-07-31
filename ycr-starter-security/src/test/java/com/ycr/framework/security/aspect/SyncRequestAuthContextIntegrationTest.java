@@ -12,7 +12,6 @@ import com.ycr.framework.context.resolver.UserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolverChain;
 import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.context.sign.ContextHeaderSnapshot;
-import com.ycr.framework.context.sign.NoopContextReplayGuard;
 import com.ycr.framework.context.filter.ContextFilter;
 import com.ycr.framework.feign.interceptor.ContextPassInterceptor;
 import com.ycr.framework.security.annotation.RequirePermission;
@@ -108,7 +107,7 @@ class SyncRequestAuthContextIntegrationTest {
 
     private UserContextResolverChain resolverChain(ContextProperties properties) {
         List<UserContextResolver> resolvers = List.of(
-                new SignedHeaderUserContextResolver(properties, new ContextHeaderSigner(), new NoopContextReplayGuard()),
+                new SignedHeaderUserContextResolver(properties, new ContextHeaderSigner(), (nonce, ttl) -> false),
                 new TokenUserContextResolver());
         return new UserContextResolverChain(resolvers);
     }
@@ -139,8 +138,10 @@ class SyncRequestAuthContextIntegrationTest {
         snapshot.setUserId("1001");
         snapshot.setUsername("alice");
         snapshot.setTenantId("10");
+        snapshot.setTenantCode("tenant-a");
         snapshot.setRoles("admin");
         snapshot.setPermissions("order:create");
+        snapshot.setAppId("app-1");
         snapshot.setTraceId("trace-integration");
         request.addHeader(ContextHeaderConstants.HEADER_CONTEXT_SIGNATURE,
                 new ContextHeaderSigner().sign(snapshot, SECRET));

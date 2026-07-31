@@ -27,11 +27,14 @@ class ContextHeaderSignerTest {
         snapshot.setNonce("nonce-1");
         snapshot.setUserId("100");
         snapshot.setUsername("alice");
+        snapshot.setNickname("Alice");
         snapshot.setTenantId("1");
+        snapshot.setTenantCode("tenant-a");
         snapshot.setDeptId("9");
         snapshot.setRoles("admin,user");
         snapshot.setPermissions("order:create");
         snapshot.setClientId("web");
+        snapshot.setAppId("app-x");
         snapshot.setTraceId("trace-1");
         return snapshot;
     }
@@ -55,10 +58,29 @@ class ContextHeaderSignerTest {
     }
 
     @Test
+    void 附加上下文字段变化应导致验签失败() {
+        ContextHeaderSnapshot snapshot = snapshot();
+        String signature = signer.sign(snapshot, "secret");
+
+        snapshot.setTenantCode("tenant-b");
+
+        assertFalse(signer.verify(snapshot, "secret", signature));
+    }
+
+    @Test
     void 时间戳超过ttl应过期() {
         Clock clock = Clock.fixed(Instant.ofEpochMilli(170000), ZoneOffset.UTC);
 
         assertTrue(signer.isExpired(snapshot(), Duration.ofSeconds(60), clock));
+    }
+
+    @Test
+    void 极端时间戳溢出时应视为过期() {
+        ContextHeaderSnapshot snapshot = snapshot();
+        snapshot.setTimestamp(String.valueOf(Long.MIN_VALUE));
+        Clock clock = Clock.fixed(Instant.ofEpochMilli(0), ZoneOffset.UTC);
+
+        assertTrue(signer.isExpired(snapshot, Duration.ofSeconds(60), clock));
     }
 
     @Test

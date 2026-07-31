@@ -13,7 +13,6 @@ import com.ycr.framework.context.model.UserContext;
 import com.ycr.framework.context.resolver.SignedHeaderUserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolveRequest;
 import com.ycr.framework.context.sign.ContextHeaderSigner;
-import com.ycr.framework.context.sign.NoopContextReplayGuard;
 import com.ycr.framework.trace.util.TraceUtils;
 import feign.Request;
 import feign.RequestTemplate;
@@ -106,7 +105,7 @@ class ContextPassInterceptorTest {
         SignedHeaderUserContextResolver resolver = new SignedHeaderUserContextResolver(
                 contextProperties,
                 new ContextHeaderSigner(),
-                new NoopContextReplayGuard());
+                (nonce, ttl) -> false);
         UserContext resolved = resolver.resolve(new UserContextResolveRequest(
                 request,
                 SecurityMode.GATEWAY_TRUST,

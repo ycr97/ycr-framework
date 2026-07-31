@@ -53,4 +53,4 @@ public class CaptchaController {
 
 `CaptchaResult`：`id`（校验凭据，提交时回传）、`imageBase64`（前端 `<img src>` 直接渲染）。`verify` 成功后答案即失效（一次性）。
 
-> 验证码接口通常需加入 `ycr.security.exclude-paths` 放行（见 [security 文档](security.md)）。
+> 验证码接口通常需要匿名访问，请在网关、Spring Security 或业务认证过滤器中配置放行。

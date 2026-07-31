@@ -20,6 +20,7 @@
 | `ycr.context.header-sign.secret` | 无 | HmacSHA256 签名密钥，启用签名时必填 |
 | `ycr.context.header-sign.ttl` | `60s` | 签名时间戳有效期 |
 | `ycr.context.header-sign.reject-invalid` | `true` | 签名缺失、过期、错误时是否直接拒绝 |
+| `ycr.context.header-sign.replay-key-prefix` | `ycr:context:replay:` | Redis nonce 键前缀 |
 | `ycr.context.trust-headers` | `false` | 旧配置，已废弃；开启时兼容映射为 `gateway-trust` |
 
 推荐配置：
@@ -36,7 +37,7 @@ ycr:
 
 安全模式：
 
-- `gateway-trust`：只接受带签名且未过期的上下文头；裸 `X-User-*` 不可信。
+- `gateway-trust`：只接受带签名、未过期且 nonce 未使用的上下文头；裸 `X-User-*` 不可信。
 - `token-verify`：忽略身份 Header，只通过 token resolver 还原上下文，适合单体和边界服务。
 - `mixed`：优先签名上下文头，缺失时 fallback token；二者身份冲突时拒绝。
 
@@ -65,7 +66,9 @@ UserContextHolder.clear();
 | `X-Trace-Id` | 链路 ID |
 | `X-Context-Timestamp` / `X-Context-Nonce` / `X-Context-Signature` | 签名字段 |
 
-参与签名的字段顺序固定：`method`、`path`、`timestamp`、`nonce`、`userId`、`username`、`tenantId`、`deptId`、`roles`、`permissions`、`clientId`、`traceId`。`roles/permissions` 使用逗号分隔字符串。
+参与签名的字段顺序固定：`method`、`path`、`timestamp`、`nonce`、`userId`、`username`、`nickname`、`tenantId`、`tenantCode`、`deptId`、`roles`、`permissions`、`clientId`、`appId`、`traceId`。`roles/permissions` 使用逗号分隔字符串。
+
+存在 `RedissonClient` 时自动使用 Redis `SET NX + TTL` 原子防重放。未提供 Redis、Redis 异常或 TTL 非法时，签名身份请求 fail-closed；`token-verify` 模式不依赖 Redis。
 
 ## 扩展点
 

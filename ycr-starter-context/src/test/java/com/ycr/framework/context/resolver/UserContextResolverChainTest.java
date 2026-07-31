@@ -41,7 +41,33 @@ class UserContextResolverChainTest {
                 new MockHttpServletRequest(), SecurityMode.MIXED, "trace")));
     }
 
+    @Test
+    void mixed模式无可比对身份时应failClosed() {
+        UserContext signed = context(UserContextSource.GATEWAY_HEADER, null, "alice", 1L);
+        UserContext token = context(UserContextSource.TOKEN, 1L, null, 1L);
+        UserContextResolverChain chain = new UserContextResolverChain(List.of(
+                resolver(signed), resolver(token)));
+
+        assertThrows(ContextAuthException.class, () -> chain.resolve(new UserContextResolveRequest(
+                new MockHttpServletRequest(), SecurityMode.MIXED, "trace")));
+    }
+
+    @Test
+    void mixed模式同一用户跨租户时应拒绝() {
+        UserContext signed = context(UserContextSource.GATEWAY_HEADER, 1L, "alice", 1L);
+        UserContext token = context(UserContextSource.TOKEN, 1L, "alice", 2L);
+        UserContextResolverChain chain = new UserContextResolverChain(List.of(
+                resolver(signed), resolver(token)));
+
+        assertThrows(ContextAuthException.class, () -> chain.resolve(new UserContextResolveRequest(
+                new MockHttpServletRequest(), SecurityMode.MIXED, "trace")));
+    }
+
     private UserContextResolver resolver(UserContextSource source, Long userId) {
+        return resolver(context(source, userId, null, null));
+    }
+
+    private UserContextResolver resolver(UserContext userContext) {
         return new UserContextResolver() {
             @Override
             public boolean supports(UserContextResolveRequest request) {
@@ -50,11 +76,17 @@ class UserContextResolverChainTest {
 
             @Override
             public UserContext resolve(UserContextResolveRequest request) {
-                UserContext userContext = new UserContext();
-                userContext.setUserId(userId);
-                userContext.setSource(source.name());
                 return userContext;
             }
         };
+    }
+
+    private UserContext context(UserContextSource source, Long userId, String username, Long tenantId) {
+        UserContext userContext = new UserContext();
+        userContext.setUserId(userId);
+        userContext.setUsername(username);
+        userContext.setTenantId(tenantId);
+        userContext.setSource(source.name());
+        return userContext;
     }
 }

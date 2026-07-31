@@ -22,7 +22,11 @@ public class ContextHeaderSnapshot {
 
     private String username;
 
+    private String nickname;
+
     private String tenantId;
+
+    private String tenantCode;
 
     private String deptId;
 
@@ -31,6 +35,8 @@ public class ContextHeaderSnapshot {
     private String permissions;
 
     private String clientId;
+
+    private String appId;
 
     private String traceId;
 }

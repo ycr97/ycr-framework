@@ -15,7 +15,6 @@ import com.ycr.framework.context.resolver.UserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolverChain;
 import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.context.sign.ContextHeaderSnapshot;
-import com.ycr.framework.context.sign.NoopContextReplayGuard;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +25,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,7 +57,7 @@ class ContextFilterTest {
 
     private ContextFilter filter(ContextProperties properties) {
         List<UserContextResolver> resolvers = List.of(
-                new SignedHeaderUserContextResolver(properties, new ContextHeaderSigner(), new NoopContextReplayGuard()),
+                new SignedHeaderUserContextResolver(properties, new ContextHeaderSigner(), (nonce, ttl) -> false),
                 new TokenUserContextResolver());
         return new ContextFilter(properties, new UserContextResolverChain(resolvers));
     }
@@ -90,11 +90,14 @@ class ContextFilterTest {
         snapshot.setNonce(nonce);
         snapshot.setUserId("100");
         snapshot.setUsername("alice");
+        snapshot.setNickname("Alice");
         snapshot.setTenantId("1");
+        snapshot.setTenantCode("tenant-a");
         snapshot.setDeptId("9");
         snapshot.setRoles("admin,user");
         snapshot.setPermissions("order:create,order:update");
         snapshot.setClientId("web");
+        snapshot.setAppId("app-x");
         snapshot.setTraceId("trace-1");
         request.addHeader(ContextHeaderConstants.HEADER_CONTEXT_SIGNATURE,
                 new ContextHeaderSigner().sign(snapshot, SECRET));
@@ -153,6 +156,39 @@ class ContextFilterTest {
         assertThrows(ContextAuthException.class,
                 () -> filter.doFilter(request, new MockHttpServletResponse(), (req, resp) -> {
                 }));
+    }
+
+    @Test
+    void 已签名附加上下文被篡改时应拒绝请求() {
+        ContextFilter filter = filter(gatewayTrustProperties());
+        MockHttpServletRequest request = signedRequest();
+        request.removeHeader(ContextHeaderConstants.HEADER_APP_ID);
+        request.addHeader(ContextHeaderConstants.HEADER_APP_ID, "app-evil");
+
+        assertThrows(ContextAuthException.class,
+                () -> filter.doFilter(request, new MockHttpServletResponse(), (req, resp) -> {
+                }));
+    }
+
+    @Test
+    void 验签失败时不得占用nonce() {
+        ContextProperties properties = gatewayTrustProperties();
+        AtomicInteger replayChecks = new AtomicInteger();
+        SignedHeaderUserContextResolver resolver = new SignedHeaderUserContextResolver(
+                properties,
+                new ContextHeaderSigner(),
+                (nonce, ttl) -> {
+                    replayChecks.incrementAndGet();
+                    return false;
+                });
+        MockHttpServletRequest request = signedRequest();
+        request.removeHeader(ContextHeaderConstants.HEADER_CONTEXT_SIGNATURE);
+        request.addHeader(ContextHeaderConstants.HEADER_CONTEXT_SIGNATURE, "invalid");
+
+        assertThrows(ContextAuthException.class,
+                () -> resolver.resolve(new com.ycr.framework.context.resolver.UserContextResolveRequest(
+                        request, SecurityMode.GATEWAY_TRUST, "trace-1")));
+        assertEquals(0, replayChecks.get());
     }
 
     @Test

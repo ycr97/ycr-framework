@@ -107,11 +107,10 @@ public final class SecurityUtils {
     }
 
     private static PermissionChecker checker() {
-        try {
-            return SpringContextHolder.getBean(PermissionChecker.class);
-        } catch (RuntimeException e) {
+        if (SpringContextHolder.getContext() == null) {
             return new ContextPermissionChecker();
         }
+        return SpringContextHolder.getBean(PermissionChecker.class);
     }
 
     private static boolean allMatch(Collection<String> values, java.util.function.Predicate<String> predicate) {

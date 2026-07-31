@@ -8,7 +8,7 @@ import com.ycr.framework.context.resolver.UserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolverChain;
 import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.context.sign.ContextReplayGuard;
-import com.ycr.framework.context.sign.NoopContextReplayGuard;
+import com.ycr.framework.context.sign.FailClosedContextReplayGuard;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -39,7 +39,7 @@ public class ContextAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ContextReplayGuard contextReplayGuard() {
-        return new NoopContextReplayGuard();
+        return new FailClosedContextReplayGuard();
     }
 
     @Bean

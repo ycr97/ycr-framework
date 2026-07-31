@@ -67,5 +67,8 @@ public class ContextProperties {
 
         /** 签名无效时是否直接拒绝请求 */
         private boolean rejectInvalid = true;
+
+        /** Redis nonce 键前缀 */
+        private String replayKeyPrefix = "ycr:context:replay:";
     }
 }

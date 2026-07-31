@@ -4,7 +4,6 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,17 +17,6 @@ public class SecurityProperties {
 
     /** 是否启用安全拦截，默认关闭 */
     private boolean enabled = false;
-
-    /** 放行路径列表（不需要认证即可访问） */
-    private List<String> excludePaths = new ArrayList<>(Arrays.asList(
-            "/doc.html",
-            "/swagger-resources/**",
-            "/webjars/**",
-            "/v3/api-docs/**",
-            "/favicon.ico",
-            "/error",
-            "/actuator/**"
-    ));
 
     /** 权限校验配置 */
     private Permission permission = new Permission();
