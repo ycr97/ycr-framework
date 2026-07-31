@@ -1,0 +1,12 @@
+# AutoConfiguration|property|default-off test|explicit-enable test
+com.ycr.framework.data.permission.autoconfigure.DataPermissionAutoConfiguration|ycr.data.permission.enabled|默认不应装配SQL拦截器与切面|显式开启时应装配新版权限链路
+com.ycr.framework.encrypt.autoconfigure.EncryptAutoConfiguration|ycr.encrypt.enabled|默认不应创建EncryptHandler与Lifecycle|配置AesKey时应创建EncryptHandler并初始化Holder
+com.ycr.framework.idempotent.autoconfigure.IdempotentAutoConfiguration|ycr.idempotent.enabled|默认不应装配切面|显式开启且存在Redisson时应装配切面
+com.ycr.framework.protect.xss.autoconfigure.XssAutoConfiguration|ycr.protect.xss.enabled|默认不应注册XssFilter|显式开启时应注册XssFilter
+com.ycr.framework.ratelimiter.autoconfigure.RateLimiterAutoConfiguration|ycr.ratelimiter.enabled|默认不应装配切面|显式开启且存在Redisson时应装配切面
+com.ycr.framework.mq.rocketmq.RocketMqAutoConfiguration|ycr.mq.rocketmq.enabled|默认关闭时不装配任何mq组件|显式开启时应装配mq组件
+com.ycr.framework.security.autoconfigure.SecurityAutoConfiguration|ycr.security.enabled|默认只应注册权限校验器|显式开启时应注册鉴权切面
+com.ycr.framework.storage.autoconfigure.StorageAutoConfiguration|ycr.storage.enabled|默认不应装配本地实现|显式开启时应装配本地实现
+com.ycr.framework.tenant.autoconfigure.TenantAutoConfiguration|ycr.tenant.enabled|默认关闭时不装配|开启时应装配处理器与租户拦截器
+com.ycr.framework.web.autoconfigure.CorsAutoConfiguration|ycr.web.cors.enabled|默认关闭且可显式开启|默认关闭且可显式开启
+com.ycr.framework.web.autoconfigure.WebAutoConfiguration|ycr.web.response.enabled|Web环境默认只应注册异常处理器|显式开启响应包装时应注册响应包装器

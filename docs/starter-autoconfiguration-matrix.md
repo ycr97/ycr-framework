@@ -11,6 +11,7 @@
 | cache-jetcache | JetCacheAnnoAutoConfiguration | 默认开启 | JetCache 注解基础设施 | 有 | 有 | 有 |
 | captcha | CaptchaAutoConfiguration | 默认开启 | CaptchaService | 有 | 有 | 有 |
 | context | ContextAutoConfiguration | 默认开启 | UserContextResolverChain | 有 | 不适用 | 有 |
+| context-redis | ContextRedisAutoConfiguration | 有 RedissonClient 时开启 | ContextReplayGuard | 有 | 无依赖时 fail-closed | 有 |
 | context-servlet | ContextServletAutoConfiguration | Servlet 环境开启 | ContextFilter | 有 | 非 Web 不装配 | 有 |
 | core | CoreAutoConfiguration | 默认开启 | SpringContextHolder | 有 | 不适用 | 不适用 |
 | crud | CrudAutoConfiguration | Servlet 环境开启 | CRUD HandlerMapping | 有 | 非 Web 不装配 | 有 |
