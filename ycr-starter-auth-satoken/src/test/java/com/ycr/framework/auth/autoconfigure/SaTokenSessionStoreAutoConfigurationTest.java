@@ -2,6 +2,7 @@ package com.ycr.framework.auth.autoconfigure;
 
 import cn.dev33.satoken.dao.SaTokenDao;
 import cn.dev33.satoken.dao.SaTokenDaoDefaultImpl;
+import cn.dev33.satoken.stp.StpLogic;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -38,5 +39,44 @@ class SaTokenSessionStoreAutoConfigurationTest {
         runner.withPropertyValues("ycr.auth.satoken.enabled=true")
                 .withBean(SaTokenDao.class, () -> custom)
                 .run(context -> assertThat(context.getBean(SaTokenDao.class)).isSameAs(custom));
+    }
+
+    @Test
+    @DisplayName("Redis模式缺少认证域时应启动失败")
+    void redisSessionStoreShouldRequireAuthDomain() {
+        runner.withPropertyValues(
+                        "ycr.auth.satoken.enabled=true",
+                        "ycr.auth.satoken.session-store=redis")
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    assertThat(context.getStartupFailure())
+                            .hasRootCauseMessage(
+                                    "ycr.auth.satoken.auth-domain is required when session-store=redis");
+                });
+    }
+
+    @Test
+    @DisplayName("Redis模式配置认证域后应通过认证域门禁")
+    void redisSessionStoreShouldAcceptExplicitAuthDomain() {
+        runner.withPropertyValues(
+                        "ycr.auth.satoken.enabled=true",
+                        "ycr.auth.satoken.session-store=redis",
+                        "ycr.auth.satoken.auth-domain=order-platform")
+                .run(context -> assertThat(context).hasNotFailed());
+    }
+
+    @Test
+    @DisplayName("自定义登录类型必须与Redis认证域一致")
+    void customLoginTypeShouldMatchRedisAuthDomain() {
+        runner.withPropertyValues(
+                        "ycr.auth.satoken.enabled=true",
+                        "ycr.auth.satoken.session-store=redis",
+                        "ycr.auth.satoken.auth-domain=order-platform")
+                .withBean(StpLogic.class, () -> new StpLogic("another-domain"))
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                            "custom StpLogic loginType must match ycr.auth.satoken.auth-domain");
+                });
     }
 }

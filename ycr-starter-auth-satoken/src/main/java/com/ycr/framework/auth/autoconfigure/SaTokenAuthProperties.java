@@ -27,6 +27,9 @@ public class SaTokenAuthProperties {
     /** 登录会话存储。 */
     private SessionStore sessionStore = SessionStore.MEMORY;
 
+    /** 认证域；Redis 模式必填，相同值表示显式共享登录态。 */
+    private String authDomain;
+
     public enum EndpointPolicy {
         /** 所有端点默认要求登录，白名单除外。 */
         AUTHENTICATED,

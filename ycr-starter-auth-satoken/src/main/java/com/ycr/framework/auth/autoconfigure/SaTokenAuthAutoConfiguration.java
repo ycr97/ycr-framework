@@ -1,6 +1,7 @@
 package com.ycr.framework.auth.autoconfigure;
 
 import cn.dev33.satoken.config.SaTokenConfig;
+import cn.dev33.satoken.stp.StpLogic;
 import cn.dev33.satoken.stp.StpUtil;
 import com.ycr.framework.auth.handler.SaTokenExceptionHandler;
 import com.ycr.framework.auth.resolver.SaTokenUserContextResolver;
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.util.StringUtils;
 
 /**
  * Sa-Token 认证适配器核心自动配置。
@@ -24,6 +26,15 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnProperty(prefix = "ycr.auth.satoken", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(SaTokenAuthProperties.class)
 public class SaTokenAuthAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public StpLogic saTokenStpLogic(SaTokenAuthProperties properties) {
+        String authDomain = StringUtils.hasText(properties.getAuthDomain())
+                ? properties.getAuthDomain().trim()
+                : StpUtil.TYPE;
+        return new StpLogic(authDomain);
+    }
 
     @Bean
     @ConditionalOnMissingBean

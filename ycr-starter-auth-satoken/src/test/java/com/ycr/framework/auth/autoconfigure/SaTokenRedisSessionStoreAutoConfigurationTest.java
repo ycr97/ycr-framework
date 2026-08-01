@@ -17,7 +17,8 @@ class SaTokenRedisSessionStoreAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(SaTokenRedisSessionStoreAutoConfiguration.class))
             .withPropertyValues(
                     "ycr.auth.satoken.enabled=true",
-                    "ycr.auth.satoken.session-store=redis");
+                    "ycr.auth.satoken.session-store=redis",
+                    "ycr.auth.satoken.auth-domain=test-domain");
 
     @Test
     @DisplayName("Redis模式应复用现有RedissonClient")
