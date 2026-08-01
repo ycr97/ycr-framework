@@ -1,6 +1,7 @@
 package com.ycr.framework.auth.autoconfigure;
 
 import cn.dev33.satoken.interceptor.SaInterceptor;
+import cn.dev33.satoken.spring.SpringMVCUtil;
 import cn.dev33.satoken.stp.StpUtil;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -32,7 +34,11 @@ public class SaTokenWebAutoConfiguration {
             havingValue = "authenticated",
             matchIfMissing = true)
     public SaInterceptor saTokenLoginInterceptor() {
-        return new SaInterceptor(handler -> StpUtil.checkLogin()).isAnnotation(false);
+        return new SaInterceptor(handler -> {
+            if (!CorsUtils.isPreFlightRequest(SpringMVCUtil.getRequest())) {
+                StpUtil.checkLogin();
+            }
+        }).isAnnotation(false);
     }
 
     @Bean

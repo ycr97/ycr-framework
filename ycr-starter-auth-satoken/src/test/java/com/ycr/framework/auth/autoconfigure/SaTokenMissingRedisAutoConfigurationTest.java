@@ -37,7 +37,8 @@ class SaTokenMissingRedisAutoConfigurationTest {
                 .withConfiguration(AutoConfigurations.of(SaTokenMissingRedisAutoConfiguration.class))
                 .withPropertyValues(
                         "ycr.auth.satoken.enabled=true",
-                        "ycr.auth.satoken.session-store=redis")
+                        "ycr.auth.satoken.session-store=redis",
+                        "ycr.auth.satoken.auth-domain=test-domain")
                 .run(context -> {
                     assertThat(context).hasFailed();
                     assertThat(context.getStartupFailure())

@@ -3,6 +3,8 @@ package com.ycr.framework.auth.autoconfigure;
 import cn.dev33.satoken.config.SaTokenConfig;
 import cn.dev33.satoken.dao.SaTokenDao;
 import cn.dev33.satoken.dao.SaTokenDaoDefaultImpl;
+import cn.dev33.satoken.stp.StpLogic;
+import cn.dev33.satoken.stp.StpUtil;
 import com.ycr.framework.auth.handler.SaTokenExceptionHandler;
 import com.ycr.framework.auth.resolver.SaTokenUserContextResolver;
 import com.ycr.framework.auth.session.SaTokenSessionManager;
@@ -47,8 +49,24 @@ class SaTokenAuthAutoConfigurationTest {
                     assertThat(context).hasSingleBean(SaTokenUserContextResolver.class);
                     assertThat(context).hasSingleBean(SaTokenExceptionHandler.class);
                     assertThat(context).hasSingleBean(AuthorizeAspect.class);
+                    assertThat(context).hasSingleBean(StpLogic.class);
+                    assertThat(context.getBean(StpLogic.class).getLoginType()).isEqualTo(StpUtil.TYPE);
                     assertThat(context).hasSingleBean(SaTokenDao.class);
                     assertThat(context.getBean(SaTokenDao.class)).isInstanceOf(SaTokenDaoDefaultImpl.class);
+                });
+    }
+
+    @Test
+    @DisplayName("配置认证域时应绑定为Sa-Token登录类型")
+    void configuredAuthDomainShouldBecomeSaTokenLoginType() {
+        runner.withPropertyValues(
+                        "ycr.auth.satoken.enabled=true",
+                        "ycr.auth.satoken.auth-domain=order-platform")
+                .run(context -> {
+                    StpLogic stpLogic = context.getBean(StpLogic.class);
+                    assertThat(stpLogic.getLoginType()).isEqualTo("order-platform");
+                    assertThat(stpLogic.splicingKeyTokenValue("sample-token"))
+                            .contains(":order-platform:token:sample-token");
                 });
     }
 

@@ -36,6 +36,7 @@ Auth 默认关闭；启用后默认采用 `authenticated` 策略，除白名单�
 | `ycr.auth.satoken.endpoint-policy` | `authenticated` | `authenticated` 全局登录门禁；`annotated` 仅使用方法注解 |
 | `ycr.auth.satoken.permit-paths` | `[/error]` | `authenticated` 策略下允许匿名访问的路径模式 |
 | `ycr.auth.satoken.session-store` | `memory` | `memory` 或 `redis`，不根据类路径自动切换 |
+| `ycr.auth.satoken.auth-domain` | 空 | 认证域；Redis 模式必填，相同值表示显式共享登录态 |
 
 `annotated` 仅适用于明确希望逐个端点声明认证要求的应用：
 
@@ -95,6 +96,7 @@ ycr:
     satoken:
       enabled: true
       session-store: redis
+      auth-domain: order-platform
 
 spring:
   data:
@@ -104,7 +106,7 @@ spring:
       password: ${REDIS_PASSWORD:}
 ```
 
-`redis` 模式缺少 Redisson 依赖或 `RedissonClient` Bean 时应用启动失败；Redis 异常不会降级到本地会话。
+`auth-domain` 会绑定为 Sa-Token 的 `loginType`，用于隔离 Redis 中的 token、账号会话和 token 会话 key。共享同一 Redis 的无关应用必须使用不同值；只有明确需要共享登录态的服务才使用相同值。`redis` 模式缺少 `auth-domain`、Redisson 依赖或 `RedissonClient` Bean 时应用启动失败；Redis 异常不会降级到本地会话。
 
 真实 Redis 集成测试可在本地或 CI Redis Service 上执行：
 
@@ -174,6 +176,8 @@ public R<Void> delete(@PathVariable Long id) {
 ```
 
 Sa-Token 负责 token 读取、登录态维护和会话失效；YCR `AuthorizeAspect` 与 `PermissionChecker` 负责业务角色、权限以及 `context` / `remote` / `mixed` 校验策略。
+
+标准 CORS preflight 请求会绕过全局登录门禁，由 Spring MVC CORS 配置处理；实际业务请求仍按端点策略校验登录态。
 
 ## 异常响应
 
