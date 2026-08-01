@@ -4,12 +4,11 @@ import com.ycr.framework.context.enums.SecurityMode;
 import com.ycr.framework.context.enums.UserContextSource;
 import com.ycr.framework.context.exception.ContextAuthException;
 import com.ycr.framework.context.model.UserContext;
+import com.ycr.framework.context.security.UserContextIdentityVerifier;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 用户上下文解析链。
@@ -61,8 +60,8 @@ public class UserContextResolverChain {
                 token = firstNonNull(token, userContext);
             }
         }
-        if (signed != null && token != null && conflict(signed, token)) {
-            throw new ContextAuthException("签名上下文与 token 身份不一致");
+        if (signed != null && token != null) {
+            UserContextIdentityVerifier.verifyCompatible(signed, token);
         }
         return signed != null ? signed : token;
     }
@@ -71,20 +70,4 @@ public class UserContextResolverChain {
         return current != null ? current : candidate;
     }
 
-    private boolean conflict(UserContext signed, UserContext token) {
-        boolean sameIdentity;
-        if (signed.getUserId() != null && token.getUserId() != null) {
-            sameIdentity = Objects.equals(signed.getUserId(), token.getUserId());
-        } else if (StringUtils.hasText(signed.getUsername()) && StringUtils.hasText(token.getUsername())) {
-            sameIdentity = Objects.equals(signed.getUsername(), token.getUsername());
-        } else {
-            sameIdentity = false;
-        }
-        if (!sameIdentity) {
-            return true;
-        }
-        return signed.getTenantId() != null
-                && token.getTenantId() != null
-                && !Objects.equals(signed.getTenantId(), token.getTenantId());
-    }
 }

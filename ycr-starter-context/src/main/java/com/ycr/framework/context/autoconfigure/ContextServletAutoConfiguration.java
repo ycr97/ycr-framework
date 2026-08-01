@@ -2,6 +2,7 @@ package com.ycr.framework.context.autoconfigure;
 
 import com.ycr.framework.context.filter.ContextFilter;
 import com.ycr.framework.context.resolver.UserContextResolverChain;
+import com.ycr.framework.context.servlet.ServletContextBinder;
 import jakarta.servlet.Filter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -29,9 +30,10 @@ public class ContextServletAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(name = "contextFilterRegistration")
     public FilterRegistrationBean<ContextFilter> contextFilterRegistration(ContextProperties properties,
-                                                                           UserContextResolverChain resolverChain) {
+                                                                           UserContextResolverChain resolverChain,
+                                                                           ServletContextBinder contextBinder) {
         FilterRegistrationBean<ContextFilter> registration =
-                new FilterRegistrationBean<>(new ContextFilter(properties, resolverChain));
+                new FilterRegistrationBean<>(new ContextFilter(properties, resolverChain, contextBinder));
         registration.addUrlPatterns("/*");
         registration.setName("ycrContextFilter");
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
