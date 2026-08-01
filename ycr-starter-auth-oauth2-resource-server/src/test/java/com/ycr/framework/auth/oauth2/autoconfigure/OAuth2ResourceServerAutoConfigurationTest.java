@@ -1,5 +1,6 @@
 package com.ycr.framework.auth.oauth2.autoconfigure;
 
+import com.ycr.framework.auth.oauth2.filter.OAuth2UserContextFilter;
 import com.ycr.framework.auth.oauth2.mapper.OAuth2UserContextMapper;
 import com.ycr.framework.security.aspect.AuthorizeAspect;
 import com.ycr.framework.security.autoconfigure.SecurityAutoConfiguration;
@@ -7,6 +8,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.web.SecurityFilterChain;
 
 import java.time.Duration;
 import java.util.Map;
@@ -27,6 +31,10 @@ class OAuth2ResourceServerAutoConfigurationTest {
         runner.run(context -> {
             assertThat(context).doesNotHaveBean(OAuth2UserContextMapper.class);
             assertThat(context).doesNotHaveBean(AuthorizeAspect.class);
+            assertThat(context).doesNotHaveBean(JwtDecoder.class);
+            assertThat(context).doesNotHaveBean(OpaqueTokenIntrospector.class);
+            assertThat(context).doesNotHaveBean(OAuth2UserContextFilter.class);
+            assertThat(context).doesNotHaveBean(SecurityFilterChain.class);
         });
     }
 
@@ -81,6 +89,28 @@ class OAuth2ResourceServerAutoConfigurationTest {
                             "ycr.auth.oauth2.resource-server.jwt.allowed-algorithms must not contain "
                                     + "symmetric or none algorithms");
                 });
+
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=jwt",
+                        "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com")
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                            "ycr.auth.oauth2.resource-server.jwt.audiences must not be empty");
+                });
+
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=jwt",
+                        "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com",
+                        "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api",
+                        "ycr.auth.oauth2.resource-server.jwt.clock-skew=-1ms")
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                            "ycr.auth.oauth2.resource-server.jwt.clock-skew must not be negative");
+                });
     }
 
     @Test
@@ -95,6 +125,43 @@ class OAuth2ResourceServerAutoConfigurationTest {
                             "ycr.auth.oauth2.resource-server.opaque.introspection-uri "
                                     + "is required when mode=opaque");
                 });
+
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=opaque",
+                        "ycr.auth.oauth2.resource-server.opaque.introspection-uri=https://idp.example.com/introspect",
+                        "ycr.auth.oauth2.resource-server.opaque.client-secret=test-secret",
+                        "ycr.auth.oauth2.resource-server.opaque.audiences[0]=order-api")
+                .run(context -> assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                        "ycr.auth.oauth2.resource-server.opaque.client-id is required when mode=opaque"));
+
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=opaque",
+                        "ycr.auth.oauth2.resource-server.opaque.introspection-uri=https://idp.example.com/introspect",
+                        "ycr.auth.oauth2.resource-server.opaque.client-id=test-client",
+                        "ycr.auth.oauth2.resource-server.opaque.audiences[0]=order-api")
+                .run(context -> assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                        "ycr.auth.oauth2.resource-server.opaque.client-secret is required when mode=opaque"));
+
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=opaque",
+                        "ycr.auth.oauth2.resource-server.opaque.introspection-uri=https://idp.example.com/introspect",
+                        "ycr.auth.oauth2.resource-server.opaque.client-id=test-client",
+                        "ycr.auth.oauth2.resource-server.opaque.client-secret=test-secret")
+                .run(context -> assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                        "ycr.auth.oauth2.resource-server.opaque.audiences must not be empty"));
+
+        runner.withPropertyValues(validOpaqueProperties())
+                .withPropertyValues("ycr.auth.oauth2.resource-server.opaque.connect-timeout=0ms")
+                .run(context -> assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                        "ycr.auth.oauth2.resource-server.opaque.connect-timeout must be positive"));
+
+        runner.withPropertyValues(validOpaqueProperties())
+                .withPropertyValues("ycr.auth.oauth2.resource-server.opaque.read-timeout=-1ms")
+                .run(context -> assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                        "ycr.auth.oauth2.resource-server.opaque.read-timeout must be positive"));
     }
 
     @Test
@@ -142,5 +209,16 @@ class OAuth2ResourceServerAutoConfigurationTest {
                         "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api")
                 .withBean(OAuth2UserContextMapper.class, () -> custom)
                 .run(context -> assertThat(context.getBean(OAuth2UserContextMapper.class)).isSameAs(custom));
+    }
+
+    private String[] validOpaqueProperties() {
+        return new String[]{
+                "ycr.auth.oauth2.resource-server.enabled=true",
+                "ycr.auth.oauth2.resource-server.mode=opaque",
+                "ycr.auth.oauth2.resource-server.opaque.introspection-uri=https://idp.example.com/introspect",
+                "ycr.auth.oauth2.resource-server.opaque.client-id=test-client",
+                "ycr.auth.oauth2.resource-server.opaque.client-secret=test-secret",
+                "ycr.auth.oauth2.resource-server.opaque.audiences[0]=order-api"
+        };
     }
 }

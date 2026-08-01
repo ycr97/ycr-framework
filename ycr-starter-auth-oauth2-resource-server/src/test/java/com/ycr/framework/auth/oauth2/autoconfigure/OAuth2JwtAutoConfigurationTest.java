@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -25,6 +26,7 @@ class OAuth2JwtAutoConfigurationTest {
         runner.withPropertyValues(validJwtProperties())
                 .run(context -> {
                     assertThat(context).hasSingleBean(JwtDecoder.class);
+                    assertThat(context).doesNotHaveBean(OpaqueTokenIntrospector.class);
                     assertThat(context.getBean(JwtDecoder.class)).isInstanceOf(NimbusJwtDecoder.class);
                 });
     }

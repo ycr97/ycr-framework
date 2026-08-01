@@ -1,6 +1,7 @@
 package com.ycr.framework.auth.oauth2.autoconfigure;
 
 import com.ycr.framework.auth.oauth2.introspection.ValidatingOpaqueTokenIntrospector;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,9 +22,10 @@ public class OAuth2OpaqueAutoConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = "ycr.auth.oauth2.resource-server", name = "mode", havingValue = "opaque")
     @ConditionalOnMissingBean(OpaqueTokenIntrospector.class)
-    public OpaqueTokenIntrospector oauth2OpaqueTokenIntrospector(OAuth2ResourceServerProperties properties) {
+    public OpaqueTokenIntrospector oauth2OpaqueTokenIntrospector(OAuth2ResourceServerProperties properties,
+                                                                 ObjectProvider<RestTemplateBuilder> builders) {
         OAuth2ResourceServerProperties.Opaque opaque = properties.getOpaque();
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder()
+        RestTemplateBuilder restTemplateBuilder = builders.getIfAvailable(RestTemplateBuilder::new)
                 .basicAuthentication(opaque.getClientId(), opaque.getClientSecret())
                 .setConnectTimeout(opaque.getConnectTimeout())
                 .setReadTimeout(opaque.getReadTimeout());

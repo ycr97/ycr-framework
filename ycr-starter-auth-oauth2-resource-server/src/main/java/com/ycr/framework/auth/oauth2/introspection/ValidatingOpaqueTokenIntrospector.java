@@ -47,7 +47,14 @@ public final class ValidatingOpaqueTokenIntrospector implements OpaqueTokenIntro
 
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
-        OAuth2AuthenticatedPrincipal principal = delegate.introspect(token);
+        OAuth2AuthenticatedPrincipal principal;
+        try {
+            principal = delegate.introspect(token);
+        } catch (BadOpaqueTokenException e) {
+            throw new BadOpaqueTokenException("Opaque token rejected");
+        } catch (OAuth2IntrospectionException e) {
+            throw new OAuth2IntrospectionException("Opaque token introspection unavailable");
+        }
         if (principal == null) {
             throw new OAuth2IntrospectionException("Introspection endpoint returned no principal");
         }

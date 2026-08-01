@@ -55,15 +55,17 @@ class ValidatingOpaqueTokenIntrospectorTest {
     }
 
     @Test
-    @DisplayName("introspection服务异常应原样保留以便上层映射503")
-    void preservesIntrospectionServiceException() {
+    @DisplayName("introspection服务异常应保留503语义但清理底层敏感信息")
+    void sanitizesIntrospectionServiceException() {
         OpaqueTokenIntrospector delegate = mock(OpaqueTokenIntrospector.class);
         OAuth2IntrospectionException failure = new OAuth2IntrospectionException("introspection unavailable");
         when(delegate.introspect("token")).thenThrow(failure);
 
         assertThatThrownBy(() -> new ValidatingOpaqueTokenIntrospector(
                 delegate, List.of("order-api"), null).introspect("token"))
-                .isSameAs(failure);
+                .isInstanceOf(OAuth2IntrospectionException.class)
+                .isNotSameAs(failure)
+                .hasMessage("Opaque token introspection unavailable");
     }
 
     private OpaqueTokenIntrospector delegateReturning(OAuth2AuthenticatedPrincipal principal) {

@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
@@ -104,7 +105,15 @@ public class OAuth2ResourceServerWebAutoConfiguration {
                         oauth2.opaqueToken(Customizer.withDefaults());
                     }
                     oauth2.authenticationEntryPoint(authenticationEntryPoint)
-                            .accessDeniedHandler(accessDeniedHandler);
+                            .accessDeniedHandler(accessDeniedHandler)
+                            .withObjectPostProcessor(new ObjectPostProcessor<BearerTokenAuthenticationFilter>() {
+                                @Override
+                                public <O extends BearerTokenAuthenticationFilter> O postProcess(O filter) {
+                                    filter.setAuthenticationFailureHandler((request, response, failure) ->
+                                            authenticationEntryPoint.commence(request, response, failure));
+                                    return filter;
+                                }
+                            });
                 })
                 .addFilterAfter(contextFilter, BearerTokenAuthenticationFilter.class);
         return http.build();

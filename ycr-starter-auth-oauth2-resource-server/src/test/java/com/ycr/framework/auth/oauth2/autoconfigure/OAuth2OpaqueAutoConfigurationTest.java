@@ -5,11 +5,32 @@ import com.ycr.framework.security.autoconfigure.SecurityAutoConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.web.client.ClientHttpRequestFactorySettings;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Base64;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class OAuth2OpaqueAutoConfigurationTest {
 
@@ -25,6 +46,7 @@ class OAuth2OpaqueAutoConfigurationTest {
         runner.withPropertyValues(validOpaqueProperties())
                 .run(context -> {
                     assertThat(context).hasSingleBean(OpaqueTokenIntrospector.class);
+                    assertThat(context).doesNotHaveBean(JwtDecoder.class);
                     assertThat(context.getBean(OpaqueTokenIntrospector.class))
                             .isInstanceOf(ValidatingOpaqueTokenIntrospector.class);
                 });
@@ -51,6 +73,67 @@ class OAuth2OpaqueAutoConfigurationTest {
                         "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com",
                         "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api")
                 .run(context -> assertThat(context).doesNotHaveBean(OpaqueTokenIntrospector.class));
+    }
+
+    @Test
+    @DisplayName("默认HTTP introspector应发送Basic Auth并对服务端故障fail-closed")
+    void defaultHttpIntrospectorUsesBasicAuthAndFailsClosed() {
+        AtomicReference<RestTemplate> restTemplateRef = new AtomicReference<>();
+        RestTemplateBuilder builder = new RestTemplateBuilder(restTemplateRef::set);
+        String authorization = "Basic " + Base64.getEncoder().encodeToString(
+                "test-client:test-secret".getBytes(StandardCharsets.UTF_8));
+
+        runner.withPropertyValues(validOpaqueProperties())
+                .withBean(RestTemplateBuilder.class, () -> builder)
+                .run(context -> {
+                    RestTemplate restTemplate = restTemplateRef.get();
+                    assertThat(restTemplate).isNotNull();
+                    MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+                    server.expect(requestTo("https://idp.example.com/introspect"))
+                            .andExpect(method(HttpMethod.POST))
+                            .andExpect(header(HttpHeaders.AUTHORIZATION, authorization))
+                            .andExpect(content().string("token=opaque-token"))
+                            .andRespond(withSuccess(
+                                    "{\"active\":true,\"aud\":[\"order-api\"],"
+                                            + "\"iss\":\"https://idp.example.com\",\"user_id\":\"1001\"}",
+                                    MediaType.APPLICATION_JSON));
+                    server.expect(requestTo("https://idp.example.com/introspect"))
+                            .andRespond(withServerError().body("upstream-secret-response"));
+
+                    assertThat(context.getBean(OpaqueTokenIntrospector.class).introspect("opaque-token")
+                            .getAttributes()).containsEntry("user_id", "1001");
+                    assertThatThrownBy(() -> context.getBean(OpaqueTokenIntrospector.class)
+                            .introspect("opaque-token"))
+                            .isInstanceOf(org.springframework.security.oauth2.server.resource.introspection
+                                    .OAuth2IntrospectionException.class)
+                            .hasMessageNotContaining("upstream-secret-response")
+                            .hasMessageNotContaining("test-secret");
+                    server.verify();
+                });
+    }
+
+    @Test
+    @DisplayName("默认HTTP introspector应把连接和读取超时传给RestTemplate")
+    void defaultHttpIntrospectorPropagatesTimeouts() {
+        AtomicReference<ClientHttpRequestFactorySettings> settingsRef = new AtomicReference<>();
+        RestTemplateBuilder builder = new RestTemplateBuilder()
+                .requestFactory(settings -> {
+                    settingsRef.set(settings);
+                    return new SimpleClientHttpRequestFactory();
+                });
+
+        runner.withPropertyValues(validOpaqueProperties())
+                .withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.opaque.connect-timeout=125ms",
+                        "ycr.auth.oauth2.resource-server.opaque.read-timeout=250ms")
+                .withBean(RestTemplateBuilder.class, () -> builder)
+                .run(context -> {
+                    assertThat(context).hasSingleBean(OpaqueTokenIntrospector.class);
+                    assertThat(settingsRef).hasValueSatisfying(settings -> {
+                        assertThat(settings.connectTimeout()).isEqualTo(Duration.ofMillis(125));
+                        assertThat(settings.readTimeout()).isEqualTo(Duration.ofMillis(250));
+                    });
+                });
     }
 
     private String[] validOpaqueProperties() {
