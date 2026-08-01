@@ -1,3 +1,4 @@
 com.ycr.framework.auth.oauth2.autoconfigure.OAuth2ResourceServerAutoConfiguration
 com.ycr.framework.auth.oauth2.autoconfigure.OAuth2JwtAutoConfiguration
 com.ycr.framework.auth.oauth2.autoconfigure.OAuth2OpaqueAutoConfiguration
+com.ycr.framework.auth.oauth2.autoconfigure.OAuth2ResourceServerWebAutoConfiguration
