@@ -1,1 +1,2 @@
 com.ycr.framework.auth.oauth2.autoconfigure.OAuth2ResourceServerAutoConfiguration
+com.ycr.framework.auth.oauth2.autoconfigure.OAuth2JwtAutoConfiguration
