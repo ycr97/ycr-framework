@@ -71,6 +71,21 @@ class SaTokenAuthAutoConfigurationTest {
     }
 
     @Test
+    @DisplayName("SaToken与OAuth2同时启用时应启动失败")
+    void saTokenAndOAuth2ShouldNotBeEnabledTogether() {
+        runner.withPropertyValues(
+                        "ycr.auth.satoken.enabled=true",
+                        "ycr.auth.oauth2.resource-server.enabled=true")
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    assertThat(context.getStartupFailure())
+                            .hasRootCauseMessage(
+                                    "ycr.auth.satoken.enabled and ycr.auth.oauth2.resource-server.enabled "
+                                            + "cannot both be true");
+                });
+    }
+
+    @Test
     @DisplayName("用户自定义会话管理器应覆盖默认实现")
     void customSessionManagerShouldBackOffDefaultBean() {
         SaTokenSessionManager custom = mock(SaTokenSessionManager.class);

@@ -1,6 +1,7 @@
 package com.ycr.framework.context.autoconfigure;
 
 import com.ycr.framework.context.resolver.UserContextResolverChain;
+import com.ycr.framework.context.servlet.ServletContextBinder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -21,7 +22,10 @@ class ContextAutoConfigurationTest {
     void shouldMatchExpectedBehavior001() {
         new ApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(ContextAutoConfiguration.class))
-                .run(context -> assertThat(context).hasSingleBean(UserContextResolverChain.class));
+                .run(context -> {
+                    assertThat(context).hasSingleBean(UserContextResolverChain.class);
+                    assertThat(context).hasSingleBean(ServletContextBinder.class);
+                });
     }
 
     @Test

@@ -64,6 +64,7 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 **身份与安全**
 - [请求上下文透传](docs/context.md)
 - [认证（Sa-Token 集成）](docs/auth.md)
+- [认证（OAuth2 Resource Server：JWT / Opaque Token）](docs/auth-oauth2-resource-server.md)
 - [安全（注解鉴权 + 端点放行）](docs/security.md)
 - [数据防护（脱敏 + XSS）](docs/protect.md)
 - [字段加密 MyBatis TypeHandler](docs/encrypt-typehandler.md)

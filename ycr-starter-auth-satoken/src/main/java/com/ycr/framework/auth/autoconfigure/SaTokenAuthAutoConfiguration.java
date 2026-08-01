@@ -14,6 +14,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 /**
@@ -62,5 +64,15 @@ public class SaTokenAuthAutoConfiguration {
     @ConditionalOnMissingBean
     public AuthorizeAspect authorizeAspect(PermissionChecker permissionChecker) {
         return new AuthorizeAspect(permissionChecker);
+    }
+
+    @Bean
+    InitializingBean saTokenOAuth2MutualExclusionValidator(Environment environment) {
+        return () -> {
+            if (environment.getProperty("ycr.auth.oauth2.resource-server.enabled", Boolean.class, false)) {
+                throw new IllegalStateException(
+                        "ycr.auth.satoken.enabled and ycr.auth.oauth2.resource-server.enabled cannot both be true");
+            }
+        };
     }
 }

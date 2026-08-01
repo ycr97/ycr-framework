@@ -1,6 +1,6 @@
 # 认证（Sa-Token）
 
-`ycr-starter-auth-satoken` 是默认的轻量认证组合 Starter，提供 Sa-Token 登录会话、请求上下文恢复、YCR 方法鉴权、统一异常响应、端点登录门禁和可显式选择的会话存储。
+`ycr-starter-auth-satoken` 是默认的轻量认证组合 Starter，提供 Sa-Token 登录会话、请求上下文恢复、YCR 方法鉴权、统一异常响应、端点登录门禁和可显式选择的会话存储。OAuth2 Resource Server 是独立的可选适配器，见 [OAuth2 Resource Server 文档](auth-oauth2-resource-server.md)。
 
 默认依赖路径不包含 Spring Security。业务授权统一使用 `ycr-starter-security` 的注解与 `PermissionChecker`，不把 Sa-Token 权限注解作为第二套官方授权模型。
 
@@ -194,4 +194,6 @@ YCR 方法鉴权抛出的 `AuthException` / `ForbiddenException` 由 `ycr-starte
 
 ## 职责边界
 
-默认 Starter 不包含 JWT 模式、Spring Security、OAuth2 Authorization Server、登录页面、用户表、MFA、短信/扫码登录或 OAuth2 Client 管理。OAuth2 Resource Server 后续作为隔离的可选适配器提供，完整认证中心独立建设。
+默认 Starter 不包含 JWT 模式、Spring Security、OAuth2 Authorization Server、登录页面、用户表、MFA、短信/扫码登录或 OAuth2 Client 管理。
+
+`ycr-starter-auth-satoken` 与 `ycr-starter-auth-oauth2-resource-server` 是两条互斥的认证适配路径：Sa-Token 负责默认的本地/Redis 可撤销会话；OAuth2 适配器负责外部 IdP Access Token 验证。两者不能同时启用，业务授权仍统一使用 YCR 注解和 `PermissionChecker`。完整认证中心应独立建设，不进入基础 Starter。

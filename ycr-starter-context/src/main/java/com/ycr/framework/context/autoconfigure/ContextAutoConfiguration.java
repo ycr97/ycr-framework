@@ -3,6 +3,7 @@ package com.ycr.framework.context.autoconfigure;
 import com.ycr.framework.context.resolver.SignedHeaderUserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolverChain;
+import com.ycr.framework.context.servlet.ServletContextBinder;
 import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.context.sign.ContextReplayGuard;
 import com.ycr.framework.context.sign.FailClosedContextReplayGuard;
@@ -51,5 +52,11 @@ public class ContextAutoConfiguration {
     @ConditionalOnMissingBean
     public UserContextResolverChain userContextResolverChain(List<UserContextResolver> resolvers) {
         return new UserContextResolverChain(resolvers);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ServletContextBinder servletContextBinder() {
+        return new ServletContextBinder();
     }
 }
