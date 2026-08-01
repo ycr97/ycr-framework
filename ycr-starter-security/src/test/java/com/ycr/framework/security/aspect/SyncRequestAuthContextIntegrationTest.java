@@ -7,7 +7,6 @@ import com.ycr.framework.context.holder.AppContextHolder;
 import com.ycr.framework.context.holder.TenantContextHolder;
 import com.ycr.framework.context.holder.UserContextHolder;
 import com.ycr.framework.context.resolver.SignedHeaderUserContextResolver;
-import com.ycr.framework.context.resolver.TokenUserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolverChain;
 import com.ycr.framework.context.sign.ContextHeaderSigner;
@@ -109,8 +108,7 @@ class SyncRequestAuthContextIntegrationTest {
 
     private UserContextResolverChain resolverChain(ContextProperties properties) {
         List<UserContextResolver> resolvers = List.of(
-                new SignedHeaderUserContextResolver(properties, new ContextHeaderSigner(), (nonce, ttl) -> false),
-                new TokenUserContextResolver());
+                new SignedHeaderUserContextResolver(properties, new ContextHeaderSigner(), (nonce, ttl) -> false));
         return new UserContextResolverChain(resolvers);
     }
 

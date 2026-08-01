@@ -1,59 +1,183 @@
-# 认证（Sa-Token 集成）
+# 认证（Sa-Token）
 
-`ycr-starter-auth` 是 Sa-Token 的**薄集成层**，只做三件事：
+`ycr-starter-auth-satoken` 是默认的轻量认证组合 Starter，提供 Sa-Token 登录会话、请求上下文恢复、YCR 方法鉴权、统一异常响应、端点登录门禁和可显式选择的会话存储。
 
-1. `LoginHelper` —— 把 Sa-Token 登录态与框架 `UserContext` 双向联动；
-2. `SaTokenUserContextResolver` —— 在 `token-verify` / `mixed` 模式下从 Sa 会话还原最小 `UserContext`；
-3. `SaTokenExceptionHandler` —— 把 Sa-Token 的认证/鉴权异常转为统一 `R` 响应。
-
-> **职责边界**：本 starter 不定义框架级鉴权注解、不让业务层依赖 Sa-Token 注解。接口和服务方法鉴权使用 `ycr-starter-security` 的 `@RequireLogin` / `@RequirePermission` 等 ycr 注解。
+默认依赖路径不包含 Spring Security。业务授权统一使用 `ycr-starter-security` 的注解与 `PermissionChecker`，不把 Sa-Token 权限注解作为第二套官方授权模型。
 
 ## 依赖
 
 ```xml
 <dependency>
     <groupId>com.ycr.framework</groupId>
-    <artifactId>ycr-starter-auth</artifactId>
+    <artifactId>ycr-starter-auth-satoken</artifactId>
 </dependency>
 ```
 
-传递引入 `sa-token-spring-boot3-starter`、`sa-token-jwt`、`ycr-starter-context`。Sa-Token 自身配置走原生 `sa-token.*` 前缀。
+该组合 Starter 传递引入 `ycr-starter-security`、`ycr-starter-context` 和 `sa-token-spring-boot3-starter`。旧 artifact `ycr-starter-auth` 已在 1.0 前直接删除，不提供兼容别名。
 
-## LoginHelper
+## 最小配置
 
-封装 `StpUtil`，登录时同步把完整 `UserContext` 写入 Sa 会话（键 `ycr_user_context`）与当前线程：
-
-```java
-// 登录：签发 token、写入会话、填充当前线程上下文（userId 必填，否则抛 IllegalArgumentException）
-LoginHelper.login(userContext);
-
-boolean logged = LoginHelper.isLogin();
-String token   = LoginHelper.getTokenValue();
-UserContext c  = LoginHelper.getUserContext();   // 线程内为空但已登录时，从会话懒还原并回填线程
-Long uid       = LoginHelper.getUserId();         // 未登录返回 null
-String name    = LoginHelper.getUsername();
-
-LoginHelper.logout();          // 注销登录态，并在 finally 中清理线程上下文
-
-// 供 Filter/手动场景：只动线程上下文，不触发 Sa-Token 登录/登出
-LoginHelper.setUserContext(userContext);
-LoginHelper.clearContext();
+```yaml
+ycr:
+  auth:
+    satoken:
+      enabled: true
+      permit-paths:
+        - /login
+        - /error
+        - /actuator/health
 ```
 
-`getUserContext()` 的懒还原机制专为「直接凭 token 调用」的链路设计。`SaTokenUserContextResolver` 会复用它把 Sa 会话中的最小 `UserContext` 回填到同步请求上下文。
+Auth 默认关闭；启用后默认采用 `authenticated` 策略，除白名单外的所有 Servlet 端点都必须登录。`/error` 是默认白名单，业务登录、健康检查和开放接口仍应显式列出。
 
-## Token Resolver
+| 配置项 | 默认值 | 说明 |
+| --- | --- | --- |
+| `ycr.auth.satoken.enabled` | `false` | 是否启用 YCR Sa-Token 认证适配器 |
+| `ycr.auth.satoken.endpoint-policy` | `authenticated` | `authenticated` 全局登录门禁；`annotated` 仅使用方法注解 |
+| `ycr.auth.satoken.permit-paths` | `[/error]` | `authenticated` 策略下允许匿名访问的路径模式 |
+| `ycr.auth.satoken.session-store` | `memory` | `memory` 或 `redis`，不根据类路径自动切换 |
 
-`SaTokenUserContextResolver` 实现 `UserContextResolver`：
+`annotated` 仅适用于明确希望逐个端点声明认证要求的应用：
 
-- 仅支持 `token-verify` / `mixed` 模式。
-- 从 Sa 会话键 `ycr_user_context` 读取 `UserContext`。
-- 忽略 `X-User-*` 等身份 Header。
-- 还原出的上下文默认标记 `source=TOKEN`。
+```yaml
+ycr:
+  auth:
+    satoken:
+      enabled: true
+      endpoint-policy: annotated
+```
 
-## 异常处理
+## Token 安全默认值
 
-`SaTokenExceptionHandler`（`@RestControllerAdvice` + `@Order(-1)`，优先于业务全局异常处理）将 Sa-Token 异常映射为统一 `R`：
+Starter 以最低属性优先级注入以下默认值，应用配置、环境变量和配置中心均可覆盖：
+
+```yaml
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  is-read-header: true
+  is-read-body: false
+  is-read-cookie: false
+```
+
+请求格式：
+
+```http
+Authorization: Bearer <token>
+```
+
+默认不从请求体和 Cookie 读取 token，避免 token 进入参数解析、业务对象或访问日志。
+
+## Session Store
+
+本地开发和测试默认使用进程内 DAO：
+
+```yaml
+ycr:
+  auth:
+    satoken:
+      enabled: true
+      session-store: memory
+```
+
+生产、多实例和滚动发布必须显式选择 Redis，并复用 `ycr-starter-cache` 装配的唯一 `RedissonClient`：
+
+```xml
+<dependency>
+    <groupId>com.ycr.framework</groupId>
+    <artifactId>ycr-starter-cache</artifactId>
+</dependency>
+```
+
+```yaml
+ycr:
+  auth:
+    satoken:
+      enabled: true
+      session-store: redis
+
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+```
+
+`redis` 模式缺少 Redisson 依赖或 `RedissonClient` Bean 时应用启动失败；Redis 异常不会降级到本地会话。
+
+真实 Redis 集成测试可在本地或 CI Redis Service 上执行：
+
+```bash
+YCR_REDIS_INTEGRATION_TESTS=true \
+YCR_TEST_REDIS_ADDRESS=redis://127.0.0.1:6379 \
+mvn -pl ycr-starter-auth-satoken -Dtest=SaTokenRedisIntegrationTest test
+```
+
+需要密码时额外设置 `YCR_TEST_REDIS_PASSWORD`。该测试验证多节点共享、TTL、`UserContext` 序列化恢复与删除；未显式启用时跳过，不会连接开发者 Redis。
+
+## 登录与登出
+
+`SaTokenSessionManager` 只管理会话生命周期，不重复提供身份和权限查询 API：
+
+```java
+@RestController
+@RequiredArgsConstructor
+public class LoginController {
+
+    private final SaTokenSessionManager sessionManager;
+
+    @PostMapping("/login")
+    public R<String> login(@RequestBody LoginRequest request) {
+        UserContext userContext = authenticate(request);
+        String token = sessionManager.login(userContext).getTokenValue();
+        return R.ok(token);
+    }
+
+    @PostMapping("/logout")
+    public R<Void> logout() {
+        sessionManager.logout();
+        return R.ok();
+    }
+}
+```
+
+需要设备、超时或并发登录参数时使用重载：
+
+```java
+SaLoginParameter parameter = new SaLoginParameter()
+        .setDeviceType("web")
+        .setTimeout(7200);
+SaTokenInfo tokenInfo = sessionManager.login(userContext, parameter);
+```
+
+当前身份与权限统一通过 `SecurityUtils` 读取：
+
+```java
+Long userId = SecurityUtils.getUserId();
+boolean loggedIn = SecurityUtils.isLogin();
+boolean allowed = SecurityUtils.hasPermission("user:delete");
+```
+
+## 请求上下文与方法鉴权
+
+`SaTokenUserContextResolver` 仅支持 `token-verify` / `mixed` 模式，从 `Authorization: Bearer` 中解析原始 token，再从该 token 独立会话的 `ycr_user_context` 恢复 `UserContext`。这可以隔离同一账号的多设备、多租户登录上下文。裸 `X-User-*` Header 不参与 token 认证，恢复后的来源标记为 `TOKEN`。
+
+启用 Auth 会同步启用 YCR 方法鉴权，无需额外设置 `ycr.security.enabled=true`：
+
+```java
+@RequirePermission("user:delete")
+@DeleteMapping("/{id}")
+public R<Void> delete(@PathVariable Long id) {
+    return R.ok();
+}
+```
+
+Sa-Token 负责 token 读取、登录态维护和会话失效；YCR `AuthorizeAspect` 与 `PermissionChecker` 负责业务角色、权限以及 `context` / `remote` / `mixed` 校验策略。
+
+## 异常响应
+
+`SaTokenExceptionHandler` 将 Sa-Token 异常映射为统一 `R`：
 
 | 异常 | HTTP | 响应 |
 | --- | --- | --- |
@@ -62,14 +186,8 @@ LoginHelper.clearContext();
 | `NotRoleException` | 403 | `R.fail(403, "权限不足")` |
 | 其他 `SaTokenException` | 401 | `R.fail(401, "认证异常")` |
 
-## 鉴权如何生效（配合 ycr-starter-security）
+YCR 方法鉴权抛出的 `AuthException` / `ForbiddenException` 由 `ycr-starter-web` 的 `GlobalExceptionHandler` 分别映射为 HTTP 401/403。
 
-引入 `ycr-starter-security` 后，使用 ycr 自有注解：
+## 职责边界
 
-```java
-@RequirePermission("user:delete")
-@GetMapping("/{id}")
-public R<UserResp> get(@PathVariable Long id) { ... }
-```
-
-Sa-Token 只负责登录态和 token 解析；权限判断由 `PermissionChecker` 从 `UserContext.roles/permissions` 或远程 SPI 完成。
+默认 Starter 不包含 JWT 模式、Spring Security、OAuth2 Authorization Server、登录页面、用户表、MFA、短信/扫码登录或 OAuth2 Client 管理。OAuth2 Resource Server 后续作为隔离的可选适配器提供，完整认证中心独立建设。

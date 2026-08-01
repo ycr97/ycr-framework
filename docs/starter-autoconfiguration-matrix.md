@@ -5,7 +5,6 @@
 | 模块 | AutoConfiguration | 默认策略 | 关键 Bean | 默认测试 | 关闭测试 | 覆盖测试 |
 | --- | --- | --- | --- | --- | --- | --- |
 | api-doc | ApiDocAutoConfiguration | 默认开启 | OpenAPI | 有 | 有 | 有 |
-| auth | AuthAutoConfiguration | 默认开启 | SaTokenExceptionHandler / UserContextResolver | 有 | 不适用 | 有 |
 | business | BusinessAutoConfiguration | 默认开启 | BizApiAspect | 有 | 有 | 有 |
 | cache | CacheAutoConfiguration | 有 Redisson 时开启 | RedisUtils | 有 | 有 | 不适用 |
 | cache-jetcache | JetCacheAnnoAutoConfiguration | 默认开启 | JetCache 注解基础设施 | 有 | 有 | 有 |
@@ -34,6 +33,8 @@
 | 模块 | AutoConfiguration | 默认策略 | 关键 Bean | 默认测试 | 关闭测试 | 覆盖测试 |
 | --- | --- | --- | --- | --- | --- | --- |
 | data-permission | DataPermissionAutoConfiguration | 显式开启 | DataPermissionInterceptor / DataPermissionAspect | 有 | 有 | 有 |
+| auth-satoken | SaTokenAuthAutoConfiguration / SaTokenWebAutoConfiguration | 显式开启；开启后端点默认需登录 | SaTokenSessionManager / SaInterceptor / UserContextResolver / AuthorizeAspect | 有 | 有 | 有 |
+| auth-satoken-store | SaTokenSessionStoreAutoConfiguration / SaTokenRedisSessionStoreAutoConfiguration | memory 默认；redis 显式选择且 fail-fast | SaTokenDao | 有 | 有 | 有 |
 | encrypt | EncryptAutoConfiguration | 显式开启 | EncryptHandler / Lifecycle | 有 | 有 | 有 |
 | idempotent | IdempotentAutoConfiguration | 显式开启 | IdempotentAspect | 有 | 有 | 有 |
 | protect-xss | XssAutoConfiguration | 显式开启 | XssFilter | 有 | 有 | 有 |

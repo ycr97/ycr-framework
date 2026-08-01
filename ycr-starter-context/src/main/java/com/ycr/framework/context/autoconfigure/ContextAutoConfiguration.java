@@ -1,9 +1,6 @@
 package com.ycr.framework.context.autoconfigure;
 
-import com.ycr.framework.context.resolver.ManualUserContextResolver;
 import com.ycr.framework.context.resolver.SignedHeaderUserContextResolver;
-import com.ycr.framework.context.resolver.SystemUserContextResolver;
-import com.ycr.framework.context.resolver.TokenUserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolver;
 import com.ycr.framework.context.resolver.UserContextResolverChain;
 import com.ycr.framework.context.sign.ContextHeaderSigner;
@@ -48,24 +45,6 @@ public class ContextAutoConfiguration {
                                                                            ContextHeaderSigner signer,
                                                                            ContextReplayGuard replayGuard) {
         return new SignedHeaderUserContextResolver(properties, signer, replayGuard);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(TokenUserContextResolver.class)
-    public TokenUserContextResolver tokenUserContextResolver() {
-        return new TokenUserContextResolver();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ManualUserContextResolver manualUserContextResolver() {
-        return new ManualUserContextResolver();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public SystemUserContextResolver systemUserContextResolver() {
-        return new SystemUserContextResolver();
     }
 
     @Bean
