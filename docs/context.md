@@ -75,11 +75,11 @@ UserContextHolder.clear();
 `UserContextResolver` 是身份来源 SPI。内置解析器：
 
 - `SignedHeaderUserContextResolver`：解析并校验签名上下文头。
-- `TokenUserContextResolver`：默认空实现，供业务或 `ycr-starter-auth` 替换。
-- `ManualUserContextResolver` / `SystemUserContextResolver`：预留手工和系统上下文入口。
+
+Context 不注册空的 token、manual 或 system 占位实现。具体认证适配器或业务扩展直接注册真实的 `UserContextResolver` Bean；`ycr-starter-auth-satoken` 提供 Sa-Token 实现。
 
 ## 注意
 
 - 跨服务调用时由 `ycr-starter-feign` 重新签名上下文 Header 透传给下游。
-- 凭 token 直接访问的链路由 `ycr-starter-auth` 的 Sa-Token resolver 从会话还原上下文（见 [auth 文档](auth.md)）。
+- 凭 token 直接访问的链路由 `ycr-starter-auth-satoken` 从会话还原上下文（见 [auth 文档](auth.md)）。
 - 审计字段 `createUser/updateUser` 自动填充取 `UserContextHolder.getUserId()`（见 [data-mp 文档](data-mp.md)）。

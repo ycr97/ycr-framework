@@ -40,7 +40,7 @@
         <module>ycr-starter-cache-jetcache</module>
         <module>ycr-starter-data-permission</module>
         <module>ycr-starter-id-generate</module>
-        <module>ycr-starter-auth</module>
+        <module>ycr-starter-auth-satoken</module>
         <module>ycr-starter-security</module>
         <module>ycr-starter-encrypt</module>
         <module>ycr-starter-protect</module>

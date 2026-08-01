@@ -50,5 +50,19 @@ if [[ "${missing}" -ne 0 ]]; then
   exit "${missing}"
 fi
 
+auth_dependency_tree="ycr-starter-auth-satoken/target/auth-satoken-compile-dependencies.txt"
+mvn -q -pl ycr-starter-auth-satoken dependency:tree \
+  -Dscope=compile \
+  -DoutputFile="target/auth-satoken-compile-dependencies.txt"
+if rg -q 'org\.springframework\.security:' "${auth_dependency_tree}"; then
+  echo "auth-satoken 默认依赖路径不得包含 Spring Security："
+  rg 'org\.springframework\.security:' "${auth_dependency_tree}"
+  exit 1
+fi
+if rg -q 'cn\.dev33:sa-token-jwt:' "${auth_dependency_tree}"; then
+  echo "auth-satoken 不得隐式启用未装配的 JWT 模式"
+  exit 1
+fi
+
 echo "自动配置静态契约通过，执行全部 AutoConfiguration 行为测试..."
 mvn -q -Dtest='*AutoConfigurationTest' -Dsurefire.failIfNoSpecifiedTests=false test

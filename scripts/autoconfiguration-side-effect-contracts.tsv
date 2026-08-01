@@ -1,4 +1,5 @@
 # AutoConfiguration|property|default-off test|explicit-enable test
+com.ycr.framework.auth.autoconfigure.SaTokenAuthAutoConfiguration|ycr.auth.satoken.enabled|未启用Auth时不应装配认证适配器|启用Auth时默认装配方法鉴权与内存会话
 com.ycr.framework.data.permission.autoconfigure.DataPermissionAutoConfiguration|ycr.data.permission.enabled|默认不应装配SQL拦截器与切面|显式开启时应装配新版权限链路
 com.ycr.framework.encrypt.autoconfigure.EncryptAutoConfiguration|ycr.encrypt.enabled|默认不应创建EncryptHandler与Lifecycle|配置AesKey时应创建EncryptHandler并初始化Holder
 com.ycr.framework.idempotent.autoconfigure.IdempotentAutoConfiguration|ycr.idempotent.enabled|默认不应装配切面|显式开启且存在Redisson时应装配切面

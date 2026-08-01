@@ -1,0 +1,5 @@
+com.ycr.framework.auth.autoconfigure.SaTokenAuthAutoConfiguration
+com.ycr.framework.auth.autoconfigure.SaTokenSessionStoreAutoConfiguration
+com.ycr.framework.auth.autoconfigure.SaTokenRedisSessionStoreAutoConfiguration
+com.ycr.framework.auth.autoconfigure.SaTokenMissingRedisAutoConfiguration
+com.ycr.framework.auth.autoconfigure.SaTokenWebAutoConfiguration

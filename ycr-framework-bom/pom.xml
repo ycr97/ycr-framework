@@ -100,7 +100,7 @@
             </dependency>
             <dependency>
                 <groupId>com.ycr.framework</groupId>
-                <artifactId>ycr-starter-auth</artifactId>
+                <artifactId>ycr-starter-auth-satoken</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
