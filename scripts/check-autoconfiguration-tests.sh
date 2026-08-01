@@ -64,5 +64,22 @@ if rg -q 'cn\.dev33:sa-token-jwt:' "${auth_dependency_tree}"; then
   exit 1
 fi
 
+oauth_dependency_tree="ycr-starter-auth-oauth2-resource-server/target/oauth2-resource-server-compile-dependencies.txt"
+mvn -q -pl ycr-starter-auth-oauth2-resource-server dependency:tree \
+  -Dscope=compile \
+  -DoutputFile="target/oauth2-resource-server-compile-dependencies.txt"
+if ! rg -q 'org\.springframework\.security:spring-security-oauth2-resource-server:' "${oauth_dependency_tree}"; then
+  echo "oauth2-resource-server 编译依赖必须包含 spring-security-oauth2-resource-server"
+  exit 1
+fi
+if ! rg -q 'org\.springframework\.security:spring-security-oauth2-jose:' "${oauth_dependency_tree}"; then
+  echo "oauth2-resource-server 编译依赖必须包含 spring-security-oauth2-jose"
+  exit 1
+fi
+if rg -q 'org\.springframework\.security:spring-security-oauth2-client:|org\.springframework\.security:spring-security-oauth2-authorization-server:' "${oauth_dependency_tree}"; then
+  echo "oauth2-resource-server 不得包含 OAuth2 Client 或 Authorization Server"
+  exit 1
+fi
+
 echo "自动配置静态契约通过，执行全部 AutoConfiguration 行为测试..."
 mvn -q -Dtest='*AutoConfigurationTest' -Dsurefire.failIfNoSpecifiedTests=false test
