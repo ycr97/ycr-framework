@@ -25,7 +25,7 @@ public class SaTokenExceptionHandler {
     @ExceptionHandler(NotLoginException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public R<Void> handleNotLogin(NotLoginException e) {
-        log.warn("未登录: {}", e.getMessage());
+        log.warn("未登录，异常类型={}", e.getClass().getSimpleName());
         return R.fail(401, "未登录或登录已过期");
     }
 
@@ -46,7 +46,7 @@ public class SaTokenExceptionHandler {
     @ExceptionHandler(SaTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public R<Void> handleSaToken(SaTokenException e) {
-        log.warn("认证异常: {}", e.getMessage());
+        log.warn("认证异常，异常类型={}", e.getClass().getSimpleName());
         return R.fail(401, "认证异常");
     }
 }
