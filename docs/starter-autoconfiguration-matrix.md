@@ -35,6 +35,7 @@
 | data-permission | DataPermissionAutoConfiguration | 显式开启 | DataPermissionInterceptor / DataPermissionAspect | 有 | 有 | 有 |
 | auth-satoken | SaTokenAuthAutoConfiguration / SaTokenWebAutoConfiguration | 显式开启；开启后端点默认需登录 | SaTokenSessionManager / SaInterceptor / UserContextResolver / AuthorizeAspect | 有 | 有 | 有 |
 | auth-satoken-store | SaTokenSessionStoreAutoConfiguration / SaTokenRedisSessionStoreAutoConfiguration | memory 默认；redis 显式选择且 fail-fast | SaTokenDao | 有 | 有 | 有 |
+| auth-oauth2-resource-server | OAuth2ResourceServerAutoConfiguration / OAuth2JwtAutoConfiguration / OAuth2OpaqueAutoConfiguration / OAuth2ResourceServerWebAutoConfiguration | 显式开启；JWT/Opaque mode 必须明确且与 Sa-Token 互斥 | JwtDecoder 或 OpaqueTokenIntrospector / YCR SecurityFilterChain / UserContext bridge | 有 | 有 | 有 |
 | encrypt | EncryptAutoConfiguration | 显式开启 | EncryptHandler / Lifecycle | 有 | 有 | 有 |
 | idempotent | IdempotentAutoConfiguration | 显式开启 | IdempotentAspect | 有 | 有 | 有 |
 | protect-xss | XssAutoConfiguration | 显式开启 | XssFilter | 有 | 有 | 有 |
@@ -51,3 +52,5 @@
 | 模块 | 说明 |
 | --- | --- |
 | validation | Jakarta Validation SPI 自动发现校验注解，无需 AutoConfiguration |
+
+认证适配器说明：`auth-satoken` 与 `auth-oauth2-resource-server` 不能同时启用；OAuth2 模块未引入或未显式开启时，默认认证路径不装配 Spring Security Resource Server Bean。
