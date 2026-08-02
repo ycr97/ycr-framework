@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -99,7 +100,8 @@ public class OAuth2UserContextFilter extends OncePerRequestFilter {
             throw new OAuth2ClaimsMappingException("不支持的 OAuth2 认证类型");
         }
         UserContext userContext = mapper.map(claims);
-        if (userContext == null) {
+        if (userContext == null
+                || (userContext.getUserId() == null && !StringUtils.hasText(userContext.getUsername()))) {
             throw new OAuth2ClaimsMappingException("OAuth2 claims 未能形成 UserContext");
         }
         userContext.setSource(UserContextSource.TOKEN.name());

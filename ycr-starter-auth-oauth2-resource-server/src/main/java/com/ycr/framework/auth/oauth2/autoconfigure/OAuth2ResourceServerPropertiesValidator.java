@@ -1,9 +1,13 @@
 package com.ycr.framework.auth.oauth2.autoconfigure;
 
+import com.ycr.framework.context.autoconfigure.ContextProperties;
+import com.ycr.framework.context.enums.SecurityMode;
 import org.springframework.core.env.Environment;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * OAuth2 Resource Server 启动配置校验。
@@ -16,11 +20,15 @@ final class OAuth2ResourceServerPropertiesValidator {
 
     private final OAuth2ResourceServerProperties properties;
 
+    private final ContextProperties contextProperties;
+
     private final Environment environment;
 
     OAuth2ResourceServerPropertiesValidator(OAuth2ResourceServerProperties properties,
+                                             ContextProperties contextProperties,
                                              Environment environment) {
         this.properties = properties;
+        this.contextProperties = contextProperties;
         this.environment = environment;
     }
 
@@ -30,12 +38,14 @@ final class OAuth2ResourceServerPropertiesValidator {
                     "ycr.auth.satoken.enabled and ycr.auth.oauth2.resource-server.enabled cannot both be true");
         }
 
-        String securityMode = environment.getProperty("ycr.context.security-mode", "");
-        boolean legacyTrustHeaders = environment.getProperty("ycr.context.trust-headers", Boolean.class, false);
-        if ("GATEWAY_TRUST".equalsIgnoreCase(securityMode) || legacyTrustHeaders) {
+        SecurityMode securityMode = contextProperties.effectiveSecurityMode();
+        if (securityMode == SecurityMode.GATEWAY_TRUST) {
             throw new IllegalStateException(
                     "ycr.context.security-mode=GATEWAY_TRUST cannot be used with "
                             + "ycr.auth.oauth2.resource-server.enabled");
+        }
+        if (securityMode == SecurityMode.MIXED) {
+            validateMixedContext();
         }
 
         if (properties.getMode() == null) {
@@ -61,12 +71,16 @@ final class OAuth2ResourceServerPropertiesValidator {
             if (!StringUtils.hasText(algorithm)) {
                 continue;
             }
-            String normalized = algorithm.trim();
+            String normalized = algorithm.trim().toUpperCase(Locale.ROOT);
             if ("none".equalsIgnoreCase(normalized)
-                    || normalized.toUpperCase().startsWith("HS")
-                    || normalized.toUpperCase().startsWith("HMAC")) {
+                    || normalized.startsWith("HS")
+                    || normalized.startsWith("HMAC")) {
                 throw new IllegalStateException(
                         PREFIX + ".jwt.allowed-algorithms must not contain symmetric or none algorithms");
+            }
+            if (SignatureAlgorithm.from(normalized) == null) {
+                throw new IllegalStateException(PREFIX + ".jwt.allowed-algorithms contains unsupported algorithm: "
+                        + algorithm.trim());
             }
         }
         if (properties.getJwt().getClockSkew() == null || properties.getJwt().getClockSkew().isNegative()) {
@@ -94,6 +108,18 @@ final class OAuth2ResourceServerPropertiesValidator {
                 || properties.getOpaque().getReadTimeout().isZero()
                 || properties.getOpaque().getReadTimeout().isNegative()) {
             throw new IllegalStateException(PREFIX + ".opaque.read-timeout must be positive");
+        }
+    }
+
+    private void validateMixedContext() {
+        ContextProperties.HeaderSign headerSign = contextProperties.getHeaderSign();
+        if (headerSign == null || !headerSign.isEnabled()) {
+            throw new IllegalStateException("ycr.context.header-sign.enabled must be true when "
+                    + PREFIX + ".enabled=true and ycr.context.security-mode=MIXED");
+        }
+        if (!StringUtils.hasText(headerSign.getSecret())) {
+            throw new IllegalStateException("ycr.context.header-sign.secret is required when "
+                    + PREFIX + ".enabled=true and ycr.context.security-mode=MIXED");
         }
     }
 

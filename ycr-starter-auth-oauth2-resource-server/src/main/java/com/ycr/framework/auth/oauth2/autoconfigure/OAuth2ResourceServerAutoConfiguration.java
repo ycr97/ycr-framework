@@ -2,6 +2,7 @@ package com.ycr.framework.auth.oauth2.autoconfigure;
 
 import com.ycr.framework.auth.oauth2.mapper.DefaultOAuth2UserContextMapper;
 import com.ycr.framework.auth.oauth2.mapper.OAuth2UserContextMapper;
+import com.ycr.framework.context.autoconfigure.ContextProperties;
 import com.ycr.framework.security.aspect.AuthorizeAspect;
 import com.ycr.framework.security.checker.PermissionChecker;
 import org.springframework.beans.factory.InitializingBean;
@@ -19,13 +20,15 @@ import org.springframework.core.env.Environment;
  */
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "ycr.auth.oauth2.resource-server", name = "enabled", havingValue = "true")
-@EnableConfigurationProperties(OAuth2ResourceServerProperties.class)
+@EnableConfigurationProperties({OAuth2ResourceServerProperties.class, ContextProperties.class})
 public class OAuth2ResourceServerAutoConfiguration {
 
     @Bean
     InitializingBean oauth2ResourceServerConfigurationValidator(OAuth2ResourceServerProperties properties,
+                                                                ContextProperties contextProperties,
                                                                 Environment environment) {
-        return () -> new OAuth2ResourceServerPropertiesValidator(properties, environment).validate();
+        return () -> new OAuth2ResourceServerPropertiesValidator(properties, contextProperties, environment)
+                .validate();
     }
 
     @Bean

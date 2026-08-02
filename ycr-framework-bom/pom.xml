@@ -13,7 +13,7 @@
     <description>YCR 框架模块版本管理，脚手架项目通过 import 此 BOM 引入所有 starter</description>
 
     <properties>
-        <revision>0.9.0-RC2</revision>
+        <revision>0.9.0-RC3-SNAPSHOT</revision>
     </properties>
 
     <dependencyManagement>

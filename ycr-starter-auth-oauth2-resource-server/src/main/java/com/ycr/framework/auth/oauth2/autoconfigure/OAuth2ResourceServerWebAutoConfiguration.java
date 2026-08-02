@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
@@ -39,15 +40,15 @@ import java.util.List;
 @ConditionalOnProperty(prefix = "ycr.auth.oauth2.resource-server", name = "enabled", havingValue = "true")
 public class OAuth2ResourceServerWebAutoConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean
-    public AuthenticationEntryPoint ycrBearerAuthenticationEntryPoint(ObjectMapper objectMapper) {
+    @Bean(name = "ycrBearerAuthenticationEntryPoint")
+    @ConditionalOnMissingBean(name = "ycrBearerAuthenticationEntryPoint")
+    public YcrBearerAuthenticationEntryPoint ycrBearerAuthenticationEntryPoint(ObjectMapper objectMapper) {
         return new YcrBearerAuthenticationEntryPoint(objectMapper);
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    public AccessDeniedHandler ycrBearerAccessDeniedHandler(ObjectMapper objectMapper) {
+    @Bean(name = "ycrBearerAccessDeniedHandler")
+    @ConditionalOnMissingBean(name = "ycrBearerAccessDeniedHandler")
+    public YcrBearerAccessDeniedHandler ycrBearerAccessDeniedHandler(ObjectMapper objectMapper) {
         return new YcrBearerAccessDeniedHandler(objectMapper);
     }
 
@@ -56,6 +57,7 @@ public class OAuth2ResourceServerWebAutoConfiguration {
     public OAuth2UserContextFilter oauth2UserContextFilter(OAuth2UserContextMapper mapper,
                                                            ServletContextBinder contextBinder,
                                                            ContextProperties contextProperties,
+                                                           @Qualifier("ycrBearerAuthenticationEntryPoint")
                                                            AuthenticationEntryPoint authenticationEntryPoint) {
         return new OAuth2UserContextFilter(mapper, contextBinder, contextProperties, authenticationEntryPoint);
     }
@@ -67,8 +69,8 @@ public class OAuth2ResourceServerWebAutoConfiguration {
             HttpSecurity http,
             OAuth2ResourceServerProperties properties,
             OAuth2UserContextFilter contextFilter,
-            AuthenticationEntryPoint authenticationEntryPoint,
-            AccessDeniedHandler accessDeniedHandler) throws Exception {
+            @Qualifier("ycrBearerAuthenticationEntryPoint") AuthenticationEntryPoint authenticationEntryPoint,
+            @Qualifier("ycrBearerAccessDeniedHandler") AccessDeniedHandler accessDeniedHandler) throws Exception {
         if (properties.getMode() == null) {
             throw new IllegalStateException(
                     "ycr.auth.oauth2.resource-server.mode is required when "

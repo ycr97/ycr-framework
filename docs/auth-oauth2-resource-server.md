@@ -96,6 +96,10 @@ ycr:
 
 `jwk-set-uri` 只改变 JWKS 获取方式，不关闭 issuer 校验。不要用共享 HMAC secret 把 JWT 当作对称签名会话 Token。
 
+注册自定义 `JwtDecoder` 后，默认 Nimbus decoder 会 back-off。此时自定义实现完全接管 JWT
+安全边界，必须自行保持签名、issuer、audience、`exp`、`nbf` 和算法 allowlist 校验；上述
+`jwt` 配置不会自动附加到自定义 decoder。
+
 ## Opaque Token 模式
 
 ```yaml
@@ -174,7 +178,8 @@ class OAuth2ClaimsConfiguration {
 }
 ```
 
-自定义 mapper 抛出异常或返回 `null` 时请求按认证失败处理，不会把错误转成 500，也不会把底层 Claims 或 Token 回显给客户端。
+自定义 mapper 抛出异常、返回 `null`，或返回同时缺少 `userId` 和有效 `username` 的上下文时，
+请求按认证失败处理，不会把错误转成 500，也不会把底层 Claims 或 Token 回显给客户端。
 
 ## 端点策略与业务权限
 
@@ -202,6 +207,11 @@ public R<List<Order>> listOrders() {
 
 业务代码继续通过 `UserContextHolder`、`SecurityUtils` 和 YCR 注解读取身份与权限，不直接依赖 `JwtAuthenticationToken`、`BearerTokenAuthentication` 或 Spring Security authority。
 
+模块提供名为 `ycrOAuth2ResourceServerSecurityFilterChain`、顺序为 `@Order(100)` 的默认
+catch-all 安全链。业务自定义链必须使用更高优先级和具体 `securityMatcher` 限定自己的请求范围；
+不支持用另一个更高优先级 catch-all 链替换或遮蔽 YCR 链。如需完全接管，应以同名 Bean
+替换默认链，并自行承担 Bearer 认证、上下文桥接和统一错误响应契约。
+
 ## MIXED：签名上下文与 OAuth2 Token
 
 需要保留可信网关透传的租户/应用附加上下文时，可使用 `MIXED`：
@@ -223,6 +233,9 @@ ycr:
 ```
 
 签名 Header 必须先通过 HMAC、时间戳和 nonce 防重放校验。随后 OAuth2 Token 与签名上下文必须证明相同 userId，缺少 userId 时必须以相同 username 证明身份；双方同时存在 tenantId 时也必须一致。任一冲突或无法证明同一身份都拒绝请求。不要用裸 `X-User-*` Header 构造 MIXED 测试或生产请求。
+
+OAuth2 与 `MIXED` 同时启用时，`header-sign.enabled` 必须为 `true` 且 `header-sign.secret`
+必须非空，否则应用启动失败。该门禁不可通过自定义 mapper 或 decoder 绕过。
 
 ## 错误响应
 
@@ -256,4 +269,5 @@ Spring Security 仅存在于 `ycr-starter-auth-oauth2-resource-server` 的依赖
 2. JWT 的 issuer、audience、算法和 OIDC/JWKS 地址是否完整；
 3. Opaque 的 endpoint、client credentials、audience 和正超时是否完整；
 4. 是否同时启用了 Sa-Token，或错误使用了 `GATEWAY_TRUST`；
-5. 自定义 decoder/introspector/mapper 是否注册为正确类型的 Bean。
+5. 自定义 decoder/introspector/mapper 是否注册为正确类型的 Bean，并承担文档声明的安全边界；
+6. 业务 `SecurityFilterChain` 是否使用具体 `securityMatcher`，避免更高优先级 catch-all 链遮蔽 YCR 链。

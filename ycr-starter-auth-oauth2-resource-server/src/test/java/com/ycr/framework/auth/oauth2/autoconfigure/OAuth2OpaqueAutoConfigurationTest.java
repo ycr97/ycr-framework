@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -99,6 +100,10 @@ class OAuth2OpaqueAutoConfigurationTest {
                                     MediaType.APPLICATION_JSON));
                     server.expect(requestTo("https://idp.example.com/introspect"))
                             .andRespond(withServerError().body("upstream-secret-response"));
+                    server.expect(requestTo("https://idp.example.com/introspect"))
+                            .andRespond(request -> {
+                                throw new ResourceAccessException("read timed out with test-secret");
+                            });
 
                     assertThat(context.getBean(OpaqueTokenIntrospector.class).introspect("opaque-token")
                             .getAttributes()).containsEntry("user_id", "1001");
@@ -107,6 +112,12 @@ class OAuth2OpaqueAutoConfigurationTest {
                             .isInstanceOf(org.springframework.security.oauth2.server.resource.introspection
                                     .OAuth2IntrospectionException.class)
                             .hasMessageNotContaining("upstream-secret-response")
+                            .hasMessageNotContaining("test-secret");
+                    assertThatThrownBy(() -> context.getBean(OpaqueTokenIntrospector.class)
+                            .introspect("opaque-token"))
+                            .isInstanceOf(org.springframework.security.oauth2.server.resource.introspection
+                                    .OAuth2IntrospectionException.class)
+                            .hasMessageNotContaining("read timed out")
                             .hasMessageNotContaining("test-secret");
                     server.verify();
                 });

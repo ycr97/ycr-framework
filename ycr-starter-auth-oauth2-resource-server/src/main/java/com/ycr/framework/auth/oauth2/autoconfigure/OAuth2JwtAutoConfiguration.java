@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.context.annotation.Bean;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * OAuth2 Resource Server JWT 自动配置。
@@ -43,6 +44,7 @@ public class OAuth2JwtAutoConfiguration {
         builder.jwsAlgorithms(algorithms -> allowedAlgorithms.stream()
                 .filter(StringUtils::hasText)
                 .map(String::trim)
+                .map(algorithm -> algorithm.toUpperCase(Locale.ROOT))
                 .map(SignatureAlgorithm::from)
                 .forEach(algorithms::add));
 

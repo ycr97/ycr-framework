@@ -105,6 +105,27 @@ class OAuth2ResourceServerAutoConfigurationTest {
                         "ycr.auth.oauth2.resource-server.mode=jwt",
                         "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com",
                         "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api",
+                        "ycr.auth.oauth2.resource-server.jwt.allowed-algorithms[0]=unknown")
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                            "ycr.auth.oauth2.resource-server.jwt.allowed-algorithms contains unsupported "
+                                    + "algorithm: unknown");
+                });
+
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=jwt",
+                        "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com",
+                        "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api",
+                        "ycr.auth.oauth2.resource-server.jwt.allowed-algorithms[0]=rs256")
+                .run(context -> assertThat(context).hasNotFailed());
+
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=jwt",
+                        "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com",
+                        "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api",
                         "ycr.auth.oauth2.resource-server.jwt.clock-skew=-1ms")
                 .run(context -> {
                     assertThat(context).hasFailed();
@@ -196,6 +217,45 @@ class OAuth2ResourceServerAutoConfigurationTest {
                             "ycr.context.security-mode=GATEWAY_TRUST cannot be used with "
                                     + "ycr.auth.oauth2.resource-server.enabled");
                 });
+    }
+
+    @Test
+    @DisplayName("OAuth2的MIXED模式必须启用Header签名并配置密钥")
+    void mixedModeShouldRequireEnabledHeaderSignatureAndSecret() {
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=jwt",
+                        "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com",
+                        "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api",
+                        "ycr.context.security-mode=MIXED",
+                        "ycr.context.header-sign.enabled=false")
+                .run(context -> assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                        "ycr.context.header-sign.enabled must be true when "
+                                + "ycr.auth.oauth2.resource-server.enabled=true and ycr.context.security-mode=MIXED"));
+
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=jwt",
+                        "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com",
+                        "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api",
+                        "ycr.context.security-mode=MIXED")
+                .run(context -> assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                        "ycr.context.header-sign.secret is required when "
+                                + "ycr.auth.oauth2.resource-server.enabled=true and ycr.context.security-mode=MIXED"));
+    }
+
+    @Test
+    @DisplayName("显式MIXED模式不应被废弃的trustHeaders属性误判")
+    void explicitMixedModeShouldOverrideLegacyTrustHeaders() {
+        runner.withPropertyValues(
+                        "ycr.auth.oauth2.resource-server.enabled=true",
+                        "ycr.auth.oauth2.resource-server.mode=jwt",
+                        "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com",
+                        "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api",
+                        "ycr.context.security-mode=MIXED",
+                        "ycr.context.trust-headers=true",
+                        "ycr.context.header-sign.secret=test-secret")
+                .run(context -> assertThat(context).hasNotFailed());
     }
 
     @Test

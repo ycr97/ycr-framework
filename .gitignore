@@ -19,3 +19,6 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Local review material
+/docs/auth-architecture-review.md

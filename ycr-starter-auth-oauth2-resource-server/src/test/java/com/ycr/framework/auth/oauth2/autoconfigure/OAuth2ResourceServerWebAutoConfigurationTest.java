@@ -12,7 +12,9 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -71,6 +73,24 @@ class OAuth2ResourceServerWebAutoConfigurationTest {
         webRunner.withPropertyValues(validJwtProperties())
                 .withBean("businessSecurityFilterChain", SecurityFilterChain.class, () -> mock(SecurityFilterChain.class))
                 .run(context -> assertThat(context).hasBean("ycrOAuth2ResourceServerSecurityFilterChain"));
+    }
+
+    @Test
+    @DisplayName("无关认证处理器不应替换YCR Bearer响应语义")
+    void unrelatedHandlersDoNotBackOffYcrHandlers() {
+        webRunner.withPropertyValues(validJwtProperties())
+                .withBean("businessAuthenticationEntryPoint", AuthenticationEntryPoint.class,
+                        () -> mock(AuthenticationEntryPoint.class))
+                .withBean("businessAccessDeniedHandler", AccessDeniedHandler.class,
+                        () -> mock(AccessDeniedHandler.class))
+                .run(context -> {
+                    assertThat(context).hasBean("ycrBearerAuthenticationEntryPoint");
+                    assertThat(context).hasBean("ycrBearerAccessDeniedHandler");
+                    assertThat(context.getBean("ycrBearerAuthenticationEntryPoint"))
+                            .isInstanceOf(YcrBearerAuthenticationEntryPoint.class);
+                    assertThat(context.getBean("ycrBearerAccessDeniedHandler"))
+                            .isInstanceOf(YcrBearerAccessDeniedHandler.class);
+                });
     }
 
     private String[] validJwtProperties() {

@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased - 0.9.0-RC3-SNAPSHOT
+
+### Added
+
+- 独立的 OAuth2 Resource Server Starter，支持 JWT、Opaque Token、Claims 映射与 YCR 权限注解。
+
+### Security
+
+- MIXED 模式强制启用 Header HMAC 签名并配置密钥，阻断裸 Header 权限和租户注入。
+- OAuth2 上下文桥接统一拒绝缺少 userId/username 的无效身份。
+- YCR Bearer 处理器按固定 Bean 名称隔离，避免无关业务 Bean 改写 401/403/503 语义。
+- JWT 算法配置在启动阶段拒绝不受支持的算法。
+
 ## 0.9.0-RC2 - 2026-08-01
 
 ### Added

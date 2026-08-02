@@ -73,6 +73,21 @@ class OAuth2UserContextFilterTest {
     }
 
     @Test
+    @DisplayName("自定义mapper返回空身份时应认证失败")
+    void emptyMappedIdentityReturnsAuthenticationFailure() throws Exception {
+        OAuth2UserContextMapper mapper = mock(OAuth2UserContextMapper.class);
+        when(mapper.map(any())).thenReturn(new UserContext());
+        AuthenticationEntryPoint entryPoint = mock(AuthenticationEntryPoint.class);
+        OAuth2UserContextFilter filter = filter(mapper, new ContextProperties(), entryPoint);
+        setAuthentication(jwtAuthentication(Map.of("sub", "subject-1")));
+
+        filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain());
+
+        verify(entryPoint).commence(any(), any(), any());
+        assertThat(UserContextHolder.get()).isNull();
+    }
+
+    @Test
     @DisplayName("MIXED模式应校验网关上下文与token身份并保留网关上下文")
     void mixedModeKeepsCompatibleGatewayContext() throws Exception {
         ContextProperties properties = new ContextProperties();
