@@ -12,7 +12,11 @@
 
     <artifactId>ycr-starter-sdk</artifactId>
     <name>YCR Starter SDK</name>
-    <description>SDK 客户端封装 - Feign 客户端服务基类 + @EnableSdkClients 组合注解</description>
+    <description>[Experimental] SDK 客户端封装 - Feign 客户端服务基类 + @EnableSdkClients 组合注解</description>
+
+    <properties>
+        <ycr.module.maturity>experimental</ycr.module.maturity>
+    </properties>
 
     <dependencies>
         <!-- 传递 spring-cloud-openfeign（@EnableFeignClients）及 feign 增强 -->

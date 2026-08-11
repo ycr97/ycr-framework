@@ -12,7 +12,11 @@
 
     <artifactId>ycr-starter-ddd-core</artifactId>
     <name>YCR Starter DDD Core</name>
-    <description>DDD 领域核心 - 领域注解、领域事件、聚合根基类、仓储接口</description>
+    <description>[Experimental] DDD 领域核心 - 领域注解、领域事件、聚合根基类、仓储接口</description>
+
+    <properties>
+        <ycr.module.maturity>experimental</ycr.module.maturity>
+    </properties>
 
     <dependencies>
         <dependency>

@@ -12,7 +12,11 @@
 
     <artifactId>ycr-starter-ddd-extension</artifactId>
     <name>YCR Starter DDD Extension</name>
-    <description>DDD 扩展点 - 按业务身份路由的扩展点机制（参考 COLA @Extension + BWAF 默认实现）</description>
+    <description>[Experimental] DDD 扩展点 - 按业务身份路由的扩展点机制（参考 COLA @Extension + BWAF 默认实现）</description>
+
+    <properties>
+        <ycr.module.maturity>experimental</ycr.module.maturity>
+    </properties>
 
     <dependencies>
         <!-- @AutoConfiguration/@ConditionalOnMissingBean，传递 spring-context/spring-aop -->

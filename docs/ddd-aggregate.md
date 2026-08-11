@@ -1,5 +1,7 @@
 # DDD 聚合持久化（变更检测）
 
+> 成熟度：**Experimental**。作为可选建模工具使用，不进入默认生产底座依赖。
+
 `ycr-starter-ddd-core` 的 `com.ycr.framework.ddd.aggregate` 包提供聚合持久化辅助：把聚合根包进 `Aggregate`，构造时对其做**深拷贝快照**；业务修改后，通过**深比较**自动识别新增 / 变更 / 删除的子实体，供仓储层精准落库。
 
 > 移植自开源项目 meixuesong/aggregate-persistence 与 cedarsoftware/java-util（Apache-2.0），仅做包名适配。

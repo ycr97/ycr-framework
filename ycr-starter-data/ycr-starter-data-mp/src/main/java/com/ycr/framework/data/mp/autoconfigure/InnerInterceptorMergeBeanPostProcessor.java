@@ -33,7 +33,7 @@ final class InnerInterceptorMergeBeanPostProcessor implements BeanPostProcessor 
         List<InnerInterceptor> existing = new ArrayList<>(interceptor.getInterceptors());
         int originalSize = existing.size();
         innerInterceptors.orderedStream()
-                .sorted(Comparator.comparingInt(this::priority))
+                .sorted(Comparator.comparingInt(InnerInterceptorMergeBeanPostProcessor::priority))
                 .filter(candidate -> existing.stream().noneMatch(current -> equivalent(current, candidate)))
                 .forEach(candidate -> existing.add(insertionIndex(existing), candidate));
         if (existing.size() != originalSize) {
@@ -55,7 +55,7 @@ final class InnerInterceptorMergeBeanPostProcessor implements BeanPostProcessor 
         return current == candidate || current.getClass() == candidate.getClass();
     }
 
-    private int priority(InnerInterceptor interceptor) {
+    static int priority(InnerInterceptor interceptor) {
         if (interceptor instanceof TenantLineInnerInterceptor) {
             return 100;
         }

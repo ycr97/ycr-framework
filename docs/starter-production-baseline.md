@@ -6,7 +6,9 @@
 - 修改 SQL、请求响应、认证授权、消息消费、外部中间件状态的能力默认关闭。
 - 引入 starter 不等于启用能力。
 
-当前须显式开启的能力包括数据权限、字段加密、幂等、XSS、限流、鉴权切面、租户、RocketMQ、文件存储、CORS 和统一响应包装。完整清单见 [自动配置矩阵](starter-autoconfiguration-matrix.md)。
+当前须显式开启的能力包括数据权限、字段加密、幂等、验证码、XSS、限流、鉴权切面、租户、
+分布式 ID、RocketMQ、文件存储、CRUD 自动端点、CORS 和统一响应包装。完整清单见
+[自动配置矩阵](starter-autoconfiguration-matrix.md)。
 
 ## 自动装配测试矩阵
 

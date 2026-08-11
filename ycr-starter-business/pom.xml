@@ -12,7 +12,11 @@
 
     <artifactId>ycr-starter-business</artifactId>
     <name>YCR Starter Business</name>
-    <description>接入层拦截链模块 - @BizApi 统一可排序可否决拦截点，应用以 BizInterceptor 插件化横切逻辑</description>
+    <description>[Experimental] 接入层拦截链模块 - @BizApi 统一可排序可否决拦截点</description>
+
+    <properties>
+        <ycr.module.maturity>experimental</ycr.module.maturity>
+    </properties>
 
     <dependencies>
         <!-- 取 core 异常体系；business 与 Web 无关，不依赖 web -->
