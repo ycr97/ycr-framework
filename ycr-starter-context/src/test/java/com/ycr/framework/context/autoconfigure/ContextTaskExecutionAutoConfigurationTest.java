@@ -55,4 +55,15 @@ class ContextTaskExecutionAutoConfigurationTest {
                     assertThat(UserContextHolder.get()).isNull();
                 });
     }
+
+    @Test
+    @DisplayName("业务TaskDecorator标记Primary时应明确拒绝启动")
+    void customPrimaryTaskDecoratorShouldFailFast() {
+        TaskDecorator custom = runnable -> runnable;
+
+        runner.withBean("customTaskDecorator", TaskDecorator.class, () -> custom,
+                        beanDefinition -> beanDefinition.setPrimary(true))
+                .run(context -> assertThat(context.getStartupFailure()).hasMessageContaining(
+                        "When multiple TaskDecorator beans exist, ContextTaskDecorator must be the sole primary"));
+    }
 }

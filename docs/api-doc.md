@@ -33,8 +33,9 @@ ycr:
 
 > 生产环境建议 `ycr.api-doc.enabled: false` 关闭。该总开关会在自动配置条件判断前强制设置
 > `springdoc.api-docs.enabled=false`、`springdoc.swagger-ui.enabled=false`、`knife4j.enable=false`，
-> 并对 `/v3/api-docs/**`、`/swagger-ui/**`、`/doc.html`、`/webjars/**` 返回 404。
-> 因 Knife4j 4.x 使用通用 `/webjars/**` 路径，关闭文档时该路径下的其他 WebJar 资源也会被阻断。
+> 并对 `/v3/api-docs/**`、`/swagger-ui/**`、`/doc.html` 返回 404。Knife4j 的静态文件使用
+> 通用 `/webjars/**` 路径，框架不会阻断该共享命名空间，以免影响业务引入的其他 WebJar；
+> 文档入口和 OpenAPI 数据端点关闭后，这些静态文件无法形成可用文档页面。
 
 ## 用法
 

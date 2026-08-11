@@ -47,8 +47,6 @@ class ApiDocDisabledWebIntegrationTest {
         mockMvc.perform(get("/v3/api-docs.yaml")).andExpect(status().isNotFound());
         mockMvc.perform(get("/swagger-ui/index.html")).andExpect(status().isNotFound());
         mockMvc.perform(get("/doc.html")).andExpect(status().isNotFound());
-        mockMvc.perform(get("/img/icons/favicon-32x32.png")).andExpect(status().isNotFound());
-        mockMvc.perform(get("/webjars/js/app.js")).andExpect(status().isNotFound());
     }
 
     @SpringBootConfiguration

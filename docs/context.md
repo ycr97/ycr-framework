@@ -84,7 +84,7 @@ Context 不注册空的 token、manual 或 system 占位实现。具体认证适
 ## 注意
 
 - 跨服务调用时由 `ycr-starter-feign` 重新签名上下文 Header 透传给下游。
-- Spring Boot 默认异步执行器使用 `ContextTaskDecorator`。业务声明的其他 `TaskDecorator` Bean 会按 Spring `Ordered` 顺序组合到其中，YCR 上下文恢复包裹整个业务装饰链；不要再把业务装饰器标为 `@Primary`。
+- Spring Boot 默认异步执行器使用 `ContextTaskDecorator`。业务声明的其他 `TaskDecorator` Bean 会按 Spring `Ordered` 顺序组合到其中，YCR 上下文恢复包裹整个业务装饰链；业务装饰器标记 `@Primary` 时应用会明确启动失败，避免 Spring Boot 静默跳过上下文装饰器。
 - 非 Servlet 应用仍会装配签名、Holder 和线程池传播能力，不会加载请求解析器或 Servlet Filter。
 - 直接创建的原生线程池不经过 Spring Boot `TaskDecorator`，需显式调用 `ContextTaskDecorator.decorate(...)` 或为线程池设置该装饰器。
 - 凭 token 直接访问的链路由 `ycr-starter-auth-satoken` 从会话还原上下文（见 [auth 文档](auth.md)）。

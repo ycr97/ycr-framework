@@ -31,8 +31,6 @@ public class ApiDocDisabledFilter implements Filter {
                 || path.equals("/v3/api-docs")
                 || path.equals("/v3/api-docs.yaml")
                 || path.startsWith("/v3/api-docs/")
-                || path.startsWith("/swagger-ui/")
-                || path.startsWith("/img/icons/")
-                || path.startsWith("/webjars/");
+                || path.startsWith("/swagger-ui/");
     }
 }
