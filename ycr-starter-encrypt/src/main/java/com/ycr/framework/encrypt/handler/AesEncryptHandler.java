@@ -109,11 +109,16 @@ public class AesEncryptHandler implements EncryptHandler {
         String header = ENVELOPE_PREFIX + keyId;
         try {
             Base64.Decoder decoder = Base64.getUrlDecoder();
+            Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
             byte[] nonce = decoder.decode(parts[4]);
+            byte[] encrypted = decoder.decode(parts[5]);
+            if (!parts[4].equals(encoder.encodeToString(nonce))
+                    || !parts[5].equals(encoder.encodeToString(encrypted))) {
+                throw new IllegalArgumentException("AES-GCM envelope 包含非规范 Base64URL 编码");
+            }
             if (nonce.length != GCM_NONCE_LENGTH) {
                 throw new IllegalArgumentException("AES-GCM nonce 长度非法");
             }
-            byte[] encrypted = decoder.decode(parts[5]);
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_BITS, nonce));
             cipher.updateAAD(header.getBytes(StandardCharsets.UTF_8));

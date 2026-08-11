@@ -85,7 +85,7 @@ class AesEncryptHandlerTest {
     }
 
     @Test
-    @DisplayName("篡改GCM密文或元数据时应校验失败")
+    @DisplayName("篡改GCM密文、元数据或Base64URL表示时应校验失败")
     void tamperedEnvelopeShouldFailAuthentication() {
         String encrypted = handler.encrypt("敏感数据");
         char replacement = encrypted.endsWith("A") ? 'B' : 'A';
