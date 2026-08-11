@@ -1,5 +1,6 @@
 package com.ycr.framework.context.propagation;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.task.TaskDecorator;
 
 import java.util.ArrayList;
@@ -13,23 +14,44 @@ import java.util.List;
 public class ContextTaskDecorator implements TaskDecorator {
 
     private final List<ThreadContextAccessor> accessors;
+    private final ObjectProvider<TaskDecorator> taskDecorators;
 
     public ContextTaskDecorator(List<ThreadContextAccessor> accessors) {
+        this(accessors, null);
+    }
+
+    public ContextTaskDecorator(List<ThreadContextAccessor> accessors,
+                                ObjectProvider<TaskDecorator> taskDecorators) {
         this.accessors = List.copyOf(accessors);
+        this.taskDecorators = taskDecorators;
     }
 
     @Override
     public Runnable decorate(Runnable runnable) {
+        Runnable delegateDecorated = decorateWithUserTaskDecorators(runnable);
         List<Object> captured = captureAll();
         return () -> {
             List<Object> previous = captureAll();
             restoreAll(captured);
             try {
-                runnable.run();
+                delegateDecorated.run();
             } finally {
                 restoreAll(previous);
             }
         };
+    }
+
+    private Runnable decorateWithUserTaskDecorators(Runnable runnable) {
+        if (taskDecorators == null) {
+            return runnable;
+        }
+        Runnable decorated = runnable;
+        for (TaskDecorator taskDecorator : taskDecorators.orderedStream()
+                .filter(candidate -> candidate != this)
+                .toList()) {
+            decorated = taskDecorator.decorate(decorated);
+        }
+        return decorated;
     }
 
     private List<Object> captureAll() {

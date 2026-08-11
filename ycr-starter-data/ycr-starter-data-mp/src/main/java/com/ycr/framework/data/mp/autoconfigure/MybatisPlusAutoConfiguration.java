@@ -13,6 +13,8 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 
+import java.util.Comparator;
+
 /**
  * MyBatis-Plus 自动配置
  *
@@ -40,7 +42,9 @@ public class MybatisPlusAutoConfiguration {
     public MybatisPlusInterceptor mybatisPlusInterceptor(MybatisPlusProperties properties,
                                                           ObjectProvider<InnerInterceptor> innerInterceptors) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        innerInterceptors.orderedStream().forEach(interceptor::addInnerInterceptor);
+        innerInterceptors.orderedStream()
+                .sorted(Comparator.comparingInt(InnerInterceptorMergeBeanPostProcessor::priority))
+                .forEach(interceptor::addInnerInterceptor);
         if (properties.isPaginationEnabled()) {
             PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor();
             paginationInnerInterceptor.setMaxLimit(properties.getMaxLimit());

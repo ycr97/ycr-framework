@@ -12,7 +12,11 @@
 
     <artifactId>ycr-starter-ddd-statemachine</artifactId>
     <name>YCR Starter DDD StateMachine</name>
-    <description>DDD 状态机 - 参考 COLA StateMachine 的轻量级、不可变、线程安全状态机（流式 DSL + 条件分支）</description>
+    <description>[Experimental] DDD 状态机 - 参考 COLA StateMachine 的轻量级、不可变、线程安全状态机（流式 DSL + 条件分支）</description>
+
+    <properties>
+        <ycr.module.maturity>experimental</ycr.module.maturity>
+    </properties>
 
     <dependencies>
         <!-- 运行/构建期错误统一用 Biz/SysException 承载，让 core 依赖真正落地 -->

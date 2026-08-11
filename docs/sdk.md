@@ -1,5 +1,7 @@
 # SDK 发布
 
+> 成熟度：**Experimental**。优先直接使用 `ycr-starter-feign`；本模块封装契约在 1.0 前可能调整。
+
 `ycr-starter-sdk` 支持「SDK 发布模式」：服务提供方在 client 模块定义 Feign 接口并封装为 SDK 服务类，消费方引入 jar 即可像本地服务一样注入调用。
 
 ## 依赖

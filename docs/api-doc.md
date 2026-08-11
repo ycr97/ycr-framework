@@ -31,7 +31,10 @@ ycr:
     version: 2.0.0
 ```
 
-> 生产环境建议 `ycr.api-doc.enabled: false` 关闭。文档静态资源路径默认已在 `ycr-starter-security` 的放行白名单中（`/doc.html`、`/v3/api-docs/**`、`/webjars/**`）。
+> 生产环境建议 `ycr.api-doc.enabled: false` 关闭。该总开关会在自动配置条件判断前强制设置
+> `springdoc.api-docs.enabled=false`、`springdoc.swagger-ui.enabled=false`、`knife4j.enable=false`，
+> 并对 `/v3/api-docs/**`、`/swagger-ui/**`、`/doc.html`、`/webjars/**` 返回 404。
+> 因 Knife4j 4.x 使用通用 `/webjars/**` 路径，关闭文档时该路径下的其他 WebJar 资源也会被阻断。
 
 ## 用法
 

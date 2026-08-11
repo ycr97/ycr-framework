@@ -4,23 +4,20 @@
 
 | 模块 | AutoConfiguration | 默认策略 | 关键 Bean | 默认测试 | 关闭测试 | 覆盖测试 |
 | --- | --- | --- | --- | --- | --- | --- |
-| api-doc | ApiDocAutoConfiguration | 默认开启 | OpenAPI | 有 | 有 | 有 |
+| api-doc | ApiDocAutoConfiguration / ApiDocDisabledAutoConfiguration | 默认开启；关闭时同步关闭 SpringDoc/Knife4j 与静态资源 | OpenAPI / DisabledFilter | 有 | 有 | 有 |
 | business | BusinessAutoConfiguration | 默认开启 | BizApiAspect | 有 | 有 | 有 |
 | cache | CacheAutoConfiguration | 有 Redisson 时开启 | RedisUtils | 有 | 有 | 不适用 |
 | cache-jetcache | JetCacheAnnoAutoConfiguration | 默认开启 | JetCache 注解基础设施 | 有 | 有 | 有 |
-| captcha | CaptchaAutoConfiguration | 默认开启 | CaptchaService | 有 | 有 | 有 |
-| context | ContextAutoConfiguration | 默认开启 | UserContextResolverChain | 有 | 不适用 | 有 |
+| context | ContextAutoConfiguration | 默认开启 | ContextProperties / ContextHeaderSigner | 有 | 不适用 | 有 |
 | context-redis | ContextRedisAutoConfiguration | 有 RedissonClient 时开启 | ContextReplayGuard | 有 | 无依赖时 fail-closed | 有 |
 | context-servlet | ContextServletAutoConfiguration | Servlet 环境开启 | ContextFilter | 有 | 非 Web 不装配 | 有 |
 | core | CoreAutoConfiguration | 默认开启 | SpringContextHolder | 有 | 不适用 | 不适用 |
-| crud | CrudAutoConfiguration | Servlet 环境开启 | CRUD HandlerMapping | 有 | 非 Web 不装配 | 有 |
 | data-mp | MybatisPlusAutoConfiguration | 默认开启 | MetaObjectHandler / MybatisPlusInterceptor | 有 | 有 | 有 |
 | ddd-core | DddCoreAutoConfiguration | 默认开启 | DomainEventPublisher | 有 | 不适用 | 有 |
 | ddd-extension | ExtensionAutoConfiguration | 默认开启 | ExtensionExecutor | 有 | 不适用 | 有 |
 | excel | ExcelAutoConfiguration | Servlet 环境开启 | Excel 导出处理器 | 有 | 非 Web 不装配 | 有 |
 | feign | FeignAutoConfiguration | 默认开启 | Feign 拦截器 / ErrorDecoder | 有 | 有 | 有 |
 | i18n | I18nAutoConfiguration | 默认开启 | LocaleResolver | 有 | 有 | 有 |
-| id-generate | IdGenerateAutoConfiguration | 默认开启 | IdGenerator | 有 | 不适用 | 有 |
 | json | JacksonAutoConfiguration | 默认开启 | Jackson Module | 有 | 不适用 | 有 |
 | log | LogAutoConfiguration | 默认开启 | LogAspect / LogHandler | 有 | 有 | 有 |
 | messaging | MessagingAutoConfiguration | 默认开启 | MailService | 有 | 有 | 有 |
@@ -33,10 +30,13 @@
 | 模块 | AutoConfiguration | 默认策略 | 关键 Bean | 默认测试 | 关闭测试 | 覆盖测试 |
 | --- | --- | --- | --- | --- | --- | --- |
 | data-permission | DataPermissionAutoConfiguration | 显式开启 | DataPermissionInterceptor / DataPermissionAspect | 有 | 有 | 有 |
+| captcha | CaptchaAutoConfiguration | 显式开启 | CaptchaService | 有 | 有 | 有 |
+| crud | CrudAutoConfiguration | 显式开启且仅 Servlet 环境 | CRUD HandlerMapping | 有 | 有 | 有；MVC 扩展冲突 fail-fast |
 | auth-satoken | SaTokenAuthAutoConfiguration / SaTokenWebAutoConfiguration | 显式开启；开启后端点默认需登录 | SaTokenSessionManager / SaInterceptor / UserContextResolver / AuthorizeAspect | 有 | 有 | 有 |
 | auth-satoken-store | SaTokenSessionStoreAutoConfiguration / SaTokenRedisSessionStoreAutoConfiguration | memory 默认；redis 显式选择且 fail-fast | SaTokenDao | 有 | 有 | 有 |
 | auth-oauth2-resource-server | OAuth2ResourceServerAutoConfiguration / OAuth2JwtAutoConfiguration / OAuth2OpaqueAutoConfiguration / OAuth2ResourceServerWebAutoConfiguration | 显式开启；JWT/Opaque mode 必须明确且与 Sa-Token 互斥 | JwtDecoder 或 OpaqueTokenIntrospector / YCR SecurityFilterChain / UserContext bridge | 有 | 有 | 有 |
 | encrypt | EncryptAutoConfiguration | 显式开启 | EncryptHandler / Lifecycle | 有 | 有 | 有 |
+| id-generate | IdGenerateAutoConfiguration | 显式开启且节点 ID 必填 | IdGenerator | 有 | 有 | 有 |
 | idempotent | IdempotentAutoConfiguration | 显式开启 | IdempotentAspect | 有 | 有 | 有 |
 | protect-xss | XssAutoConfiguration | 显式开启 | XssFilter | 有 | 有 | 有 |
 | ratelimiter | RateLimiterAutoConfiguration | 显式开启 | RateLimiterAspect | 有 | 有 | 有 |

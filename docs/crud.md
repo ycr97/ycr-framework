@@ -1,5 +1,7 @@
 # 通用 CRUD 自动端点
 
+> 成熟度：**Experimental**。仅建议用于经过评审的低复杂度内部后台，不进入默认生产底座依赖。
+
 `ycr-starter-crud` 提供 `AbstractCrudController`，继承即获得一套增删改查 + 分页 + 列表 REST 端点，免写样板。基于 `ycr-starter-data-mp`。
 
 ## 依赖
@@ -11,7 +13,17 @@
 </dependency>
 ```
 
-无独立配置项；端点治理（`@CrudApi`）通过 Spring Boot 的 `WebMvcRegistrations` 扩展点生效，自动配置仅在 Servlet Web 应用激活。
+CRUD 自动端点默认关闭，必须显式启用：
+
+```yaml
+ycr:
+  crud:
+    enabled: true
+```
+
+端点治理（`@CrudApi`）通过 Spring Boot 的 `WebMvcRegistrations` 扩展点生效，自动配置仅在 Servlet Web 应用激活。
+若应用自定义 `WebMvcRegistrations`，其 `getRequestMappingHandlerMapping()` 必须返回
+`CrudApiRequestMappingHandlerMapping`；否则应用启动失败，避免声明关闭的端点被静默重新暴露。
 
 ## 用法
 

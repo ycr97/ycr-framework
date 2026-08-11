@@ -1,6 +1,7 @@
 package com.ycr.framework.context.autoconfigure;
 
 import com.ycr.framework.context.sign.ContextHeaderSigner;
+import com.ycr.framework.context.propagation.ContextTaskDecorator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -31,10 +32,15 @@ class ContextAutoConfigurationTest {
     void shouldMatchExpectedBehavior002() {
         new ApplicationContextRunner()
                 .withClassLoader(new FilteredClassLoader("jakarta.servlet"))
-                .withConfiguration(AutoConfigurations.of(ContextAutoConfiguration.class))
+                .withConfiguration(AutoConfigurations.of(
+                        ContextAutoConfiguration.class,
+                        ContextTaskExecutionAutoConfiguration.class,
+                        ContextServletAutoConfiguration.class))
                 .run(context -> {
                     assertThat(context).hasNotFailed();
                     assertThat(context).hasSingleBean(ContextHeaderSigner.class);
+                    assertThat(context).hasSingleBean(ContextTaskDecorator.class);
+                    assertThat(context).doesNotHaveBean("contextFilterRegistration");
                 });
     }
 }

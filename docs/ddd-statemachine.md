@@ -1,5 +1,7 @@
 # DDD 状态机
 
+> 成熟度：**Experimental**。作为可选建模工具使用，不进入默认生产底座依赖。
+
 `ycr-starter-ddd-statemachine` 提供 COLA 风格的轻量状态机：流式 DSL 声明状态转换，`build` 一次成型为**不可变、线程安全**的状态机，适合为聚合的状态流转建模。
 
 ## 依赖

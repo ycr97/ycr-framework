@@ -11,6 +11,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.util.StringUtils;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * 加解密自动配置
@@ -24,9 +28,23 @@ public class EncryptAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "ycr.encrypt", name = "aes-key")
     public EncryptHandler encryptHandler(EncryptProperties properties) {
-        return new AesEncryptHandler(properties.getAesKey());
+        if (properties.getAlgorithm() != com.ycr.framework.encrypt.enums.EncryptAlgorithm.AES) {
+            throw new IllegalStateException("ycr.encrypt.algorithm 当前仅支持 AES");
+        }
+        Map<String, String> keys = new LinkedHashMap<>(properties.getKeys());
+        if (keys.isEmpty()) {
+            if (!StringUtils.hasText(properties.getAesKey())) {
+                throw new IllegalStateException(
+                        "ycr.encrypt.enabled=true requires ycr.encrypt.aes-key, ycr.encrypt.keys, "
+                                + "or a custom EncryptHandler bean");
+            }
+            keys.put(properties.getCurrentKeyId(), properties.getAesKey());
+        } else if (StringUtils.hasText(properties.getAesKey())) {
+            throw new IllegalStateException("ycr.encrypt.aes-key 与 ycr.encrypt.keys 不得同时配置");
+        }
+        return new AesEncryptHandler(
+                properties.getCurrentKeyId(), keys, properties.getLegacyKeyId());
     }
 
     @Bean

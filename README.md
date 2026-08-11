@@ -2,6 +2,9 @@
 
 YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重点能力包括统一响应、全局异常、上下文透传、认证、安全工具、MyBatis-Plus 增强和字段加密。
 
+模块按 `stable` / `experimental` 管理兼容边界。DDD、Business、SDK、CRUD 当前为实验性扩展，
+不进入默认生产底座依赖，详见 [模块成熟度与兼容边界](docs/module-maturity.md)。
+
 ## 快速接入
 
 业务服务按需引入 starter：
@@ -39,6 +42,7 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 ## 使用文档
 
 **基础**
+- [模块成熟度与兼容边界](docs/module-maturity.md)
 - [Starter 生产级装配基线](docs/starter-production-baseline.md)
 - [核心基础（响应 / 异常 / 枚举 / 工具）](docs/core.md)
 - [通用纯类库（树工具 / 校验分组 / 通用 DTO）](docs/common.md)

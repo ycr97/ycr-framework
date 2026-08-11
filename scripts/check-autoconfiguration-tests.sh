@@ -6,6 +6,7 @@ cd "${repo_root}"
 
 "${repo_root}/scripts/check-version-consistency.sh"
 "${repo_root}/scripts/check-test-method-names.sh"
+"${repo_root}/scripts/check-module-maturity.sh"
 
 missing=0
 while IFS= read -r imports_file; do

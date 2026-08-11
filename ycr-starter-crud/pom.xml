@@ -12,7 +12,11 @@
 
     <artifactId>ycr-starter-crud</artifactId>
     <name>YCR Starter CRUD</name>
-    <description>通用 CRUD 模块 - AbstractCrudController/CrudService 基类，子类继承即获全套端点，@CrudApi 关端点</description>
+    <description>[Experimental] 通用 CRUD 模块 - AbstractCrudController/CrudService 基类与自动端点</description>
+
+    <properties>
+        <ycr.module.maturity>experimental</ycr.module.maturity>
+    </properties>
 
     <dependencies>
         <!-- R 信封 + Web MVC（含 spring-webmvc/WebMvcRegistrations） -->

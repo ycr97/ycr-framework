@@ -65,6 +65,7 @@ class EncryptTypeHandlerIntegrationTest {
 
         String storedPhone = queryStoredPhone(1L);
         assertNotEquals("13800138000", storedPhone);
+        assertTrue(storedPhone.startsWith("ycr:v1:aes-gcm:default:"));
         assertEquals("13800138000", encryptHandler.decrypt(storedPhone));
 
         try (SqlSession session = sqlSessionFactory.openSession()) {
