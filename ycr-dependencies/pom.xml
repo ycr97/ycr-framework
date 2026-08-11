@@ -13,7 +13,7 @@
     <description>YCR 框架第三方依赖版本管理</description>
 
     <properties>
-        <revision>0.9.0-RC4-SNAPSHOT</revision>
+        <revision>0.9.0-RC4</revision>
         <spring-boot.version>3.3.7</spring-boot.version>
         <spring-cloud.version>2023.0.4</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.3.2</spring-cloud-alibaba.version>
