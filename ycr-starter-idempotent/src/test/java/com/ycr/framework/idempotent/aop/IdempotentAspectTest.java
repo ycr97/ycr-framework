@@ -72,7 +72,9 @@ class IdempotentAspectTest {
         DemoService proxy = weave(client);
 
         assertThrows(IllegalStateException.class, proxy::boom);
-        verify(bucket).delete();
+        ArgumentCaptor<Object> token = ArgumentCaptor.forClass(Object.class);
+        verify(bucket).trySet(token.capture(), eq(1L), eq(TimeUnit.SECONDS));
+        verify(bucket).compareAndSet(token.getValue(), null);
     }
 
     @Test
@@ -92,15 +94,28 @@ class IdempotentAspectTest {
         assertTrue(keyCaptor.getValue().contains("o1"), "幂等键应包含 SpEL 求值结果");
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    @DisplayName("未显式配置请求键时应拒绝执行")
+    void shouldRejectAnnotationWithoutExplicitKey() {
+        RedissonClient client = mock(RedissonClient.class);
+        DemoService proxy = weave(client);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, proxy::unsafeSubmit);
+
+        assertEquals("@Idempotent.key 必须显式配置，避免同一方法的不同请求共用全局键", exception.getMessage());
+        verifyNoInteractions(client);
+    }
+
     /** 测试目标 */
     public static class DemoService {
 
-        @Idempotent
+        @Idempotent(key = "'global-submit'")
         public String submit() {
             return "ok";
         }
 
-        @Idempotent
+        @Idempotent(key = "'global-boom'")
         public void boom() {
             throw new IllegalStateException("炸了");
         }
@@ -108,6 +123,11 @@ class IdempotentAspectTest {
         @Idempotent(key = "#orderId")
         public String submitOrder(String orderId) {
             return "ok:" + orderId;
+        }
+
+        @Idempotent
+        public String unsafeSubmit() {
+            return "unsafe";
         }
     }
 }

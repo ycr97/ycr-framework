@@ -6,6 +6,7 @@ import com.ycr.framework.auth.oauth2.handler.YcrBearerAccessDeniedHandler;
 import com.ycr.framework.auth.oauth2.handler.YcrBearerAuthenticationEntryPoint;
 import com.ycr.framework.auth.oauth2.mapper.OAuth2UserContextMapper;
 import com.ycr.framework.context.autoconfigure.ContextProperties;
+import com.ycr.framework.context.autoconfigure.ContextServletAutoConfiguration;
 import com.ycr.framework.context.servlet.ServletContextBinder;
 import jakarta.servlet.Filter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -34,7 +35,7 @@ import java.util.List;
  *
  * @author ycr
  */
-@AutoConfiguration(after = OAuth2ResourceServerAutoConfiguration.class)
+@AutoConfiguration(after = {OAuth2ResourceServerAutoConfiguration.class, ContextServletAutoConfiguration.class})
 @ConditionalOnClass({Filter.class, SecurityFilterChain.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnProperty(prefix = "ycr.auth.oauth2.resource-server", name = "enabled", havingValue = "true")

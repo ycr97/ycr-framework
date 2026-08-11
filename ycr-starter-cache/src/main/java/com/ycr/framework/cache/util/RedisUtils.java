@@ -36,29 +36,35 @@ public final class RedisUtils {
     }
 
     public static <T> void set(String key, T value) {
-        RBucket<T> bucket = redissonClient.getBucket(key);
+        RBucket<T> bucket = getClient().getBucket(key);
         bucket.set(value);
     }
 
     public static <T> void set(String key, T value, Duration duration) {
-        RBucket<T> bucket = redissonClient.getBucket(key);
+        RBucket<T> bucket = getClient().getBucket(key);
         bucket.set(value, duration);
     }
 
     public static <T> T get(String key) {
-        RBucket<T> bucket = redissonClient.getBucket(key);
+        RBucket<T> bucket = getClient().getBucket(key);
         return bucket.get();
     }
 
+    /** 原子获取并删除键值，适用于验证码等一次性凭证。 */
+    public static <T> T getAndDelete(String key) {
+        RBucket<T> bucket = getClient().getBucket(key);
+        return bucket.getAndDelete();
+    }
+
     public static boolean delete(String key) {
-        return redissonClient.getBucket(key).delete();
+        return getClient().getBucket(key).delete();
     }
 
     public static boolean exists(String key) {
-        return redissonClient.getBucket(key).isExists();
+        return getClient().getBucket(key).isExists();
     }
 
     public static boolean expire(String key, Duration duration) {
-        return redissonClient.getBucket(key).expire(duration);
+        return getClient().getBucket(key).expire(duration);
     }
 }

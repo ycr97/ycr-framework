@@ -30,10 +30,10 @@ class FeignAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(ContextAutoConfiguration.class, FeignAutoConfiguration.class));
 
     @Test
-    @DisplayName("默认应装配透传拦截器与错误解码器")
+    @DisplayName("默认应关闭身份透传并保留错误解码器")
     void shouldMatchExpectedBehavior001() {
         runner.run(context -> {
-            assertThat(context).hasSingleBean(ContextPassInterceptor.class);
+            assertThat(context).doesNotHaveBean(ContextPassInterceptor.class);
             assertThat(context).hasSingleBean(FeignErrorDecoder.class);
             assertThat(context).hasSingleBean(LocalePassInterceptor.class);
         });
@@ -54,6 +54,23 @@ class FeignAutoConfigurationTest {
     }
 
     @Test
+    @DisplayName("开启上下文透传并配置内部服务时应装配拦截器")
+    void shouldConfigureContextPassForExplicitInternalClients() {
+        runner.withPropertyValues(
+                        "ycr.feign.context-pass-enabled=true",
+                        "ycr.feign.internal-clients=user-service")
+                .run(context -> assertThat(context).hasSingleBean(ContextPassInterceptor.class));
+    }
+
+    @Test
+    @DisplayName("开启上下文透传但未配置内部服务时应启动失败")
+    void shouldFailWhenContextPassHasNoInternalClients() {
+        runner.withPropertyValues("ycr.feign.context-pass-enabled=true")
+                .run(context -> assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                        "ycr.feign.internal-clients 必须在启用上下文或 Token 透传时显式配置"));
+    }
+
+    @Test
     @DisplayName("关闭解码开关时不装配解码器")
     void shouldMatchExpectedBehavior004() {
         runner.withPropertyValues("ycr.feign.error-decoder-enabled=false")
@@ -69,7 +86,9 @@ class FeignAutoConfigurationTest {
     @Test
     @DisplayName("开启token开关后装配token透传拦截器")
     void shouldMatchExpectedBehavior006() {
-        runner.withPropertyValues("ycr.feign.token-pass-enabled=true")
+        runner.withPropertyValues(
+                        "ycr.feign.token-pass-enabled=true",
+                        "ycr.feign.internal-clients=user-service")
                 .run(context -> assertThat(context).hasSingleBean(TokenPassInterceptor.class));
     }
 
@@ -77,7 +96,10 @@ class FeignAutoConfigurationTest {
     @DisplayName("无servletApi时不装配语言与token透传拦截器但其余仍装配")
     void shouldMatchExpectedBehavior007() {
         runner.withClassLoader(new FilteredClassLoader(HttpServletRequest.class))
-                .withPropertyValues("ycr.feign.token-pass-enabled=true")
+                .withPropertyValues(
+                        "ycr.feign.context-pass-enabled=true",
+                        "ycr.feign.token-pass-enabled=true",
+                        "ycr.feign.internal-clients=user-service")
                 .run(context -> {
                     assertThat(context).doesNotHaveBean(LocalePassInterceptor.class);
                     assertThat(context).doesNotHaveBean(TokenPassInterceptor.class);

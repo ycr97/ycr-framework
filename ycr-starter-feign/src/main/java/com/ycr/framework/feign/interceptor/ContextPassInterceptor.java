@@ -36,11 +36,13 @@ public class ContextPassInterceptor extends AbstractMatchableFeignInterceptor {
         properties.getHeaderSign().setEnabled(false);
         this.contextProperties = properties;
         this.signer = new ContextHeaderSigner();
+        setDefaultMatcher(template -> false);
     }
 
     public ContextPassInterceptor(ContextProperties contextProperties, ContextHeaderSigner signer) {
         this.contextProperties = contextProperties;
         this.signer = signer;
+        setDefaultMatcher(template -> false);
     }
 
     @Override
@@ -108,12 +110,18 @@ public class ContextPassInterceptor extends AbstractMatchableFeignInterceptor {
         }
         String timestamp = String.valueOf(System.currentTimeMillis());
         String nonce = UUID.randomUUID().toString();
+        String audience = template.feignTarget() == null ? null : template.feignTarget().name();
+        if (audience == null || audience.isBlank()) {
+            throw new IllegalStateException("上下文透传必须关联明确的 Feign client 目标");
+        }
         template.header(contextProperties.getHeaderSign().getTimestampHeader(), timestamp);
         template.header(contextProperties.getHeaderSign().getNonceHeader(), nonce);
+        template.header(ContextHeaderConstants.HEADER_CONTEXT_AUDIENCE, audience);
 
         ContextHeaderSnapshot snapshot = new ContextHeaderSnapshot();
         snapshot.setMethod(template.method());
         snapshot.setPath(template.path());
+        snapshot.setAudience(audience);
         snapshot.setTimestamp(timestamp);
         snapshot.setNonce(nonce);
         snapshot.setUserId(firstHeader(template, ContextHeaderConstants.HEADER_USER_ID));

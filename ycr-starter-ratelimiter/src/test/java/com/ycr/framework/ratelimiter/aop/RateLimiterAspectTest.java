@@ -81,6 +81,18 @@ class RateLimiterAspectTest {
         verify(limiter).trySetRate(eq(RateType.OVERALL), eq(2L), any(Duration.class));
     }
 
+    @Test
+    @DisplayName("时间窗口未配置时应拒绝执行")
+    void shouldRejectInvalidDefaultInterval() {
+        RedissonClient client = mock(RedissonClient.class);
+        DemoService proxy = weave(client);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, proxy::invalid);
+
+        assertEquals("@RateLimiter.interval 必须大于 0", exception.getMessage());
+        verifyNoInteractions(client);
+    }
+
     /** 测试目标 */
     public static class DemoService {
 
@@ -92,6 +104,11 @@ class RateLimiterAspectTest {
         @RateLimiter(key = "#userId", rate = 5, interval = 1)
         public String hitUser(String userId) {
             return "ok:" + userId;
+        }
+
+        @RateLimiter
+        public String invalid() {
+            return "invalid";
         }
     }
 }

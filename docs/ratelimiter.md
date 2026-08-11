@@ -21,6 +21,7 @@
 | `ycr.ratelimiter.key-prefix` | `ycr:ratelimiter` | Redis 键前缀 |
 
 使用 `@RateLimiter` 前必须配置 `ycr.ratelimiter.enabled=true`。
+显式开启但容器中没有 `RedissonClient` 时应用拒绝启动。`rate` 和 `interval` 必须显式设置为大于 0 的值。
 
 ## 用法
 

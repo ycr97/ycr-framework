@@ -109,4 +109,15 @@ class DataPermissionHandlerTest {
         DataPermissionHandler h = handlerWith(rule("biz_order", s -> Predicate.in("code", List.of("A", "B'x"))));
         assertEquals("code IN ('A', 'B''x')", h.buildExpression("biz_order", scope, SqlCommandType.SELECT, "m").toString());
     }
+
+    @Test
+    @DisplayName("受治理表无法解析SQL命令时应fail_closed")
+    void shouldDenyGovernedTableWhenCommandTypeIsUnknown() {
+        DataPermissionHandler handler = new DataPermissionHandler(List.of("biz_order"));
+        handler.addRule(rule("biz_order", s -> Predicate.in("factory_id", List.of(1))));
+
+        Expression expression = handler.buildExpression("biz_order", scope, SqlCommandType.UNKNOWN, "missing");
+
+        assertEquals("1 = 0", expression.toString());
+    }
 }

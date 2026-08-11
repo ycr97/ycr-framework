@@ -18,6 +18,7 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 /**
  * 幂等切面 —— 基于 Redisson SETNX（{@code RBucket.trySet}）
@@ -30,9 +31,6 @@ import java.lang.reflect.Method;
 @Slf4j
 @Aspect
 public class IdempotentAspect {
-
-    /** 占位值，仅用于 SETNX 标记，内容无意义 */
-    private static final String MARKER = "1";
 
     private final IdempotentProperties properties;
     private final RedissonClient redissonClient;
@@ -48,9 +46,10 @@ public class IdempotentAspect {
     public Object around(ProceedingJoinPoint joinPoint, Idempotent idempotent) throws Throwable {
         String key = resolveKey(joinPoint, idempotent);
         RBucket<String> bucket = redissonClient.getBucket(key);
+        String ownerToken = UUID.randomUUID().toString();
 
         // SETNX：占位成功才放行，失败即为重复提交
-        if (!bucket.trySet(MARKER, idempotent.timeout(), idempotent.unit())) {
+        if (!bucket.trySet(ownerToken, idempotent.timeout(), idempotent.unit())) {
             throw new IdempotentException(idempotent.message());
         }
 
@@ -58,13 +57,19 @@ public class IdempotentAspect {
             return joinPoint.proceed();
         } catch (Throwable e) {
             // 业务异常释放占位键，避免把失败请求误锁在窗口期内
-            bucket.delete();
+            bucket.compareAndSet(ownerToken, null);
             throw e;
         }
     }
 
     /** 解析幂等键：前缀 : 名称 [: SpEL 后缀] */
     private String resolveKey(ProceedingJoinPoint joinPoint, Idempotent idempotent) {
+        if (idempotent.timeout() <= 0) {
+            throw new IllegalStateException("@Idempotent.timeout 必须大于 0");
+        }
+        if (CharSequenceUtil.isBlank(idempotent.key())) {
+            throw new IllegalStateException("@Idempotent.key 必须显式配置，避免同一方法的不同请求共用全局键");
+        }
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
@@ -74,12 +79,11 @@ public class IdempotentAspect {
 
         StringBuilder keyBuilder = new StringBuilder(properties.getKeyPrefix()).append(":").append(name);
 
-        if (CharSequenceUtil.isNotBlank(idempotent.key())) {
-            String spelValue = evaluateSpel(idempotent.key(), joinPoint, method);
-            if (CharSequenceUtil.isNotBlank(spelValue)) {
-                keyBuilder.append(":").append(spelValue);
-            }
+        String spelValue = evaluateSpel(idempotent.key(), joinPoint, method);
+        if (CharSequenceUtil.isBlank(spelValue)) {
+            throw new IllegalStateException("@Idempotent.key 求值结果不能为空");
         }
+        keyBuilder.append(":").append(spelValue);
         return keyBuilder.toString();
     }
 

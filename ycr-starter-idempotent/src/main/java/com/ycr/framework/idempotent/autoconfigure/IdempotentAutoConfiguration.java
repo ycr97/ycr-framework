@@ -30,4 +30,11 @@ public class IdempotentAutoConfiguration {
     public IdempotentAspect idempotentAspect(IdempotentProperties properties, RedissonClient redissonClient) {
         return new IdempotentAspect(properties, redissonClient);
     }
+
+    @Bean
+    @ConditionalOnMissingBean(RedissonClient.class)
+    public Object idempotentMissingRedissonClient() {
+        throw new IllegalStateException(
+                "ycr.idempotent.enabled=true requires a RedissonClient; configure ycr-starter-cache and Redis");
+    }
 }

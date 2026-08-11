@@ -43,7 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "ycr.auth.oauth2.resource-server.jwt.issuer-uri=https://idp.example.com",
         "ycr.auth.oauth2.resource-server.jwt.audiences[0]=order-api",
         "ycr.context.security-mode=MIXED",
-        "ycr.context.header-sign.secret=mixed-header-secret"
+        "ycr.context.header-sign.secret=mixed-header-secret",
+        "ycr.context.header-sign.audience=order-api"
 })
 class OAuth2MixedWebIntegrationTest {
 
@@ -127,6 +128,7 @@ class OAuth2MixedWebIntegrationTest {
         ContextHeaderSnapshot snapshot = new ContextHeaderSnapshot();
         snapshot.setMethod("GET");
         snapshot.setPath("/api/context");
+        snapshot.setAudience("order-api");
         snapshot.setTimestamp(timestamp);
         snapshot.setNonce(nonce);
         snapshot.setUserId(userId == null ? null : String.valueOf(userId));
@@ -138,6 +140,7 @@ class OAuth2MixedWebIntegrationTest {
 
         MockHttpServletRequestBuilder request = get("/api/context")
                 .header("Authorization", "Bearer " + token)
+                .header(ContextHeaderConstants.HEADER_CONTEXT_AUDIENCE, "order-api")
                 .header(ContextHeaderConstants.HEADER_CONTEXT_TIMESTAMP, timestamp)
                 .header(ContextHeaderConstants.HEADER_CONTEXT_NONCE, nonce)
                 .header(ContextHeaderConstants.HEADER_USERNAME, username)

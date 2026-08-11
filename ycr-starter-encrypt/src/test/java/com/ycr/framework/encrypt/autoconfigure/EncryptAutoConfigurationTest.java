@@ -13,7 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EncryptAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(EncryptAutoConfiguration.class));
+            .withConfiguration(AutoConfigurations.of(
+                    EncryptAutoConfiguration.class, EncryptMissingHandlerAutoConfiguration.class));
 
     @AfterEach
     void tearDown() {
@@ -43,13 +44,11 @@ class EncryptAutoConfigurationTest {
     }
 
     @Test
-    @DisplayName("显式开启但未配置AesKey时不应创建Lifecycle")
-    void shouldMatchExpectedBehavior003() {
+    @DisplayName("显式开启但未配置AesKey时应启动失败")
+    void shouldFailWhenEnabledWithoutKeyOrCustomHandler() {
         contextRunner.withPropertyValues("ycr.encrypt.enabled=true")
-                .run(context -> {
-                    assertThat(context).doesNotHaveBean(EncryptHandler.class);
-                    assertThat(context).doesNotHaveBean(EncryptAutoConfiguration.EncryptHandlerLifecycle.class);
-                });
+                .run(context -> assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                        "ycr.encrypt.enabled=true requires ycr.encrypt.aes-key or a custom EncryptHandler bean"));
     }
 
     @Test

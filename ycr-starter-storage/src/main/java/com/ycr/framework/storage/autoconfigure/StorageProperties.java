@@ -2,6 +2,7 @@ package com.ycr.framework.storage.autoconfigure;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.unit.DataSize;
 
 /**
  * 文件存储配置
@@ -18,6 +19,9 @@ public class StorageProperties {
     /** 存储类型：{@code local}（默认）或 {@code s3}（S3 兼容：AWS S3 / MinIO / 阿里云 OSS 等） */
     private String type = "local";
 
+    /** 单文件最大允许大小 */
+    private DataSize maxFileSize = DataSize.ofMegabytes(100);
+
     /** 本地存储配置 */
     private Local local = new Local();
 
@@ -27,7 +31,7 @@ public class StorageProperties {
     @Data
     public static class Local {
 
-        /** 存储根目录；留空则回退 {@code ${java.io.tmpdir}/ycr-storage} */
+        /** 存储根目录；自动配置启用本地存储时必须显式指定 */
         private String path = "";
 
         /** 访问 URL 前缀（拼到存储键之前），如 {@code /files} */

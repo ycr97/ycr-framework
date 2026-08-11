@@ -32,18 +32,24 @@ public class RocketMqMessageListenerAdapter implements MessageListener {
 
     @Override
     public ConsumeResult consume(MessageView messageView) {
-        Map<String, String> properties = new HashMap<>(messageView.getProperties());
-        bindContext(properties);
+        clearContext();
         try {
+            Map<String, String> properties = new HashMap<>(messageView.getProperties());
+            bindContext(properties);
             handler.handle(adapt(messageView, properties));
             return ConsumeResult.SUCCESS;
         } catch (Exception e) {
             log.error("消息消费失败: topic={}, messageId={}", messageView.getTopic(), messageView.getMessageId(), e);
             return ConsumeResult.FAILURE;
         } finally {
-            TenantContextHolder.clear();
-            TraceUtils.removeTraceId();
+            clearContext();
         }
+    }
+
+    private void clearContext() {
+        TenantContextHolder.clear();
+        TraceUtils.removeTraceId();
+        TraceUtils.removeRequestId();
     }
 
     private void bindContext(Map<String, String> properties) {

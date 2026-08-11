@@ -78,6 +78,7 @@ public class ContextHeaderSigner {
         return String.join("\n",
                 value(snapshot.getMethod()),
                 value(snapshot.getPath()),
+                value(snapshot.getAudience()),
                 value(snapshot.getTimestamp()),
                 value(snapshot.getNonce()),
                 value(snapshot.getUserId()),

@@ -24,6 +24,7 @@ class ContextHeaderSignerTest {
         ContextHeaderSnapshot snapshot = new ContextHeaderSnapshot();
         snapshot.setMethod("GET");
         snapshot.setPath("/api/orders");
+        snapshot.setAudience("order-service");
         snapshot.setTimestamp("100000");
         snapshot.setNonce("nonce-1");
         snapshot.setUserId("100");
@@ -67,6 +68,17 @@ class ContextHeaderSignerTest {
         String signature = signer.sign(snapshot, "secret");
 
         snapshot.setTenantCode("tenant-b");
+
+        assertFalse(signer.verify(snapshot, "secret", signature));
+    }
+
+    @Test
+    @DisplayName("目标服务变化应导致验签失败")
+    void shouldRejectSignatureWhenAudienceChanges() {
+        ContextHeaderSnapshot snapshot = snapshot();
+        String signature = signer.sign(snapshot, "secret");
+
+        snapshot.setAudience("payment-service");
 
         assertFalse(signer.verify(snapshot, "secret", signature));
     }

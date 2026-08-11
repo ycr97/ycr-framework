@@ -66,6 +66,7 @@ public class RateLimiterAspect {
 
     @Around("@annotation(rateLimiter)")
     public Object around(ProceedingJoinPoint joinPoint, RateLimiter rateLimiter) throws Throwable {
+        validateConfiguration(rateLimiter);
         if (isRateLimited(joinPoint, rateLimiter)) {
             throw new RateLimiterException(rateLimiter.message());
         }
@@ -103,7 +104,10 @@ public class RateLimiterAspect {
                 ? rateLimiter.name()
                 : method.getDeclaringClass().getName() + "#" + method.getName();
 
-        StringBuilder keyBuilder = new StringBuilder(properties.getKeyPrefix()).append(":").append(name);
+        StringBuilder keyBuilder = new StringBuilder(properties.getKeyPrefix()).append(":").append(name)
+                .append(":v").append(rateLimiter.rate())
+                .append(":").append(rateLimiter.interval())
+                .append(":").append(rateLimiter.unit().name());
 
         String dimensionSuffix = resolveDimensionSuffix(rateLimiter);
         if (CharSequenceUtil.isNotBlank(dimensionSuffix)) {
@@ -142,5 +146,14 @@ public class RateLimiterAspect {
                 joinPoint.getTarget(), method, joinPoint.getArgs(), parameterNameDiscoverer);
         Object value = parser.parseExpression(expression).getValue(context);
         return value == null ? "" : value.toString();
+    }
+
+    private void validateConfiguration(RateLimiter rateLimiter) {
+        if (rateLimiter.rate() <= 0) {
+            throw new IllegalStateException("@RateLimiter.rate 必须大于 0");
+        }
+        if (rateLimiter.interval() <= 0) {
+            throw new IllegalStateException("@RateLimiter.interval 必须大于 0");
+        }
     }
 }

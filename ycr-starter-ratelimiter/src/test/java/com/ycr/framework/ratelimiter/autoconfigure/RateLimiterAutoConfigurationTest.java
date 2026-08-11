@@ -38,10 +38,15 @@ class RateLimiterAutoConfigurationTest {
     }
 
     @Test
-    @DisplayName("显式开启但无Redisson时不装配切面")
-    void shouldMatchExpectedBehavior003() {
+    @DisplayName("显式开启但无Redisson时应启动失败")
+    void shouldFailWhenEnabledWithoutRedissonClient() {
         runner.withPropertyValues("ycr.ratelimiter.enabled=true")
-                .run(context -> assertThat(context).doesNotHaveBean(RateLimiterAspect.class));
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    assertThat(context.getStartupFailure()).hasRootCauseMessage(
+                            "ycr.ratelimiter.enabled=true requires a RedissonClient; "
+                                    + "configure ycr-starter-cache and Redis");
+                });
     }
 
     @Configuration

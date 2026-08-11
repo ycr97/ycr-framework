@@ -3,6 +3,9 @@ package com.ycr.framework.data.permission.autoconfigure;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 数据权限配置
  *
@@ -24,4 +27,7 @@ public class DataPermissionProperties {
      * 是否输出每张表实际追加的数据权限条件（含 traceId）的 debug 日志，默认关。
      */
     private boolean logAppliedConditions = false;
+
+    /** 必须执行行级权限控制的表名清单。 */
+    private List<String> governedTables = new ArrayList<>();
 }

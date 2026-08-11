@@ -56,7 +56,7 @@ class S3FileStorageServiceTest {
                 .thenReturn(PutObjectResponse.builder().build());
 
         byte[] data = "hello".getBytes(StandardCharsets.UTF_8);
-        FileInfo info = service.upload(new ByteArrayInputStream(data), "photo.PNG");
+        FileInfo info = service.upload(new ByteArrayInputStream(data), data.length, "photo.PNG");
 
         ArgumentCaptor<PutObjectRequest> captor = ArgumentCaptor.forClass(PutObjectRequest.class);
         verify(s3Client).putObject(captor.capture(), any(RequestBody.class));
@@ -81,6 +81,35 @@ class S3FileStorageServiceTest {
 
         FileInfo info = noUrl.upload(new ByteArrayInputStream(new byte[]{1, 2, 3}), "a.bin");
         assertEquals("", info.getUrl());
+    }
+
+    @Test
+    @DisplayName("upload_未知长度时应落盘而不读入整个堆")
+    void shouldSpoolUnknownLengthWithoutReadingAllBytes() {
+        when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+                .thenReturn(PutObjectResponse.builder().build());
+        byte[] data = "stream-content".getBytes(StandardCharsets.UTF_8);
+        InputStream stream = new ByteArrayInputStream(data) {
+            @Override
+            public byte[] readAllBytes() {
+                throw new AssertionError("不应调用 readAllBytes");
+            }
+        };
+
+        FileInfo info = service.upload(stream, "stream.bin");
+
+        assertEquals(data.length, info.getSize());
+        verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+    }
+
+    @Test
+    @DisplayName("upload_超过最大文件限制时应拒绝")
+    void shouldRejectFileLargerThanConfiguredMaximum() {
+        S3FileStorageService limited = new S3FileStorageService(s3Client, "my-bucket", "", 4);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> limited.upload(new ByteArrayInputStream(new byte[5]), 5, "large.bin"));
+        verify(s3Client, never()).putObject(any(PutObjectRequest.class), any(RequestBody.class));
     }
 
     @Test

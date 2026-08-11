@@ -3,8 +3,10 @@ package com.ycr.framework.captcha.autoconfigure;
 import cn.hutool.captcha.CaptchaUtil;
 import com.ycr.framework.captcha.service.CaptchaService;
 import com.ycr.framework.captcha.service.HutoolCaptchaService;
+import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,12 +23,20 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 @ConditionalOnClass(CaptchaUtil.class)
 @EnableConfigurationProperties(CaptchaProperties.class)
-@ConditionalOnProperty(prefix = "ycr.captcha", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "ycr.captcha", name = "enabled", havingValue = "true")
 public class CaptchaAutoConfiguration {
 
     @Bean
+    @ConditionalOnBean(RedissonClient.class)
     @ConditionalOnMissingBean
-    public CaptchaService captchaService(CaptchaProperties properties) {
-        return new HutoolCaptchaService(properties);
+    public CaptchaService captchaService(CaptchaProperties properties, RedissonClient redissonClient) {
+        return new HutoolCaptchaService(properties, redissonClient);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean({RedissonClient.class, CaptchaService.class})
+    public Object captchaMissingRedissonClient() {
+        throw new IllegalStateException(
+                "ycr.captcha.enabled=true requires a RedissonClient; configure ycr-starter-cache and Redis");
     }
 }

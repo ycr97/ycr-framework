@@ -17,7 +17,7 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.captcha.enabled` | `true` | 是否启用 |
+| `ycr.captcha.enabled` | `false` | 是否启用，须显式开启 |
 | `ycr.captcha.width` | `130` | 图片宽度 |
 | `ycr.captcha.height` | `48` | 图片高度 |
 | `ycr.captcha.code-count` | `4` | 验证码字符数 |
@@ -51,6 +51,6 @@ public class CaptchaController {
 }
 ```
 
-`CaptchaResult`：`id`（校验凭据，提交时回传）、`imageBase64`（前端 `<img src>` 直接渲染）。`verify` 成功后答案即失效（一次性）。
+`CaptchaResult`：`id`（校验凭据，提交时回传）、`imageBase64`（前端 `<img src>` 直接渲染）。`verify` 使用 Redis 原子获取并删除，无论成功或失败均只能校验一次。显式开启但容器中没有 `RedissonClient` 时应用拒绝启动。
 
 > 验证码接口通常需要匿名访问，请在网关、Spring Security 或业务认证过滤器中配置放行。

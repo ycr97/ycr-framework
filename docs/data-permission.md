@@ -21,9 +21,10 @@
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
 | `ycr.data.permission.enabled` | `false` | 是否启用数据权限（拦截器 + 注解切面），须显式开启 |
+| `ycr.data.permission.governed-tables` | `[]` | 必须受行级权限治理的表，启用时必填并与规则一致 |
 | `ycr.data.permission.log-applied-conditions` | `false` | 是否输出每张表实际追加的权限条件（含 traceId）的 debug 日志，排障用 |
 
-> 引入 starter 不会修改 SQL。生产应用完成规则配置和验证后，再显式设置为 `true`。
+> 引入 starter 不会修改 SQL。启用后未声明受治理表、受治理表缺少规则、规则指向未声明表，应用都会拒绝启动。
 
 ## 工作原理
 
@@ -31,7 +32,7 @@
 
 ```
 DataScopeResolver（L2 实现：当前主体 → 各维度可见值 DataScope）
-        │  每请求解析一次，结果缓存于 DataScopeContext（TTL），请求结束由 filter 清理
+        │  每请求解析一次，结果缓存于 DataScopeContext，请求/异步任务结束清理
         ▼
 DataPermissionRule（L1/L2：某表 + 按 DataScope 产出 Predicate）
         │
@@ -41,7 +42,7 @@ DataPermissionHandler（合并：同表多规则 AND；全 Skip→fail-closed 1=
 MyBatis-Plus DataPermissionInterceptor（SELECT/UPDATE/DELETE 改写）
 ```
 
-- **`DataScopeResolver`**：取数（谁能看哪些维度的哪些值），通常由公司级 common（L2）实现，读 `UserContext`。**每请求只解析一次**，缓存在 `DataScopeContext`（TransmittableThreadLocal），请求结束由 `DataScopeClearFilter` 清理（仅 Servlet 应用装配）。
+- **`DataScopeResolver`**：取数（谁能看哪些维度的哪些值），通常由公司级 common（L2）实现，读 `UserContext`。**每请求只解析一次**，缓存在 `DataScopeContext`；Servlet Filter 和框架 `TaskDecorator` 分别负责请求与异步任务边界的恢复/清理。
 - **`DataPermissionRule`**：决策（某张表该用哪个维度、拼成什么列条件）。消费已解析的 `DataScope`，产出 `Predicate`。
 - 缺省 `DataScopeResolver` 返回**空范围** → 受治理表一律 fail-closed，**生产必须由 L2 覆盖**。
 

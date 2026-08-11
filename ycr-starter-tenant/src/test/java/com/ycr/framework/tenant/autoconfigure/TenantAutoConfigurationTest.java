@@ -1,7 +1,10 @@
 package com.ycr.framework.tenant.autoconfigure;
 
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
+import com.ycr.framework.data.mp.autoconfigure.MybatisPlusAutoConfiguration;
 import com.ycr.framework.tenant.handler.YcrTenantLineHandler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,5 +40,25 @@ class TenantAutoConfigurationTest {
             assertThat(context).doesNotHaveBean(YcrTenantLineHandler.class);
             assertThat(context).doesNotHaveBean(InnerInterceptor.class);
         });
+    }
+
+    @Test
+    @DisplayName("用户自定义MyBatisPlus拦截器时仍应在分页前织入租户隔离")
+    void shouldMergeTenantInterceptorBeforePagination() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(
+                        MybatisPlusAutoConfiguration.class, TenantAutoConfiguration.class))
+                .withBean("customMybatisPlusInterceptor", MybatisPlusInterceptor.class, () -> {
+                    MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+                    interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+                    return interceptor;
+                })
+                .withPropertyValues("ycr.tenant.enabled=true")
+                .run(context -> {
+                    MybatisPlusInterceptor interceptor = context.getBean(MybatisPlusInterceptor.class);
+                    assertThat(interceptor.getInterceptors()).hasSize(2);
+                    assertThat(interceptor.getInterceptors().get(0)).isInstanceOf(TenantLineInnerInterceptor.class);
+                    assertThat(interceptor.getInterceptors().get(1)).isInstanceOf(PaginationInnerInterceptor.class);
+                });
     }
 }

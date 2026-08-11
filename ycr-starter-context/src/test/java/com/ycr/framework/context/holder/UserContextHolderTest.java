@@ -1,15 +1,10 @@
 package com.ycr.framework.context.holder;
 
-import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.ycr.framework.context.model.UserContext;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,25 +44,4 @@ class UserContextHolderTest {
         assertNull(UserContextHolder.get());
     }
 
-    @Test
-    @DisplayName("TTL支持线程池透传")
-    void shouldMatchExpectedBehavior003() throws Exception {
-        ThreadPoolExecutor rawExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
-        rawExecutor.prestartAllCoreThreads();
-        ExecutorService executor = TtlExecutors.getTtlExecutorService(rawExecutor);
-
-        UserContext ctx = new UserContext();
-        ctx.setUserId(2002L);
-        UserContextHolder.set(ctx);
-
-        try {
-            Future<Long> future = executor.submit(() -> {
-                UserContext innerCtx = UserContextHolder.get();
-                return innerCtx != null ? innerCtx.getUserId() : null;
-            });
-            assertEquals(2002L, future.get());
-        } finally {
-            executor.shutdown();
-        }
-    }
 }

@@ -16,6 +16,7 @@ import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.trace.util.TraceUtils;
 import feign.Request;
 import feign.RequestTemplate;
+import feign.Target;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +46,9 @@ class ContextPassInterceptorTest {
         contextProperties = new ContextProperties();
         contextProperties.setSecurityMode(SecurityMode.GATEWAY_TRUST);
         contextProperties.getHeaderSign().setSecret(SECRET);
+        contextProperties.getHeaderSign().setAudience("order-service");
         interceptor = new ContextPassInterceptor(contextProperties, new ContextHeaderSigner());
+        interceptor.addMatcher(RequestTemplateMatchers.clientName("order-service"));
     }
 
     @AfterEach
@@ -84,7 +87,8 @@ class ContextPassInterceptorTest {
 
         RequestTemplate template = new RequestTemplate()
                 .method(Request.HttpMethod.GET)
-                .uri("/api/orders");
+                .uri("/api/orders")
+                .feignTarget(new Target.HardCodedTarget<>(Object.class, "order-service", "http://order-service"));
         interceptor.apply(template);
 
         assertTrue(template.headers().get(ContextHeaderConstants.HEADER_USER_ID).contains("1001"));
@@ -101,6 +105,7 @@ class ContextPassInterceptorTest {
         assertTrue(template.headers().get(TraceUtils.HEADER_TRACE_ID).contains("trace-xyz"));
         assertTrue(template.headers().containsKey(ContextHeaderConstants.HEADER_CONTEXT_TIMESTAMP));
         assertTrue(template.headers().containsKey(ContextHeaderConstants.HEADER_CONTEXT_NONCE));
+        assertTrue(template.headers().get(ContextHeaderConstants.HEADER_CONTEXT_AUDIENCE).contains("order-service"));
         assertTrue(template.headers().containsKey(ContextHeaderConstants.HEADER_CONTEXT_SIGNATURE));
 
         MockHttpServletRequest request = toRequest(template, "GET", "/api/orders");
@@ -123,6 +128,7 @@ class ContextPassInterceptorTest {
     @DisplayName("无上下文时不应写入请求头")
     void shouldMatchExpectedBehavior002() {
         RequestTemplate template = new RequestTemplate();
+        template.feignTarget(new Target.HardCodedTarget<>(Object.class, "order-service", "http://order-service"));
         interceptor.apply(template);
 
         assertFalse(template.headers().containsKey(ContextHeaderConstants.HEADER_USER_ID));
@@ -141,9 +147,27 @@ class ContextPassInterceptorTest {
         interceptor.addNotMatcher(template -> true);
 
         RequestTemplate template = new RequestTemplate();
+        template.feignTarget(new Target.HardCodedTarget<>(Object.class, "order-service", "http://order-service"));
         interceptor.apply(template);
 
         assertFalse(template.headers().containsKey(ContextHeaderConstants.HEADER_USER_ID));
+    }
+
+    @Test
+    @DisplayName("非允许的Feign client不应收到身份上下文")
+    void shouldNotPassIdentityToUnlistedClient() {
+        UserContext user = new UserContext();
+        user.setUserId(1001L);
+        UserContextHolder.set(user);
+        RequestTemplate template = new RequestTemplate()
+                .method(Request.HttpMethod.GET)
+                .uri("/external")
+                .feignTarget(new Target.HardCodedTarget<>(Object.class, "external-api", "https://example.com"));
+
+        interceptor.apply(template);
+
+        assertFalse(template.headers().containsKey(ContextHeaderConstants.HEADER_USER_ID));
+        assertFalse(template.headers().containsKey(ContextHeaderConstants.HEADER_CONTEXT_SIGNATURE));
     }
 
     private MockHttpServletRequest toRequest(RequestTemplate template, String method, String path) {

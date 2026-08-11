@@ -11,6 +11,8 @@ import com.ycr.framework.data.permission.scope.CommandTypeResolver;
 import com.ycr.framework.data.permission.scope.DataScope;
 import com.ycr.framework.data.permission.scope.DataScopeClearFilter;
 import com.ycr.framework.data.permission.scope.DataScopeResolver;
+import com.ycr.framework.data.permission.scope.DataScopeThreadContextAccessor;
+import com.ycr.framework.context.propagation.ThreadContextAccessor;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.lang.annotation.Aspect;
@@ -23,6 +25,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 数据权限自动配置。
@@ -61,8 +66,10 @@ public class DataPermissionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DataPermissionHandler dataPermissionHandler(List<DataPermissionRule> rules) {
-        DataPermissionHandler handler = new DataPermissionHandler();
+    public DataPermissionHandler dataPermissionHandler(List<DataPermissionRule> rules,
+                                                       DataPermissionProperties properties) {
+        validateGovernedTables(rules, properties);
+        DataPermissionHandler handler = new DataPermissionHandler(properties.getGovernedTables());
         rules.forEach(handler::addRule);
         return handler;
     }
@@ -91,6 +98,12 @@ public class DataPermissionAutoConfiguration {
         return new DataScopeClearFilter();
     }
 
+    @Bean
+    @ConditionalOnMissingBean(name = "dataScopeThreadContextAccessor")
+    public ThreadContextAccessor dataScopeThreadContextAccessor() {
+        return new DataScopeThreadContextAccessor();
+    }
+
     /**
      * 数据权限注解切面，支持 {@code @DataPermission} / {@code @DataPermissionIgnore} 方法级开关。
      * 仅在引入了 AOP（AspectJ）时装配。
@@ -100,5 +113,33 @@ public class DataPermissionAutoConfiguration {
     @ConditionalOnMissingBean
     public DataPermissionAspect dataPermissionAspect() {
         return new DataPermissionAspect();
+    }
+
+    private void validateGovernedTables(List<DataPermissionRule> rules, DataPermissionProperties properties) {
+        Set<String> governed = properties.getGovernedTables().stream()
+                .map(this::normalizeTable)
+                .filter(name -> !name.isEmpty())
+                .collect(Collectors.toSet());
+        if (governed.isEmpty()) {
+            throw new IllegalStateException(
+                    "ycr.data.permission.governed-tables 必须在启用数据权限时显式配置");
+        }
+        Set<String> ruled = rules.stream()
+                .map(DataPermissionRule::table)
+                .map(this::normalizeTable)
+                .collect(Collectors.toSet());
+        Set<String> missing = governed.stream().filter(table -> !ruled.contains(table)).collect(Collectors.toSet());
+        if (!missing.isEmpty()) {
+            throw new IllegalStateException("受治理表缺少 DataPermissionRule: " + missing);
+        }
+        Set<String> undeclared = ruled.stream().filter(table -> !governed.contains(table)).collect(Collectors.toSet());
+        if (!undeclared.isEmpty()) {
+            throw new IllegalStateException("DataPermissionRule 未声明对应受治理表: " + undeclared);
+        }
+    }
+
+    private String normalizeTable(String table) {
+        return table == null ? "" : table.replace("`", "").replace("\"", "")
+                .toLowerCase(Locale.ROOT).trim();
     }
 }

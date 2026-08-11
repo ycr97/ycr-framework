@@ -19,7 +19,8 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.feign.context-pass-enabled` | `true` | 是否透传上下文/TraceId 到下游 |
+| `ycr.feign.context-pass-enabled` | `false` | 是否透传上下文/TraceId 到内部下游 |
+| `ycr.feign.internal-clients` | `[]` | 允许接收身份上下文或原始 Token 的 Feign client 白名单 |
 | `ycr.feign.error-decoder-enabled` | `true` | 是否启用统一错误解码 |
 | `ycr.feign.locale-pass-enabled` | `true` | 是否透传语言头 |
 | `ycr.feign.language-header` | `Accept-Language` | 语言头名称 |
@@ -27,7 +28,14 @@
 
 ## 透传（ContextPassInterceptor）
 
-调用下游服务时，自动把当前用户/租户/应用上下文与 TraceId 写入 HTTP Header，并使用 `ycr.context.header-sign.secret` 重新生成 `X-Context-Timestamp`、`X-Context-Nonce`、`X-Context-Signature`。下游服务按自身 `ycr.context.security-mode` 决定是否信任这些 Header。
+只有同时显式开启并命中 `internal-clients` 白名单的下游服务，才会收到当前用户/租户/应用上下文与 TraceId。签名同时包含目标 Feign client 名称作为 audience，下游必须与自身 `spring.application.name` 或 `ycr.context.header-sign.audience` 匹配。
+
+```yaml
+ycr:
+  feign:
+    context-pass-enabled: true
+    internal-clients: [user-service, order-service]
+```
 
 透传字段包括：`Authorization`（可选）、`X-User-Id`、`X-Username`、`X-Nickname`、`X-Tenant-Id`、`X-Dept-Id`、`X-Roles`、`X-Permissions`、`X-Client-Id`、`X-User-Source`、`X-App-Id`、`X-Trace-Id` 和签名字段。
 
@@ -61,11 +69,11 @@ public interface UserApi {
 
 | 拦截器 | 透传内容 | 来源 | 开关 | 默认 |
 |---|---|---|---|---|
-| `ContextPassInterceptor` | user/tenant/app 上下文 + TraceId + 签名 | 线程上下文持有器 | `ycr.feign.context-pass-enabled` | 开 |
+| `ContextPassInterceptor` | user/tenant/app 上下文 + TraceId + 签名 | 线程上下文持有器 | `ycr.feign.context-pass-enabled` | 关 |
 | `LocalePassInterceptor` | 语言头（默认 `Accept-Language`） | 当前请求头 | `ycr.feign.locale-pass-enabled` | 开 |
 | `TokenPassInterceptor` | `Authorization` 原始 token | 当前请求头 | `ycr.feign.token-pass-enabled` | 关 |
 
-语言头名可由 `ycr.feign.language-header` 配置。原始 token 透传默认关闭；内部微服务需要二次 token 校验时可开启，第三方 client 应通过 matcher 排除。
+语言头名可由 `ycr.feign.language-header` 配置。原始 token 透传默认关闭；启用后同样只对 `internal-clients` 生效。
 
 ### 选择性匹配（Matchable）
 
@@ -79,4 +87,4 @@ localePassInterceptor
     .addMatcher(RequestTemplateMatchers.requestPath("/api/**"));            // 仅 /api/** 透传语言
 ```
 
-匹配语义：命中任一 notMatcher 直接跳过；否则若配置了 matcher 需命中其一；未配置时按默认匹配器（全匹配）。
+匹配语义：命中任一 notMatcher 直接跳过；否则若配置了 matcher 需命中其一；基础拦截器未配置时按默认匹配器处理。YCR 内置的 Context/Token 透传拦截器默认不匹配任何客户端，只从 `internal-clients` 生成允许名单。

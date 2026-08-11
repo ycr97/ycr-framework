@@ -5,6 +5,7 @@ import com.ycr.framework.auth.oauth2.filter.OAuth2UserContextFilter;
 import com.ycr.framework.auth.oauth2.handler.YcrBearerAccessDeniedHandler;
 import com.ycr.framework.auth.oauth2.handler.YcrBearerAuthenticationEntryPoint;
 import com.ycr.framework.context.autoconfigure.ContextAutoConfiguration;
+import com.ycr.framework.context.autoconfigure.ContextServletAutoConfiguration;
 import com.ycr.framework.security.checker.PermissionChecker;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ class OAuth2ResourceServerWebAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(
                     org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
                     ContextAutoConfiguration.class,
+                    ContextServletAutoConfiguration.class,
                     OAuth2ResourceServerAutoConfiguration.class,
                     OAuth2JwtAutoConfiguration.class,
                     OAuth2ResourceServerWebAutoConfiguration.class))

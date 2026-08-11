@@ -37,6 +37,10 @@ public class StorageAutoConfiguration {
     @ConditionalOnProperty(prefix = "ycr.storage", name = "type", havingValue = "local", matchIfMissing = true)
     public FileStorageService localFileStorageService(StorageProperties properties) {
         StorageProperties.Local local = properties.getLocal();
+        if (!StringUtils.hasText(local.getPath())) {
+            throw new IllegalStateException(
+                    "ycr.storage.local.path 必须在启用本地存储时显式配置");
+        }
         return new LocalFileStorageService(local.getPath(), local.getUrlPrefix());
     }
 
@@ -55,6 +59,10 @@ public class StorageAutoConfiguration {
         @ConditionalOnMissingBean
         public S3Client ycrS3Client(StorageProperties properties) {
             StorageProperties.S3 s3 = properties.getS3();
+            if (!StringUtils.hasText(s3.getAccessKey()) || !StringUtils.hasText(s3.getSecretKey())) {
+                throw new IllegalStateException(
+                        "ycr.storage.s3.access-key 和 secret-key 必须在使用默认 S3Client 时显式配置");
+            }
             S3ClientBuilder builder = S3Client.builder()
                     .region(Region.of(s3.getRegion()))
                     .credentialsProvider(StaticCredentialsProvider.create(
@@ -72,7 +80,8 @@ public class StorageAutoConfiguration {
         @ConditionalOnMissingBean
         public FileStorageService s3FileStorageService(S3Client ycrS3Client, StorageProperties properties) {
             StorageProperties.S3 s3 = properties.getS3();
-            return new S3FileStorageService(ycrS3Client, s3.getBucket(), s3.getUrlPrefix());
+            return new S3FileStorageService(ycrS3Client, s3.getBucket(), s3.getUrlPrefix(),
+                    properties.getMaxFileSize().toBytes());
         }
     }
 }

@@ -24,6 +24,18 @@ public interface FileStorageService {
     FileInfo upload(InputStream content, String originalFilename);
 
     /**
+     * 上传已知长度的文件。S3 等远程存储可据此直接流式上传，避免缓冲整个文件。
+     *
+     * @param content          文件内容流
+     * @param contentLength    文件字节数
+     * @param originalFilename 原始文件名
+     * @return 文件信息
+     */
+    default FileInfo upload(InputStream content, long contentLength, String originalFilename) {
+        return upload(content, originalFilename);
+    }
+
+    /**
      * 下载文件
      *
      * @param path 存储键（{@link FileInfo#getPath()}）

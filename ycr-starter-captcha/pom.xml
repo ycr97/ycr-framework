@@ -15,7 +15,7 @@
     <description>图形验证码模块 - Hutool 生成 + cache 存答案 + 一次性校验</description>
 
     <dependencies>
-        <!-- 复用 cache 做透的 RedisUtils 存验证码答案（带 TTL） -->
+        <!-- 复用 cache 提供的 RedissonClient 存储验证码答案（带 TTL） -->
         <dependency>
             <groupId>com.ycr.framework</groupId>
             <artifactId>ycr-starter-cache</artifactId>

@@ -30,4 +30,11 @@ public class RateLimiterAutoConfiguration {
     public RateLimiterAspect rateLimiterAspect(RateLimiterProperties properties, RedissonClient redissonClient) {
         return new RateLimiterAspect(properties, redissonClient);
     }
+
+    @Bean
+    @ConditionalOnMissingBean(RedissonClient.class)
+    public Object rateLimiterMissingRedissonClient() {
+        throw new IllegalStateException(
+                "ycr.ratelimiter.enabled=true requires a RedissonClient; configure ycr-starter-cache and Redis");
+    }
 }

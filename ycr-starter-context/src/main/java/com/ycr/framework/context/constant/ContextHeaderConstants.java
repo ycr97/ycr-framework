@@ -21,6 +21,7 @@ public final class ContextHeaderConstants {
     public static final String HEADER_TRACE_ID = "X-Trace-Id";
     public static final String HEADER_CONTEXT_TIMESTAMP = "X-Context-Timestamp";
     public static final String HEADER_CONTEXT_NONCE = "X-Context-Nonce";
+    public static final String HEADER_CONTEXT_AUDIENCE = "X-Context-Audience";
     public static final String HEADER_CONTEXT_SIGNATURE = "X-Context-Signature";
 
     private ContextHeaderConstants() {

@@ -1,6 +1,8 @@
 package com.ycr.framework.context.autoconfigure;
 
 import com.ycr.framework.context.filter.ContextFilter;
+import com.ycr.framework.context.resolver.UserContextResolverChain;
+import com.ycr.framework.context.servlet.ServletContextBinder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -26,6 +28,8 @@ class ContextServletAutoConfigurationTest {
                 .run(context -> {
                     FilterRegistrationBean<?> registration = context.getBean(FilterRegistrationBean.class);
                     assertThat(registration.getFilter()).isInstanceOf(ContextFilter.class);
+                    assertThat(context).hasSingleBean(UserContextResolverChain.class);
+                    assertThat(context).hasSingleBean(ServletContextBinder.class);
                 });
     }
 }

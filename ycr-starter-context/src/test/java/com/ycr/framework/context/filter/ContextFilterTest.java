@@ -52,6 +52,7 @@ class ContextFilterTest {
         ContextProperties properties = new ContextProperties();
         properties.setSecurityMode(SecurityMode.GATEWAY_TRUST);
         properties.getHeaderSign().setSecret(SECRET);
+        properties.getHeaderSign().setAudience("order-service");
         return properties;
     }
 
@@ -81,10 +82,12 @@ class ContextFilterTest {
         String nonce = "nonce-1";
         request.addHeader(ContextHeaderConstants.HEADER_CONTEXT_TIMESTAMP, timestamp);
         request.addHeader(ContextHeaderConstants.HEADER_CONTEXT_NONCE, nonce);
+        request.addHeader(ContextHeaderConstants.HEADER_CONTEXT_AUDIENCE, "order-service");
 
         ContextHeaderSnapshot snapshot = new ContextHeaderSnapshot();
         snapshot.setMethod("GET");
         snapshot.setPath("/api/orders");
+        snapshot.setAudience("order-service");
         snapshot.setTimestamp(timestamp);
         snapshot.setNonce(nonce);
         snapshot.setUserId("100");

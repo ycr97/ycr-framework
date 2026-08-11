@@ -1,19 +1,21 @@
 package com.ycr.framework.feign.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ycr.framework.context.autoconfigure.ContextAutoConfiguration;
 import com.ycr.framework.context.autoconfigure.ContextProperties;
 import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.feign.decoder.FeignErrorDecoder;
 import com.ycr.framework.feign.interceptor.ContextPassInterceptor;
 import com.ycr.framework.feign.interceptor.LocalePassInterceptor;
+import com.ycr.framework.feign.interceptor.RequestTemplateMatchers;
 import com.ycr.framework.feign.interceptor.TokenPassInterceptor;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.util.StringUtils;
 
 /**
  * Feign 增强自动配置
@@ -25,23 +27,29 @@ import org.springframework.context.annotation.Bean;
  *
  * @author ycr
  */
-@AutoConfiguration
+@AutoConfiguration(after = ContextAutoConfiguration.class)
 @ConditionalOnClass(name = "feign.RequestInterceptor")
 @EnableConfigurationProperties(FeignProperties.class)
 public class FeignAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "ycr.feign", name = "context-pass-enabled", havingValue = "true", matchIfMissing = true)
-    public ContextPassInterceptor contextPassInterceptor(ObjectProvider<ContextProperties> contextPropertiesProvider,
-                                                         ObjectProvider<ContextHeaderSigner> contextHeaderSignerProvider) {
-        ContextProperties contextProperties = contextPropertiesProvider.getIfAvailable();
-        if (contextProperties == null) {
-            return new ContextPassInterceptor();
+    @ConditionalOnProperty(prefix = "ycr.feign", name = "context-pass-enabled", havingValue = "true")
+    public ContextPassInterceptor contextPassInterceptor(ContextProperties contextProperties,
+                                                         ContextHeaderSigner contextHeaderSigner,
+                                                         FeignProperties feignProperties) {
+        validateInternalClients(feignProperties);
+        if (!contextProperties.getHeaderSign().isEnabled()
+                || !StringUtils.hasText(contextProperties.getHeaderSign().getSecret())) {
+            throw new IllegalStateException(
+                    "Feign 身份上下文透传必须启用 ycr.context.header-sign 并配置 secret");
         }
-        ContextHeaderSigner contextHeaderSigner =
-                contextHeaderSignerProvider.getIfAvailable(ContextHeaderSigner::new);
-        return new ContextPassInterceptor(contextProperties, contextHeaderSigner);
+        ContextPassInterceptor interceptor = new ContextPassInterceptor(contextProperties, contextHeaderSigner);
+        feignProperties.getInternalClients().stream()
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .forEach(client -> interceptor.addMatcher(RequestTemplateMatchers.clientName(client)));
+        return interceptor;
     }
 
     @Bean
@@ -69,7 +77,20 @@ public class FeignAutoConfiguration {
             "org.springframework.web.context.request.ServletRequestAttributes"
     })
     @ConditionalOnProperty(prefix = "ycr.feign", name = "token-pass-enabled", havingValue = "true")
-    public TokenPassInterceptor tokenPassInterceptor() {
-        return new TokenPassInterceptor();
+    public TokenPassInterceptor tokenPassInterceptor(FeignProperties properties) {
+        validateInternalClients(properties);
+        TokenPassInterceptor interceptor = new TokenPassInterceptor();
+        properties.getInternalClients().stream()
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .forEach(client -> interceptor.addMatcher(RequestTemplateMatchers.clientName(client)));
+        return interceptor;
+    }
+
+    private void validateInternalClients(FeignProperties properties) {
+        if (properties.getInternalClients().stream().noneMatch(StringUtils::hasText)) {
+            throw new IllegalStateException(
+                    "ycr.feign.internal-clients 必须在启用上下文或 Token 透传时显式配置");
+        }
     }
 }

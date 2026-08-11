@@ -28,12 +28,13 @@
 | --- | --- | --- |
 | `ycr.storage.enabled` | `false` | 是否启用，须显式开启 |
 | `ycr.storage.type` | `local` | 存储类型：`local` 或 `s3` |
+| `ycr.storage.max-file-size` | `100MB` | 单文件最大允许大小 |
 
 **本地（`type=local`）**
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.storage.local.path` | `""` | 本地存储根目录（留空回退临时目录） |
+| `ycr.storage.local.path` | `""` | 本地存储根目录，启用本地后端时必填 |
 | `ycr.storage.local.url-prefix` | `/files` | 访问 URL 前缀 |
 
 ```yaml
@@ -100,7 +101,7 @@ public class FileController {
 
     @PostMapping("/upload")
     public R<FileInfo> upload(MultipartFile file) throws IOException {
-        FileInfo info = storage.upload(file.getInputStream(), file.getOriginalFilename());
+        FileInfo info = storage.upload(file.getInputStream(), file.getSize(), file.getOriginalFilename());
         return R.ok(info);                 // originalFilename / filename / path / url / size / extension
     }
 
@@ -111,7 +112,7 @@ public class FileController {
 }
 ```
 
-接口方法：`upload(InputStream, originalFilename)` → `FileInfo`、`download(path)` → `InputStream`、`delete(path)`、`exists(path)`。**业务代码与后端无关**——切 `type` 即可在本地与 S3 间迁移，无需改动调用方。
+接口方法：`upload(InputStream, contentLength, originalFilename)` 是推荐形式，S3 会直接流式上传；兼容的 `upload(InputStream, originalFilename)` 在长度未知时先写入受限临时文件，不会把整个对象读入 JVM 堆。
 
 ## 扩展其他存储
 

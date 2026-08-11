@@ -1,18 +1,17 @@
 package com.ycr.framework.data.permission.scope;
 
-import com.alibaba.ttl.TransmittableThreadLocal;
 import com.ycr.framework.data.permission.exception.DataPermissionException;
 
 /**
  * 数据范围请求级缓存：一次请求内最多解析一次，多表/多语句复用；请求结束清理。
  *
- * <p>采用 TransmittableThreadLocal，与框架上下文一致，支持线程池透传。</p>
+ * <p>跨线程传播由框架 TaskDecorator 统一捕获和清理。</p>
  *
  * @author ycr
  */
 public final class DataScopeContext {
 
-    private static final TransmittableThreadLocal<DataScope> CACHE = new TransmittableThreadLocal<>();
+    private static final ThreadLocal<DataScope> CACHE = new ThreadLocal<>();
 
     private DataScopeContext() {
     }
@@ -42,5 +41,17 @@ public final class DataScopeContext {
 
     public static void clear() {
         CACHE.remove();
+    }
+
+    static DataScope capture() {
+        return CACHE.get();
+    }
+
+    static void restore(DataScope scope) {
+        if (scope == null) {
+            clear();
+        } else {
+            CACHE.set(scope);
+        }
     }
 }

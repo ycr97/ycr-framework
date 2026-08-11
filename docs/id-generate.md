@@ -17,10 +17,19 @@
 
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| `ycr.id.worker-id` | `1` | 工作机器 ID（0~31） |
-| `ycr.id.datacenter-id` | `1` | 数据中心 ID（0~31） |
+| `ycr.id.enabled` | `false` | 是否启用默认雪花 ID 生成器 |
+| `ycr.id.worker-id` | 无 | 工作机器 ID（0~31），启用时必填 |
+| `ycr.id.datacenter-id` | 无 | 数据中心 ID（0~31），启用时必填 |
 
-> 多实例部署时务必为每个实例分配**不同**的 `worker-id`/`datacenter-id` 组合，否则可能生成重复 ID。
+> 多实例部署时必须为每个实例分配**不同**的 `worker-id`/`datacenter-id` 组合。启用后未显式配置节点号时，应用将拒绝启动。
+
+```yaml
+ycr:
+  id:
+    enabled: true
+    worker-id: 2
+    datacenter-id: 3
+```
 
 ## 用法
 

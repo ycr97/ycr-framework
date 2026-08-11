@@ -13,12 +13,14 @@ import com.ycr.framework.context.sign.ContextHeaderSigner;
 import com.ycr.framework.context.sign.ContextHeaderSnapshot;
 import com.ycr.framework.context.filter.ContextFilter;
 import com.ycr.framework.feign.interceptor.ContextPassInterceptor;
+import com.ycr.framework.feign.interceptor.RequestTemplateMatchers;
 import com.ycr.framework.security.annotation.RequirePermission;
 import com.ycr.framework.security.autoconfigure.SecurityAutoConfiguration;
 import com.ycr.framework.trace.filter.TraceFilter;
 import com.ycr.framework.trace.util.TraceUtils;
 import feign.Request;
 import feign.RequestTemplate;
+import feign.Target;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -67,6 +69,7 @@ class SyncRequestAuthContextIntegrationTest {
                     TraceUtils.HEADER_REQUEST_ID);
             ContextFilter contextFilter = new ContextFilter(properties, resolverChain(properties));
             ContextPassInterceptor feignInterceptor = new ContextPassInterceptor(properties, new ContextHeaderSigner());
+            feignInterceptor.addMatcher(RequestTemplateMatchers.clientName("order-service"));
 
             AtomicReference<RequestTemplate> capturedTemplate = new AtomicReference<>();
             MockHttpServletRequest request = signedRequest();
@@ -81,7 +84,9 @@ class SyncRequestAuthContextIntegrationTest {
 
                         RequestTemplate template = new RequestTemplate()
                                 .method(Request.HttpMethod.POST)
-                                .uri("/downstream/orders");
+                                .uri("/downstream/orders")
+                                .feignTarget(new Target.HardCodedTarget<>(
+                                        Object.class, "order-service", "http://order-service"));
                         feignInterceptor.apply(template);
                         capturedTemplate.set(template);
                     }));
@@ -103,6 +108,7 @@ class SyncRequestAuthContextIntegrationTest {
         ContextProperties properties = new ContextProperties();
         properties.setSecurityMode(SecurityMode.GATEWAY_TRUST);
         properties.getHeaderSign().setSecret(SECRET);
+        properties.getHeaderSign().setAudience("current-service");
         return properties;
     }
 
@@ -129,10 +135,12 @@ class SyncRequestAuthContextIntegrationTest {
         String nonce = "integration-nonce";
         request.addHeader(ContextHeaderConstants.HEADER_CONTEXT_TIMESTAMP, timestamp);
         request.addHeader(ContextHeaderConstants.HEADER_CONTEXT_NONCE, nonce);
+        request.addHeader(ContextHeaderConstants.HEADER_CONTEXT_AUDIENCE, "current-service");
 
         ContextHeaderSnapshot snapshot = new ContextHeaderSnapshot();
         snapshot.setMethod("GET");
         snapshot.setPath("/api/orders");
+        snapshot.setAudience("current-service");
         snapshot.setTimestamp(timestamp);
         snapshot.setNonce(nonce);
         snapshot.setUserId("1001");

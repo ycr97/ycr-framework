@@ -19,7 +19,7 @@ public final class RedisLockUtils {
     public static <T> T tryLock(String lockKey, long waitTime, long leaseTime, Supplier<T> supplier) {
         RLock lock = RedisUtils.getClient().getLock(lockKey);
         try {
-            if (!lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS)) {
+            if (!lock.tryLock(waitTime, leaseTime, TimeUnit.MILLISECONDS)) {
                 return null;
             }
             try {
@@ -38,7 +38,7 @@ public final class RedisLockUtils {
     public static boolean tryLock(String lockKey, long waitTime, long leaseTime, Runnable runnable) {
         RLock lock = RedisUtils.getClient().getLock(lockKey);
         try {
-            if (!lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS)) {
+            if (!lock.tryLock(waitTime, leaseTime, TimeUnit.MILLISECONDS)) {
                 return false;
             }
             try {

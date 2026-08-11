@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -20,6 +21,12 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 @EnableConfigurationProperties(MybatisPlusProperties.class)
 public class MybatisPlusAutoConfiguration {
+
+    @Bean
+    public static BeanPostProcessor innerInterceptorMergeBeanPostProcessor(
+            ObjectProvider<InnerInterceptor> innerInterceptors) {
+        return new InnerInterceptorMergeBeanPostProcessor(innerInterceptors);
+    }
 
     @Bean
     @ConditionalOnMissingBean(MetaObjectHandler.class)

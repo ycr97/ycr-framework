@@ -1,7 +1,6 @@
 package com.ycr.framework.context.autoconfigure;
 
-import com.ycr.framework.context.resolver.UserContextResolverChain;
-import com.ycr.framework.context.servlet.ServletContextBinder;
+import com.ycr.framework.context.sign.ContextHeaderSigner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -18,25 +17,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ContextAutoConfigurationTest {
 
     @Test
-    @DisplayName("有ServletApi时应装配解析链")
+    @DisplayName("应装配与运行环境无关的签名能力")
     void shouldMatchExpectedBehavior001() {
         new ApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(ContextAutoConfiguration.class))
                 .run(context -> {
-                    assertThat(context).hasSingleBean(UserContextResolverChain.class);
-                    assertThat(context).hasSingleBean(ServletContextBinder.class);
+                    assertThat(context).hasSingleBean(ContextHeaderSigner.class);
                 });
     }
 
     @Test
-    @DisplayName("缺少ServletApi时应跳过自动配置且正常启动")
+    @DisplayName("缺少ServletApi时仍应保留通用签名能力")
     void shouldMatchExpectedBehavior002() {
         new ApplicationContextRunner()
                 .withClassLoader(new FilteredClassLoader("jakarta.servlet"))
                 .withConfiguration(AutoConfigurations.of(ContextAutoConfiguration.class))
                 .run(context -> {
                     assertThat(context).hasNotFailed();
-                    assertThat(context).doesNotHaveBean(UserContextResolverChain.class);
+                    assertThat(context).hasSingleBean(ContextHeaderSigner.class);
                 });
     }
 }

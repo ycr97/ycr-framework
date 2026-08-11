@@ -12,7 +12,10 @@ import org.apache.ibatis.mapping.SqlCommandType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +30,17 @@ import java.util.stream.Collectors;
 public class DataPermissionHandler {
 
     private final List<DataPermissionRule> rules = new ArrayList<>();
+    private final Set<String> governedTables;
+
+    public DataPermissionHandler() {
+        this(List.of());
+    }
+
+    public DataPermissionHandler(Collection<String> governedTables) {
+        this.governedTables = governedTables.stream()
+                .map(this::normalize)
+                .collect(Collectors.toCollection(HashSet::new));
+    }
 
     public void addRule(DataPermissionRule rule) {
         rules.add(rule);
@@ -39,6 +53,12 @@ public class DataPermissionHandler {
      */
     public Expression buildExpression(String table, DataScope scope, SqlCommandType cmd, String mappedStatementId) {
         String bare = strip(table);
+        boolean governed = governedTables.isEmpty()
+                ? rules.stream().anyMatch(rule -> strip(rule.table()).equalsIgnoreCase(bare))
+                : governedTables.contains(normalize(bare));
+        if (governed && cmd == SqlCommandType.UNKNOWN) {
+            return deny();
+        }
         List<Expression> exprs = new ArrayList<>();
         boolean anyInPlay = false;
         for (DataPermissionRule rule : rules) {
@@ -110,5 +130,9 @@ public class DataPermissionHandler {
 
     private String strip(String name) {
         return name == null ? "" : name.replace("`", "").replace("\"", "");
+    }
+
+    private String normalize(String name) {
+        return strip(name).toLowerCase(Locale.ROOT);
     }
 }

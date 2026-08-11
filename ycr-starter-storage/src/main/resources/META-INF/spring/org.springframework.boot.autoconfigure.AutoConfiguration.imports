@@ -1,1 +1,2 @@
 com.ycr.framework.storage.autoconfigure.StorageAutoConfiguration
+com.ycr.framework.storage.autoconfigure.StorageMissingBackendAutoConfiguration

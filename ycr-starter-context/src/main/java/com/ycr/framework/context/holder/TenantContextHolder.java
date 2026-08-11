@@ -1,6 +1,5 @@
 package com.ycr.framework.context.holder;
 
-import com.alibaba.ttl.TransmittableThreadLocal;
 import com.ycr.framework.context.model.TenantContext;
 
 /**
@@ -10,7 +9,7 @@ import com.ycr.framework.context.model.TenantContext;
  */
 public final class TenantContextHolder {
 
-    private static final TransmittableThreadLocal<TenantContext> CONTEXT = new TransmittableThreadLocal<>();
+    private static final ThreadLocal<TenantContext> CONTEXT = new ThreadLocal<>();
 
     private TenantContextHolder() {
     }

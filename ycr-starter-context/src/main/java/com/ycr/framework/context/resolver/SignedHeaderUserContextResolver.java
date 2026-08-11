@@ -15,6 +15,7 @@ import org.springframework.core.Ordered;
 import org.springframework.util.StringUtils;
 
 import java.time.Clock;
+import java.util.Objects;
 
 /**
  * 签名上下文 Header 解析器。
@@ -31,16 +32,29 @@ public class SignedHeaderUserContextResolver implements UserContextResolver {
 
     private final Clock clock;
 
+    private final String expectedAudience;
+
     public SignedHeaderUserContextResolver(ContextProperties properties, ContextHeaderSigner signer,
                                            ContextReplayGuard replayGuard) {
-        this(properties, signer, replayGuard, Clock.systemUTC());
+        this(properties, signer, replayGuard, properties.getHeaderSign().getAudience(), Clock.systemUTC());
+    }
+
+    public SignedHeaderUserContextResolver(ContextProperties properties, ContextHeaderSigner signer,
+                                           ContextReplayGuard replayGuard, String expectedAudience) {
+        this(properties, signer, replayGuard, expectedAudience, Clock.systemUTC());
     }
 
     public SignedHeaderUserContextResolver(ContextProperties properties, ContextHeaderSigner signer,
                                            ContextReplayGuard replayGuard, Clock clock) {
+        this(properties, signer, replayGuard, properties.getHeaderSign().getAudience(), clock);
+    }
+
+    public SignedHeaderUserContextResolver(ContextProperties properties, ContextHeaderSigner signer,
+                                           ContextReplayGuard replayGuard, String expectedAudience, Clock clock) {
         this.properties = properties;
         this.signer = signer;
         this.replayGuard = replayGuard;
+        this.expectedAudience = expectedAudience;
         this.clock = clock;
     }
 
@@ -76,6 +90,12 @@ public class SignedHeaderUserContextResolver implements UserContextResolver {
                 || !StringUtils.hasText(snapshot.getNonce())) {
             return rejectOrIgnore("上下文签名头缺失");
         }
+        if (!StringUtils.hasText(expectedAudience)) {
+            return rejectOrIgnore("上下文签名 audience 未配置");
+        }
+        if (!Objects.equals(expectedAudience, snapshot.getAudience())) {
+            return rejectOrIgnore("上下文签名 audience 不匹配");
+        }
         if (signer.isExpired(snapshot, sign.getTtl(), clock)) {
             return rejectOrIgnore("上下文签名已过期");
         }
@@ -107,6 +127,7 @@ public class SignedHeaderUserContextResolver implements UserContextResolver {
         ContextHeaderSnapshot snapshot = new ContextHeaderSnapshot();
         snapshot.setMethod(request.getMethod());
         snapshot.setPath(request.getRequestURI());
+        snapshot.setAudience(request.getHeader(ContextHeaderConstants.HEADER_CONTEXT_AUDIENCE));
         snapshot.setTimestamp(request.getHeader(properties.getHeaderSign().getTimestampHeader()));
         snapshot.setNonce(request.getHeader(properties.getHeaderSign().getNonceHeader()));
         snapshot.setUserId(request.getHeader(ContextHeaderConstants.HEADER_USER_ID));

@@ -14,6 +14,8 @@ public class ContextHeaderSnapshot {
 
     private String path;
 
+    private String audience;
+
     private String timestamp;
 
     private String nonce;

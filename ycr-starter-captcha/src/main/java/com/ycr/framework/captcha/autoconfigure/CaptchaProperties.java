@@ -12,8 +12,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "ycr.captcha")
 public class CaptchaProperties {
 
-    /** 是否启用验证码，默认启用 */
-    private boolean enabled = true;
+    /** 是否启用验证码，默认关闭 */
+    private boolean enabled = false;
 
     /** 图片宽度（像素） */
     private int width = 130;

@@ -53,6 +53,9 @@ public class ContextProperties {
         /** HMAC 签名密钥 */
         private String secret;
 
+        /** 本服务期望的签名目标，留空时使用 spring.application.name */
+        private String audience;
+
         /** 签名有效期 */
         private Duration ttl = Duration.ofSeconds(60);
 

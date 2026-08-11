@@ -1,6 +1,6 @@
 # 请求上下文透传
 
-`ycr-starter-context` 提供用户/租户/应用三类上下文 Holder（基于 TransmittableThreadLocal，跨线程池可传递），以及同步 HTTP 请求中的上下文解析、签名 Header 校验与请求结束清理。
+`ycr-starter-context` 提供用户/租户/应用三类上下文 Holder，以及 HTTP 请求解析、签名 Header 校验和线程池任务级传播。Holder 使用普通 `ThreadLocal`，避免新建线程意外继承请求身份；Spring 异步执行器默认通过 `ContextTaskDecorator` 捕获、恢复和清理上下文。
 
 ## 依赖
 
@@ -18,6 +18,7 @@
 | `ycr.context.security-mode` | `token-verify` | 安全模式：`gateway-trust` / `token-verify` / `mixed` |
 | `ycr.context.header-sign.enabled` | `true` | 是否启用上下文 Header 签名校验 |
 | `ycr.context.header-sign.secret` | 无 | HmacSHA256 签名密钥，启用签名时必填 |
+| `ycr.context.header-sign.audience` | `spring.application.name` | 本服务期望的签名目标，防止签名跨服务重放 |
 | `ycr.context.header-sign.ttl` | `60s` | 签名时间戳有效期 |
 | `ycr.context.header-sign.reject-invalid` | `true` | 签名缺失、过期、错误时是否直接拒绝 |
 | `ycr.context.header-sign.replay-key-prefix` | `ycr:context:replay:` | Redis nonce 键前缀 |
@@ -32,6 +33,7 @@ ycr:
     header-sign:
       enabled: true
       secret: ${YCR_CONTEXT_SIGN_SECRET}
+      audience: order-service
       ttl: 60s
 ```
 
@@ -64,9 +66,10 @@ UserContextHolder.clear();
 | `X-Tenant-Id` / `X-Tenant-Code` | 租户上下文 |
 | `X-App-Id` / `X-Client-Id` / `X-User-Source` | 应用与来源 |
 | `X-Trace-Id` | 链路 ID |
+| `X-Context-Audience` | 签名目标服务 |
 | `X-Context-Timestamp` / `X-Context-Nonce` / `X-Context-Signature` | 签名字段 |
 
-参与签名的字段顺序固定：`method`、`path`、`timestamp`、`nonce`、`userId`、`username`、`nickname`、`tenantId`、`tenantCode`、`deptId`、`roles`、`permissions`、`clientId`、`appId`、`traceId`。`roles/permissions` 使用逗号分隔字符串。
+参与签名的字段顺序固定：`method`、`path`、`audience`、`timestamp`、`nonce`、`userId`、`username`、`nickname`、`tenantId`、`tenantCode`、`deptId`、`roles`、`permissions`、`clientId`、`appId`、`traceId`。`roles/permissions` 使用逗号分隔字符串。
 
 存在 `RedissonClient` 时自动使用 Redis `SET NX + TTL` 原子防重放。未提供 Redis、Redis 异常或 TTL 非法时，签名身份请求 fail-closed；`token-verify` 模式不依赖 Redis。
 
@@ -81,5 +84,6 @@ Context 不注册空的 token、manual 或 system 占位实现。具体认证适
 ## 注意
 
 - 跨服务调用时由 `ycr-starter-feign` 重新签名上下文 Header 透传给下游。
+- Spring Boot 默认异步执行器会使用框架 `TaskDecorator`。如业务自定义 `TaskDecorator` 或直接使用原生线程池，必须组合/调用 `ContextTaskDecorator`，否则上下文不传播。
 - 凭 token 直接访问的链路由 `ycr-starter-auth-satoken` 从会话还原上下文（见 [auth 文档](auth.md)）。
 - 审计字段 `createUser/updateUser` 自动填充取 `UserContextHolder.getUserId()`（见 [data-mp 文档](data-mp.md)）。
