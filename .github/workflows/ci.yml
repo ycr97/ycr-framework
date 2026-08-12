@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build / JDK ${{ matrix.java }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['17', '21']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - name: Verify reactor
+        run: mvn -B -ntp clean verify
+      - name: Verify framework contracts
+        if: matrix.java == '17'
+        run: ./scripts/check-autoconfiguration-tests.sh
+      - name: Verify dependency convergence
+        if: matrix.java == '17'
+        run: ./scripts/check-dependency-convergence.sh
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-jdk-${{ matrix.java }}
+          path: '**/target/surefire-reports/**'
+          if-no-files-found: ignore
+
+  redis:
+    name: Redis integration
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Install reactor without tests
+        run: mvn -B -ntp -DskipTests install
+      - name: Verify Redis integrations
+        env:
+          YCR_REDIS_INTEGRATION_TESTS: 'true'
+          YCR_TEST_REDIS_ADDRESS: redis://127.0.0.1:6379
+        run: >-
+          mvn -B -ntp
+          -pl ycr-starter-auth-satoken,ycr-starter-idempotent,ycr-starter-captcha
+          -Dtest=SaTokenRedisIntegrationTest,IdempotentRedisIntegrationTest,CaptchaRedisIntegrationTest
+          -Dsurefire.failIfNoSpecifiedTests=false
+          test
+      - name: Upload Redis test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-redis
+          path: '**/target/surefire-reports/**'
+          if-no-files-found: ignore
+
+  sql-dialect:
+    name: SQL dialect / ${{ matrix.database }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [mysql, postgresql]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Verify tenant and data-permission SQL rewriting
+        env:
+          YCR_DIALECT_INTEGRATION_TESTS: 'true'
+          YCR_TEST_DATABASE: ${{ matrix.database }}
+        run: >-
+          mvn -B -ntp
+          -pl ycr-starter-data-permission -am
+          -Dtest=SqlDialectMatrixIntegrationTest,CustomInterceptorSqlDialectIntegrationTest
+          -Dsurefire.failIfNoSpecifiedTests=false
+          -Dapi.version=1.40
+          test
+      - name: Upload dialect test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-${{ matrix.database }}
+          path: '**/target/surefire-reports/**'
+          if-no-files-found: ignore
+
+  external-consumer:
+    name: External consumer smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Install framework artifacts
+        run: mvn -B -ntp -DskipTests install
+      - name: Verify BOM and starter consumption outside reactor
+        run: ./scripts/check-external-consumer.sh

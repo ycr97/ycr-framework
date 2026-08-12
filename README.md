@@ -42,6 +42,7 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 ## 使用文档
 
 **基础**
+- [持续集成与生产方言矩阵](docs/ci.md)
 - [0.9.0-RC4 发布说明](docs/release-notes-0.9.0-RC4.md)
 - [模块成熟度与兼容边界](docs/module-maturity.md)
 - [Starter 生产级装配基线](docs/starter-production-baseline.md)
