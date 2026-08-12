@@ -15,11 +15,11 @@ experimental_poms=(
 )
 
 for pom in "${experimental_poms[@]}"; do
-  if ! rg -q '<ycr\.module\.maturity>experimental</ycr\.module\.maturity>' "${pom}"; then
+  if ! grep -Eq '<ycr\.module\.maturity>experimental</ycr\.module\.maturity>' "${pom}"; then
     echo "实验性模块缺少 maturity 标记: ${pom}"
     exit 1
   fi
-  if ! rg -q '<description>\[Experimental\]' "${pom}"; then
+  if ! grep -Eq '<description>\[Experimental\]' "${pom}"; then
     echo "实验性模块 POM description 缺少标记: ${pom}"
     exit 1
   fi
@@ -34,6 +34,7 @@ while IFS= read -r pom; do
       exit 1
       ;;
   esac
-done < <(rg -l '<artifactId>ycr-starter-(crud|sdk|business|ddd[^<]*)</artifactId>' --glob 'pom.xml')
+done < <(find . -name pom.xml -type f -exec grep -El \
+  '<artifactId>ycr-starter-(crud|sdk|business|ddd[^<]*)</artifactId>' {} + | sed 's#^\./##')
 
 echo "模块成熟度与依赖边界契约通过。"

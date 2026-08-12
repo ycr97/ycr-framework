@@ -39,7 +39,7 @@ jobs:
         run: ./scripts/check-dependency-convergence.sh
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: surefire-jdk-${{ matrix.java }}
           path: '**/target/surefire-reports/**'
@@ -81,7 +81,7 @@ jobs:
           test
       - name: Upload Redis test reports
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: surefire-redis
           path: '**/target/surefire-reports/**'
@@ -116,7 +116,7 @@ jobs:
           test
       - name: Upload dialect test reports
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: surefire-${{ matrix.database }}
           path: '**/target/surefire-reports/**'
