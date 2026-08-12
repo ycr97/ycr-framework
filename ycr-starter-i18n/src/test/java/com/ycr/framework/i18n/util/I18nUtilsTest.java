@@ -22,6 +22,7 @@ class I18nUtilsTest {
         ReloadableResourceBundleMessageSource source = new ReloadableResourceBundleMessageSource();
         source.setBasename("classpath:i18n/test_messages");
         source.setDefaultEncoding("UTF-8");
+        source.setFallbackToSystemLocale(false);
         I18nUtils.setMessageSource(source);
     }
 
@@ -32,26 +33,26 @@ class I18nUtilsTest {
 
     @Test
     @DisplayName("应按语言取到不同文案")
-    void shouldMatchExpectedBehavior001() {
+    void shouldResolveMessageForRequestedLocale() {
         assertEquals("Hello", I18nUtils.getMessage("greeting", Locale.ENGLISH));
         assertEquals("你好", I18nUtils.getMessage("greeting", Locale.SIMPLIFIED_CHINESE));
     }
 
     @Test
     @DisplayName("占位参数应生效")
-    void shouldMatchExpectedBehavior002() {
+    void shouldResolveMessageArguments() {
         assertEquals("Welcome Tom", I18nUtils.getMessage("welcome", Locale.ENGLISH, "Tom"));
     }
 
     @Test
     @DisplayName("缺失key应回退code")
-    void shouldMatchExpectedBehavior003() {
+    void shouldReturnCodeWhenMessageIsMissing() {
         assertEquals("missing.key", I18nUtils.getMessage("missing.key", Locale.ENGLISH));
     }
 
     @Test
     @DisplayName("未绑定MessageSource应回退code")
-    void shouldMatchExpectedBehavior004() {
+    void shouldReturnCodeWhenMessageSourceIsNotBound() {
         I18nUtils.setMessageSource(null);
         assertEquals("greeting", I18nUtils.getMessage("greeting", Locale.ENGLISH));
     }
