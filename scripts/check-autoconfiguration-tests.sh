@@ -52,8 +52,8 @@ if [[ "${missing}" -ne 0 ]]; then
   exit "${missing}"
 fi
 
-auth_dependency_tree="ycr-starter-auth-satoken/target/auth-satoken-compile-dependencies.txt"
-mvn -q -pl ycr-starter-auth-satoken -am dependency:tree \
+auth_dependency_tree="extensions/ycr-starter-auth-satoken/target/auth-satoken-compile-dependencies.txt"
+mvn -q -pl :ycr-starter-auth-satoken -am dependency:tree \
   -Dscope=compile \
   -DoutputFile="target/auth-satoken-compile-dependencies.txt"
 if grep -Eq 'org\.springframework\.security:' "${auth_dependency_tree}"; then
@@ -66,8 +66,8 @@ if grep -Eq 'cn\.dev33:sa-token-jwt:' "${auth_dependency_tree}"; then
   exit 1
 fi
 
-oauth_dependency_tree="ycr-starter-auth-oauth2-resource-server/target/oauth2-resource-server-compile-dependencies.txt"
-mvn -q -pl ycr-starter-auth-oauth2-resource-server -am dependency:tree \
+oauth_dependency_tree="extensions/ycr-starter-auth-oauth2-resource-server/target/oauth2-resource-server-compile-dependencies.txt"
+mvn -q -pl :ycr-starter-auth-oauth2-resource-server -am dependency:tree \
   -Dscope=compile \
   -DoutputFile="target/oauth2-resource-server-compile-dependencies.txt"
 if ! grep -Eq 'org\.springframework\.security:spring-security-oauth2-resource-server:' "${oauth_dependency_tree}"; then
@@ -86,7 +86,7 @@ fi
 echo "自动配置静态契约通过，执行全部 AutoConfiguration 行为测试..."
 mvn -q -Dtest='*AutoConfigurationTest' -Dsurefire.failIfNoSpecifiedTests=false test
 
-oauth_metadata="ycr-starter-auth-oauth2-resource-server/target/classes/META-INF/spring-configuration-metadata.json"
+oauth_metadata="extensions/ycr-starter-auth-oauth2-resource-server/target/classes/META-INF/spring-configuration-metadata.json"
 if [[ ! -f "${oauth_metadata}" ]] || ! grep -Eq 'ycr\.auth\.oauth2\.resource-server' "${oauth_metadata}"; then
   echo "OAuth2 Resource Server 配置元数据缺失或未包含配置前缀"
   exit 1

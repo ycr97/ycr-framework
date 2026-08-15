@@ -5,6 +5,20 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 模块按 `stable` / `experimental` 管理兼容边界。DDD、Business、SDK、CRUD 当前为实验性扩展，
 不进入默认生产底座依赖，详见 [模块成熟度与兼容边界](docs/module-maturity.md)。
 
+## Repository Structure
+
+仓库采用一级架构分区，分区内模块平铺；物理目录不改变 Maven 坐标：
+
+| 目录 | 职责 |
+| --- | --- |
+| `build/` | Parent、第三方依赖版本和 YCR BOM |
+| `foundation/` | 最基础的共享能力 |
+| `platform/` | Context、Web、Data、Security 运行时骨架 |
+| `extensions/` | 按需引入的稳定基础设施能力 |
+| `incubator/` | API 和设计仍可能调整的实验模块 |
+
+完整边界和依赖方向见 [仓库结构与模块边界](docs/architecture/repository-structure.md)。
+
 ## 快速接入
 
 业务服务按需引入 starter：
@@ -43,6 +57,8 @@ YCR Framework 是基于 Spring Boot 3.x 的企业级 starter 集合。当前重�
 
 **基础**
 - [持续集成与生产方言矩阵](docs/ci.md)
+- [仓库结构与模块边界](docs/architecture/repository-structure.md)
+- [0.9.0-RC5 至 1.0 GA 路线与遗留项](docs/roadmap-0.9.0-RC5-to-1.0.md)
 - [0.9.0-RC4 发布说明](docs/release-notes-0.9.0-RC4.md)
 - [模块成熟度与兼容边界](docs/module-maturity.md)
 - [Starter 生产级装配基线](docs/starter-production-baseline.md)

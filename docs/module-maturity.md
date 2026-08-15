@@ -3,6 +3,9 @@
 YCR 以模块为单位声明成熟度。成熟度描述公开 API、自动配置契约和生产支持边界，
 不代表业务项目引入后无需完成容量、故障和安全验证。
 
+仓库目录层级和模块成熟度是两个独立维度：`foundation`、`platform`、`extensions` 表达架构职责，
+`stable`、`experimental` 表达兼容承诺。实验模块集中放在 `incubator/`，但 Incubator 不构成新的 Runtime 依赖层。
+
 ## 等级定义
 
 | 等级 | 兼容承诺 | 使用建议 |

@@ -34,6 +34,9 @@ jobs:
       - name: Verify framework contracts
         if: matrix.java == '17'
         run: ./scripts/check-autoconfiguration-tests.sh
+      - name: Verify module boundaries
+        if: matrix.java == '17'
+        run: ./scripts/check-module-boundaries.sh
       - name: Verify dependency convergence
         if: matrix.java == '17'
         run: ./scripts/check-dependency-convergence.sh
@@ -75,7 +78,7 @@ jobs:
           YCR_TEST_REDIS_ADDRESS: redis://127.0.0.1:6379
         run: >-
           mvn -B -ntp
-          -pl ycr-starter-auth-satoken,ycr-starter-idempotent,ycr-starter-captcha
+          -pl :ycr-starter-auth-satoken,:ycr-starter-idempotent,:ycr-starter-captcha
           -Dtest=SaTokenRedisIntegrationTest,IdempotentRedisIntegrationTest,CaptchaRedisIntegrationTest
           -Dsurefire.failIfNoSpecifiedTests=false
           test
@@ -109,7 +112,7 @@ jobs:
           YCR_TEST_DATABASE: ${{ matrix.database }}
         run: >-
           mvn -B -ntp
-          -pl ycr-starter-data-permission -am
+          -pl :ycr-starter-data-permission -am
           -Dtest=SqlDialectMatrixIntegrationTest,CustomInterceptorSqlDialectIntegrationTest
           -Dsurefire.failIfNoSpecifiedTests=false
           -Dapi.version=1.40

@@ -15,13 +15,13 @@
 ```bash
 YCR_DIALECT_INTEGRATION_TESTS=true \
 YCR_TEST_DATABASE=mysql \
-mvn -pl ycr-starter-data-permission -am \
+mvn -pl :ycr-starter-data-permission -am \
   -Dtest=SqlDialectMatrixIntegrationTest,CustomInterceptorSqlDialectIntegrationTest \
   -Dsurefire.failIfNoSpecifiedTests=false -Dapi.version=1.40 test
 
 YCR_DIALECT_INTEGRATION_TESTS=true \
 YCR_TEST_DATABASE=postgresql \
-mvn -pl ycr-starter-data-permission -am \
+mvn -pl :ycr-starter-data-permission -am \
   -Dtest=SqlDialectMatrixIntegrationTest,CustomInterceptorSqlDialectIntegrationTest \
   -Dsurefire.failIfNoSpecifiedTests=false -Dapi.version=1.40 test
 ```

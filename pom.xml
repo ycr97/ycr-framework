@@ -8,7 +8,7 @@
         <groupId>com.ycr.framework</groupId>
         <artifactId>ycr-dependencies</artifactId>
         <version>${revision}</version>
-        <relativePath>ycr-dependencies/pom.xml</relativePath>
+        <relativePath>build/ycr-dependencies/pom.xml</relativePath>
     </parent>
 
     <artifactId>ycr-framework</artifactId>
@@ -26,42 +26,42 @@
     </properties>
 
     <modules>
-        <module>ycr-dependencies</module>
-        <module>ycr-framework-bom</module>
-        <module>ycr-starter-core</module>
-        <module>ycr-common</module>
-        <module>ycr-starter-json</module>
-        <module>ycr-starter-web</module>
-        <module>ycr-starter-validation</module>
-        <module>ycr-starter-api-doc</module>
-        <module>ycr-starter-context</module>
-        <module>ycr-starter-data</module>
-        <module>ycr-starter-cache</module>
-        <module>ycr-starter-cache-jetcache</module>
-        <module>ycr-starter-data-permission</module>
-        <module>ycr-starter-id-generate</module>
-        <module>ycr-starter-auth-satoken</module>
-        <module>ycr-starter-auth-oauth2-resource-server</module>
-        <module>ycr-starter-security</module>
-        <module>ycr-starter-encrypt</module>
-        <module>ycr-starter-protect</module>
-        <module>ycr-starter-log</module>
-        <module>ycr-starter-trace</module>
-        <module>ycr-starter-excel</module>
-        <module>ycr-starter-ratelimiter</module>
-        <module>ycr-starter-idempotent</module>
-        <module>ycr-starter-i18n</module>
-        <module>ycr-starter-captcha</module>
-        <module>ycr-starter-messaging</module>
-        <module>ycr-starter-storage</module>
-        <module>ycr-starter-feign</module>
-        <module>ycr-starter-tenant</module>
-        <module>ycr-starter-sdk</module>
-        <module>ycr-starter-translate</module>
-        <module>ycr-starter-business</module>
-        <module>ycr-starter-crud</module>
-        <module>ycr-starter-ddd</module>
-        <module>ycr-starter-mq</module>
+        <module>build/ycr-dependencies</module>
+        <module>build/ycr-framework-bom</module>
+        <module>foundation/ycr-starter-core</module>
+        <module>foundation/ycr-common</module>
+        <module>foundation/ycr-starter-json</module>
+        <module>foundation/ycr-starter-validation</module>
+        <module>platform/ycr-starter-context</module>
+        <module>platform/ycr-starter-web</module>
+        <module>platform/ycr-starter-data</module>
+        <module>platform/ycr-starter-security</module>
+        <module>extensions/ycr-starter-api-doc</module>
+        <module>extensions/ycr-starter-auth-oauth2-resource-server</module>
+        <module>extensions/ycr-starter-auth-satoken</module>
+        <module>extensions/ycr-starter-cache</module>
+        <module>extensions/ycr-starter-cache-jetcache</module>
+        <module>extensions/ycr-starter-captcha</module>
+        <module>extensions/ycr-starter-data-permission</module>
+        <module>extensions/ycr-starter-encrypt</module>
+        <module>extensions/ycr-starter-excel</module>
+        <module>extensions/ycr-starter-feign</module>
+        <module>extensions/ycr-starter-i18n</module>
+        <module>extensions/ycr-starter-id-generate</module>
+        <module>extensions/ycr-starter-idempotent</module>
+        <module>extensions/ycr-starter-log</module>
+        <module>extensions/ycr-starter-messaging</module>
+        <module>extensions/ycr-starter-mq</module>
+        <module>extensions/ycr-starter-protect</module>
+        <module>extensions/ycr-starter-ratelimiter</module>
+        <module>extensions/ycr-starter-storage</module>
+        <module>extensions/ycr-starter-tenant</module>
+        <module>extensions/ycr-starter-trace</module>
+        <module>extensions/ycr-starter-translate</module>
+        <module>incubator/ycr-starter-business</module>
+        <module>incubator/ycr-starter-crud</module>
+        <module>incubator/ycr-starter-ddd</module>
+        <module>incubator/ycr-starter-sdk</module>
     </modules>
 
     <dependencies>

@@ -113,7 +113,7 @@ spring:
 ```bash
 YCR_REDIS_INTEGRATION_TESTS=true \
 YCR_TEST_REDIS_ADDRESS=redis://127.0.0.1:6379 \
-mvn -pl ycr-starter-auth-satoken -Dtest=SaTokenRedisIntegrationTest test
+mvn -pl :ycr-starter-auth-satoken -Dtest=SaTokenRedisIntegrationTest test
 ```
 
 需要密码时额外设置 `YCR_TEST_REDIS_PASSWORD`。该测试验证多节点共享、TTL、`UserContext` 序列化恢复与删除；未显式启用时跳过，不会连接开发者 Redis。

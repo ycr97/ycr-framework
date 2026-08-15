@@ -10,7 +10,7 @@ if [[ -z "${revision}" ]]; then
   exit 1
 fi
 
-for pom in pom.xml ycr-dependencies/pom.xml ycr-framework-bom/pom.xml; do
+for pom in pom.xml build/ycr-dependencies/pom.xml build/ycr-framework-bom/pom.xml; do
   declared="$(sed -n 's:.*<revision>\([^<]*\)</revision>.*:\1:p' "${pom}" | head -n 1)"
   if [[ "${declared}" != "${revision}" ]]; then
     echo "版本源不一致: ${pom}=${declared}, .mvn/maven.config=${revision}"
